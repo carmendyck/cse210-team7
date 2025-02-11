@@ -12,7 +12,7 @@ import {
 import { IonReactRouter } from '@ionic/react-router';
 import { ellipse, square, triangle } from 'ionicons/icons';
 import TaskList from './pages/TaskList';
-import Tab2 from './pages/Tab2';
+import Preferences from './pages/Preferences';
 // import Tab3 from './pages/Tab3';
 
 /* Core CSS required for Ionic components to work properly */
@@ -55,8 +55,8 @@ const App: React.FC = () => (
           <Route exact path="/tasklist">
             <TaskList />
           </Route>
-          <Route exact path="/tab2">
-            <Tab2 />
+          <Route exact path="/preferences">
+            <Preferences />
           </Route>
           <Route exact path="/">
             <Redirect to="/tasklist" />
@@ -67,7 +67,7 @@ const App: React.FC = () => (
             <IonIcon aria-hidden="true" icon={triangle} />
             <IonLabel>Tab 1</IonLabel>
           </IonTabButton>
-          <IonTabButton tab="tab2" href="/tab2">
+          <IonTabButton tab="preference" href="/preferences">
             <IonIcon aria-hidden="true" icon={ellipse} />
             <IonLabel>Tab 2</IonLabel>
           </IonTabButton>
