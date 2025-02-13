@@ -18,6 +18,9 @@ import CreateTaskButton from "./components/CreateTaskButton";
 import CreateTask from "./pages/CreateTask";
 import CreateAccountPreferences from "./pages/CreateAccountPreferences";
 import ViewTask from "./pages/ViewTask";
+import Preferences from './pages/Preferences';
+import Breaks from './pages/Breaks';
+import Notifications from './pages/Notifications';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -62,6 +65,9 @@ const RenderContent: React.FC = () => {
         <Route path="/tasklist" component={Home} />
         <Route path="/createtask" component={CreateTask} />
         <Route path="/create_acct_pref" component={CreateAccountPreferences} />
+        <Route exact path="/preferences" component={Preferences} />
+        <Route exact path="/breaks" component={Breaks} />
+        <Route exact path="/notifications" component={Notifications} />
         <Redirect exact from="/" to="/login" />
       </IonRouterOutlet>
       {location.pathname !== "/login" && <CreateTaskButton />}
