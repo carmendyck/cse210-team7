@@ -1,3 +1,5 @@
+import { Category } from './CategoryInterface';
+
 export interface Task {
     name: string;
     notes: string;
@@ -5,15 +7,4 @@ export interface Task {
     time_estimate: number;
     category: Category | null;
     worktimes: Array<Date> | null;
-}
-
-export interface Category {
-    category_name: string;
-    academic_term: Term;
-}
-
-export interface Term {
-    is_quarter: boolean;
-    start_date: Date;
-    end_date: Date;
 }

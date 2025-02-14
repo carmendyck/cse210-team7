@@ -3,7 +3,8 @@ import { IonButton, IonFab, IonContent, IonPage, IonTitle, IonToolbar } from "@i
 import { IonInput, IonItem, IonHeader, IonDatetime, IonToggle, IonSelect, IonSelectOption } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 
-import { Task, Category } from '../components/TaskInterfaces';
+import { Task } from '../interfaces/TaskInterface';
+import { Category } from '../interfaces/CategoryInterface';
 
 const CreateTask: React.FC = () => {
   const history = useHistory();
