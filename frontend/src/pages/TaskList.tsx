@@ -46,9 +46,10 @@ const tasks = [
 const TaskList: React.FC = () => {
   const history = useHistory();
 
-  const selectTask = () => {
+  const selectTask = (taskId: number) => {
     console.log("moved to viewtask");
-    history.replace("/viewtask");
+    // history.replace("/viewtask");
+    history.push(`/viewtask/${taskId}`);
     window.location.reload(); // TODO: Figure out how to remove this
   };
 
@@ -56,7 +57,7 @@ const TaskList: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Today</IonTitle>
+          <IonTitle>TaskList</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
@@ -72,7 +73,7 @@ const TaskList: React.FC = () => {
         {/* Task List */}
         <IonList>
           {tasks.map((task) => (
-            <IonItem key={task.id} className={`task-item ${task.color}`} button onClick={selectTask}>
+            <IonItem key={task.id} className={`task-item ${task.color}`} button onClick={() => selectTask(task.id)}>
               <IonCheckbox slot="start" />
               <IonLabel>
                 <h2>{task.title}</h2>

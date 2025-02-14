@@ -1,56 +1,73 @@
+/* Date selector styling */
 .date-selector {
     display: flex;
     justify-content: space-around;
     padding: 10px;
-  }
+}
   
-  .date-selector span {
+.date-selector span {
     padding: 8px 12px;
     border-radius: 10px;
     font-weight: bold;
     color: #555;
-  }
-  
-  .date-selector .active {
+}
+
+.date-selector .active {
     background-color: #E4D5C7;
     color: black;
-  }
-  
-  .task-item {
+}
+
+/* Task item styling */
+.task-item {
     display: flex;
     align-items: center;
     padding: 12px;
     border-radius: 10px;
-    margin: 10px;
+    margin: 10px 15px 10px 10px; /* Add right margin (15px) */
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .task-item h2 {
+    width: auto; /* Adjust width to respect margins */
+}
+
+
+/* Ensure text fills the available space */
+.task-item h2 {
     font-size: 16px;
-  }
-  
-  .task-item .duration {
+    flex: 1;
+}
+
+/* Style for the duration label */
+.task-item .duration {
     margin-left: auto;
-    background: #eee;
+    background: rgba(255, 255, 255, 0.4); /* Slight transparency */
     padding: 4px 8px;
     border-radius: 8px;
-  }
-  
-  .task-item.red {
-    background-color: #f8d7da;
-  }
-  
-  .task-item.yellow {
-    background-color: #fff3cd;
-  }
-  
-  .task-item.green {
-    background-color: #d4edda;
-  }
-  
-  /* .add-button {
+}
+
+/* Color styles for different task categories */
+.task-item.red {
+    background-color: #f8d7da !important;
+    color: #721c24;
+}
+
+.task-item.yellow {
+    background-color: #fff3cd !important;
+    color: #856404;
+}
+
+.task-item.green {
+    background-color: #d4edda !important;
+    color: #155724;
+}
+
+/* Ensures IonItem component fully inherits background color */
+.task-item::part(native) {
+    background-color: inherit !important;
+}
+
+/* Styling for the floating add button */
+.add-button {
     position: fixed;
     bottom: 20px;
     right: 20px;
     border-radius: 50%;
-  } */
+}
