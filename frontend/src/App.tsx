@@ -58,7 +58,6 @@ const RenderContent: React.FC = () => {
     <>
       <IonRouterOutlet animated={false} key={location.pathname}>
         <Route exact path="/login" component={Login} />
-        {/* <Route exact path="/viewtask" component={ViewTask} /> */}
         <Route exact path="/viewtask/:taskId" component={ViewTask} />
         <Route path="/tasklist" component={Home} />
         <Route path="/createtask" component={CreateTask} />
