@@ -1,28 +1,19 @@
 # cse210-team7
 
-## Dependencies
-
-Install the required dependencies before running the project:
-
-```sh
+Dependencies:
+```
 npm install -g @ionic/cli
 npm install @ionic/react-router
+npm install @fullcalendar/react @fullcalendar/timegrid
 ```
-
-## How to Run
-
-1. Navigate to the `frontend` directory:
-   
-   ```sh
-   cd frontend
-   ```
-
-2. Start the Ionic development server:
-   
-   ```sh
-   ionic serve
-   ```
-   
-   The application will automatically open in your browser.
-
-3. To quit, close the browser window and then press `CTRL + C` in your terminal.
+How to Run:
+navigate to frontend: 
+```
+$ cd frontend 
+```
+run ionic serve: 
+```
+$ ionic serve
+```
+It will automatically run in your browser.
+Quit by closing the browser window then using CTRL+C in your terminal
