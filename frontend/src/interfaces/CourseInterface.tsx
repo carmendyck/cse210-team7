@@ -1,6 +1,6 @@
 import { Term } from './TermInterface';
 
-export interface Category {
-    category_name: string;
+export interface Course {
+    course_name: string;
     academic_term: Term;
 }
