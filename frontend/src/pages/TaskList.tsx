@@ -17,9 +17,9 @@ const TaskList: React.FC = () => {
 
   const selectTask = (taskId: number) => {
     console.log("moved to viewtask");
-    // history.replace("/viewtask");
     history.push(`/viewtask/${taskId}`);
     window.location.reload(); // TODO: Figure out how to remove this
+    //
   };
 
   const removeTask = (taskId: number) => {
@@ -35,30 +35,6 @@ const TaskList: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-
-        {/* Date Selector
-        <div className="date-selector">
-          <span className="inactive">WED 25</span>
-          <span className="active">THU 26</span>
-          <span className="inactive">FRI 27</span>
-          <span className="inactive">SAT 28</span>
-          <span className="inactive">SUN 29</span>
-        </div> */}
-
-        {/* 
-        <IonList>
-          {tasks.map((task) => (
-            <IonItem key={task.id} className={`task-item ${task.color}`} button onClick={() => selectTask(task.id)}>
-            <IonCheckbox slot="start" />  
-            <IonLabel>
-              <h2>{task.title}</h2>
-              <p className="due-date">Due: {task.dueDate}</p> 
-            </IonLabel>
-            <span className="duration">{task.duration}</span>
-          </IonItem>
-          ))}
-        </IonList>
-        */}  
 
         <IonList>
           {tasks.map((task) => (
