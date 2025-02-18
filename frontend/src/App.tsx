@@ -19,6 +19,7 @@ import CreateTask from "./pages/CreateTask";
 import TaskList from "./pages/TaskList";
 import CreateAccountPreferences from "./pages/CreateAccountPreferences";
 import CreateAccountPrefPage2 from "./pages/CreateAccountPrefPage2";
+import CreateAccountPrefPage2 from "./pages/CreateAccountPrefPage2";
 import ViewTask from "./pages/ViewTask";
 import Preferences from "./pages/Preferences";
 import Breaks from "./pages/Breaks";
