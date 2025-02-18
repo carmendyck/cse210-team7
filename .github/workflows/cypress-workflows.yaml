@@ -23,7 +23,7 @@ jobs:
           node-version: 18
 
       - name: Install Global Dependencies
-        run: npm install -g @ionic/cli 
+        run: npm install -g @ionic/cli wait-on
 
       - name: Install Dependencies (Frontend)
         run: npm install
@@ -34,7 +34,10 @@ jobs:
         working-directory: backend
 
       - name: Start Backend Server
-        run: npm run dev &
+        run: |
+          npm run dev > backend.log 2>&1 &
+          sleep 10
+          cat backend.log
         working-directory: backend
 
       - name: Start Frontend Server
@@ -43,3 +46,7 @@ jobs:
 
       - name: Wait for Backend and Frontend to be Ready
         run: npx wait-on http://localhost:8100 http://localhost:5050
+
+      - name: Run Specific Cypress Test
+        run: npx cypress run --spec cypress/e2e/login.cy.ts --config video=false
+        working-directory: frontend
