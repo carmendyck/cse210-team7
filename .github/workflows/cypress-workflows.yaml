@@ -1,0 +1,34 @@
+name: PR Tests (Cypress & Jest)
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install
+
+      # Run Jest Tests
+      - name: Run Jest Tests
+        run: npm run test -- --ci --coverage
+
+      # Run Cypress for a specific test
+      - name: Run Specific Cypress Test
+        uses: cypress-io/github-action@v6
+        with:
+          spec: frontend/cypress/e2e/login.cy.ts
+          browser: chrome
+          headless: true
