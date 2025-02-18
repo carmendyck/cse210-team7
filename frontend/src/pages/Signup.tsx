@@ -1,9 +1,11 @@
 import { IonButton, IonContent, IonInput, IonPage, IonText } from "@ionic/react";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "./Signup.css";
 
 const SignUp: React.FC = () => {
+  const { login } = useAuth();
   const history = useHistory();
   const [formData, setFormData] = useState({
     fullName: "",
@@ -58,7 +60,8 @@ const SignUp: React.FC = () => {
       const data = await response.json();
       if (response.ok) {
         setMessage("Account created successfully! Redirecting...");
-        setTimeout(() => history.push("/tasklist"), 2000);
+        login(data.token);
+        setTimeout(() => history.push("/create_acct_pref"), 2000);
       } else {
         setMessage(`${data.error}`);
       }
