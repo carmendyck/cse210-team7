@@ -62,16 +62,6 @@ const App: React.FC = () => (
             <Redirect to="/tasklist" />
           </Route>
         </IonRouterOutlet>
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="tasklist" href="/tasklist">
-            <IonIcon aria-hidden="true" icon={triangle} />
-            <IonLabel>Tab 1</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="preference" href="/preferences">
-            <IonIcon aria-hidden="true" icon={ellipse} />
-            <IonLabel>Tab 2</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
       </IonTabs>
     </IonReactRouter>
   </IonApp>
