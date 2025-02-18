@@ -23,18 +23,13 @@ jobs:
           node-version: 18
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
         working-directory: frontend
 
-      # Run Jest Tests
-      # - name: Run Jest Tests
-      #   run: npm run test -- --ci --coverage
-      #   working-directory: frontend
 
-      # Run Cypress for a specific test
       - name: Run Specific Cypress Test
         uses: cypress-io/github-action@v6
         with:
           spec: frontend/cypress/e2e/login.cy.ts
-          browser: chrome
-          headless: true
+          config: video=false
+          headed: true
