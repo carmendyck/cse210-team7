@@ -17,7 +17,8 @@ const TaskList: React.FC = () => {
 
   const selectTask = (taskId: number) => {
     console.log("moved to viewtask");
-    history.push(`/viewtask/${taskId}`);
+    // history.push(`/viewtask/${taskId}`);
+    history.push(`/viewtask`);
     window.location.reload(); // TODO: Figure out how to remove this
     //
   };

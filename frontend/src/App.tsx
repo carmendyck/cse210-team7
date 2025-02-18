@@ -42,13 +42,16 @@ const App: React.FC = () => {
         {/* Routes outside of tab navigation */}
         <IonRouterOutlet>
           <Route exact path="/login" component={Login} />
-          <Route exact path="/viewtask/:taskId" component={ViewTask} />
+          <Route exact path="/viewtask" component={ViewTask} />
+          {/* Delete the taskid now for testing */}
+          {/* <Route exact path="/viewtask/:taskId" component={ViewTask} /> */}
           <Route exact path="/createtask" component={CreateTask} />
           <Route exact path="/create_acct_pref" component={CreateAccountPreferences} />
           <Route exact path="/breaks" component={Breaks} />
           <Route exact path="/notifications" component={Notifications} />
           <Redirect exact from="/" to="/login" />
         </IonRouterOutlet>
+        {location.pathname !== "/login" && <CreateTaskButton />}
 
         {/* Main Tabs with ONLY Calendar View, Task List, and Preferences */}
         <Route path={["/calendar", "/tasklist", "/preferences"]}>
@@ -58,6 +61,7 @@ const App: React.FC = () => {
               <Route exact path="/tasklist" component={Home} />
               <Route exact path="/preferences" component={Preferences} />
             </IonRouterOutlet>
+            
 
             {/* Bottom Nav Bar with Three Tabs */}
             <IonTabBar slot="bottom">
