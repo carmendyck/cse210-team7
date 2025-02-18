@@ -1,1 +1,11 @@
-frontend/node_modules/
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.env
+.env.*
+.vscode/
+.DS_Store
+Thumbs.db
+backend/serviceAccountKey.json
+backend/serviceAccountKey.json
