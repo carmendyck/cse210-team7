@@ -2,14 +2,15 @@ import { IonFab, IonFabButton, IonIcon } from "@ionic/react";
 import { add } from "ionicons/icons";
 import { useLocation, useHistory } from "react-router-dom";
 
+const excludedPages: string[] = ["/login", "/create_acct_pref",
+  "/create_acct_pref_pg2", "/createtask"]
+
 const CreateTaskButton: React.FC = () => {
   const location = useLocation();
   const history = useHistory();
 
   // Hide the button on the login page
-  if (location.pathname === "/login" ||
-      location.pathname == "/create_acct_pref" ||
-      location.pathname == "/createtask"
+  if (excludedPages.includes(location.pathname)
   ) {
     return null;
   }

@@ -18,6 +18,7 @@ import Signup from "./pages/Signup";
 import CreateTaskButton from "./components/CreateTaskButton";
 import CreateTask from "./pages/CreateTask";
 import CreateAccountPreferences from "./pages/CreateAccountPreferences";
+import CreateAccountPrefPage2 from "./pages/CreateAccountPrefPage2";
 import ViewTask from "./pages/ViewTask";
 import Preferences from "./pages/Preferences";
 import Breaks from "./pages/Breaks";
