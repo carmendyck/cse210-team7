@@ -17,6 +17,7 @@ import Login from "./pages/Login";
 import CreateTaskButton from "./components/CreateTaskButton";
 import CreateTask from "./pages/CreateTask";
 import CreateAccountPreferences from "./pages/CreateAccountPreferences";
+import CreateAccountPrefPage2 from "./pages/CreateAccountPrefPage2";
 import ViewTask from "./pages/ViewTask";
 import Preferences from "./pages/Preferences";
 import Breaks from "./pages/Breaks";
@@ -45,6 +46,7 @@ const App: React.FC = () => {
           <Route exact path="/viewtask" component={ViewTask} />
           <Route exact path="/createtask" component={CreateTask} />
           <Route exact path="/create_acct_pref" component={CreateAccountPreferences} />
+          <Route exact path="/create_acct_pref_pg2" component={CreateAccountPrefPage2} />
           <Route exact path="/breaks" component={Breaks} />
           <Route exact path="/notifications" component={Notifications} />
           <Redirect exact from="/" to="/login" />
