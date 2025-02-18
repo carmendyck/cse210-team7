@@ -38,4 +38,3 @@ jobs:
           spec: frontend/cypress/e2e/login.cy.ts
           browser: chrome
           headless: true
-        working-directory: frontend
