@@ -8,28 +8,44 @@ const ViewTask: React.FC = () => {
   const history = useHistory();
   const location = useLocation();
   const [forceUpdate, setForceUpdate] = useState(0);
+
+  // Either load or start from 0
   const [timer, setTimer] = useState<number>(() => {
     const savedTimer = localStorage.getItem('timer');
     const savedStartTime = localStorage.getItem('startTime');
-    if (savedTimer && savedStartTime) {
-      const elapsedTime = Math.floor((Date.now() - parseInt(savedStartTime, 10)) / 1000);
-      return parseInt(savedTimer, 10) + elapsedTime;
+    const savedIsRunning = localStorage.getItem('isRunning');
+
+    if (savedTimer) {
+      // If the timer is running, calculate elapsed time
+      if (savedIsRunning === "true" && savedStartTime) {
+        const elapsedTime = Math.floor((Date.now() - parseInt(savedStartTime, 10)) / 1000);
+        return parseInt(savedTimer, 10) + elapsedTime;
+      }
+      return parseInt(savedTimer, 10);
     }
-    return 0;
+    return 0; // No timer running
   });
+
   const [isRunning, setIsRunning] = useState<boolean>(() => {
     const savedIsRunning = localStorage.getItem('isRunning');
     return savedIsRunning ? JSON.parse(savedIsRunning) : false;
   });
+
+  const [isPaused, setIsPaused] = useState<boolean>(() => {
+    const savedIsPaused = localStorage.getItem('isPaused');
+    return savedIsPaused ? JSON.parse(savedIsPaused) : false;
+  });
+
   let timerInterval: NodeJS.Timeout;
 
   useEffect(() => {
     console.log("ViewTask mounted or URL changed:", location.pathname);
     setForceUpdate(prev => prev + 1);
-  }, [location.pathname]); // Runs when the route changes
+  }, [location.pathname]);
 
+  // Handle timer updates while running
   useEffect(() => {
-    if (isRunning) {
+    if (isRunning && !isPaused) {
       timerInterval = setInterval(() => {
         setTimer(prev => prev + 1);
       }, 1000);
@@ -37,29 +53,43 @@ const ViewTask: React.FC = () => {
       clearInterval(timerInterval);
     }
     return () => clearInterval(timerInterval);
-  }, [isRunning]);
+  }, [isRunning, isPaused]); 
 
+  // Save timer state 
   useEffect(() => {
     localStorage.setItem('timer', timer.toString());
     localStorage.setItem('isRunning', JSON.stringify(isRunning));
-    if (isRunning) {
+    localStorage.setItem('isPaused', JSON.stringify(isPaused));
+
+    if (isRunning && !isPaused) {
+      // We only want to track elapsed time if the timer is running 
       localStorage.setItem('startTime', Date.now().toString());
     } else {
       localStorage.removeItem('startTime');
     }
-  }, [timer, isRunning]);
+  }, [timer, isRunning, isPaused]);
 
   const handleBack = () => {
-    history.replace("/tasklist"); // Redirects to the main app
+    history.replace("/tasklist");
   };
 
-  const toggleTimer = () => {
-    if (isRunning) {
-      setIsRunning(false);
-      setTimer(0); // Reset the timer to 0 when stopping
-    } else {
-      setIsRunning(true);
-    }
+  const handleStart = () => {
+    setIsRunning(true);
+    setIsPaused(false);
+  };
+
+  const handlePause = () => {
+    setIsPaused(true);
+    setIsRunning(false);
+  };
+
+  const handleStop = () => {
+    setIsRunning(false);
+    setIsPaused(false);
+    setTimer(0);
+    localStorage.removeItem('timer');
+    localStorage.removeItem('isRunning');
+    localStorage.removeItem('isPaused');
   };
 
   return (
@@ -94,9 +124,19 @@ const ViewTask: React.FC = () => {
             <IonText className="timer-display">
               <h2>{new Date(timer * 1000).toISOString().substr(11, 8)}</h2>
             </IonText>
-            <IonButton onClick={toggleTimer}>
-              {isRunning ? 'Stop Timer' : 'Start Timer'}
-            </IonButton>
+            {/* Timer control buttons */}
+            {isRunning && !isPaused ? (
+              <IonButton className="timer-button" onClick={handlePause}>Pause Task</IonButton>
+            ) : isPaused ? (
+              <IonButton className="timer-button" onClick={handleStart}>Resume Task</IonButton>
+            ) : (
+              <IonButton className="timer-button" onClick={handleStart}>Start Task</IonButton>
+            )}
+
+            {/* Show Stop button only when the timer has started */}
+            {(isRunning || isPaused) && (
+              <IonButton className="timer-button" onClick={handleStop} color="danger">Stop Task</IonButton>
+            )}
           </div>
         </div>
       </IonContent>
