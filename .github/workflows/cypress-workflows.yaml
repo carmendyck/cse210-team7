@@ -27,9 +27,5 @@ jobs:
         working-directory: frontend
 
       - name: Run Specific Cypress Test
-        uses: cypress-io/github-action@v6
-        with:
-          spec: cypress/e2e/login.cy.ts
-          config: video=false
-          headed: true
+        run: npx cypress run --spec cypress/e2e/login.cy.ts --config video=false
         working-directory: frontend
