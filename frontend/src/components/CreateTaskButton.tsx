@@ -11,6 +11,7 @@ const CreateTaskButton: React.FC = () => {
 
   // Hide the button on the login page
   if (excludedPages.includes(location.pathname)
+  if (excludedPages.includes(location.pathname)
   ) {
     return null;
   }
