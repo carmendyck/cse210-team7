@@ -1,10 +1,3 @@
-name: PR Tests (Cypress & Jest)
-
-on:
-  pull_request:
-    branches:
-      - main
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -20,10 +13,12 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+        working-directory: frontend
 
       # Run Jest Tests
       - name: Run Jest Tests
         run: npm run test -- --ci --coverage
+        working-directory: frontend
 
       # Run Cypress for a specific test
       - name: Run Specific Cypress Test
@@ -32,3 +27,4 @@ jobs:
           spec: frontend/cypress/e2e/login.cy.ts
           browser: chrome
           headless: true
+        working-directory: frontend
