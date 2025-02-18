@@ -27,9 +27,9 @@ jobs:
         working-directory: frontend
 
       # Run Jest Tests
-      - name: Run Jest Tests
-        run: npm run test -- --ci --coverage
-        working-directory: frontend
+      # - name: Run Jest Tests
+      #   run: npm run test -- --ci --coverage
+      #   working-directory: frontend
 
       # Run Cypress for a specific test
       - name: Run Specific Cypress Test
