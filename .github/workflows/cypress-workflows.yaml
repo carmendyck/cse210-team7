@@ -23,13 +23,13 @@ jobs:
           node-version: 18
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm install
         working-directory: frontend
-
 
       - name: Run Specific Cypress Test
         uses: cypress-io/github-action@v6
         with:
-          spec: frontend/cypress/e2e/login.cy.ts
+          spec: cypress/e2e/login.cy.ts
           config: video=false
           headed: true
+        working-directory: frontend
