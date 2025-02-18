@@ -29,6 +29,7 @@ const Breaks: React.FC = () => {
             ticks 
             value={breakDuration} 
             onIonChange={(e) => setBreakDuration(e.detail.value as number)}
+            data-testid="break-slider"
           />
         </IonItem>
 
