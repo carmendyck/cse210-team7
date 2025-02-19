@@ -61,9 +61,6 @@ jobs:
         run: ionic serve --no-open --no-interactive --port 8100 &
         working-directory: frontend
 
-      - name: Wait for Backend and Frontend to be Ready
-        run: npx wait-on http://localhost:8100 http://localhost:5050
-
       - name: Run Specific Cypress Test
         run: npx cypress run --spec cypress/e2e/login.cy.ts --config video=false
         working-directory: frontend
