@@ -35,9 +35,9 @@ jobs:
         
       - name: Create Firebase Service Account Key
         run: |
-          echo "$FIREBASE_SERVICE_ACCOUNT" | base64 --decode > backend/serviceAccountKey.json
+          echo "$FIREBASE_SERVICE_ACCOUNT" > backend/serviceAccountKey.json
           ls -la backend/
-          cat backend/serviceAccountKey.json
+          cat backend/serviceAccountKey.json 
         shell: bash
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
