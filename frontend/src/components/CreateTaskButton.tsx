@@ -7,7 +7,10 @@ const CreateTaskButton: React.FC = () => {
   const history = useHistory();
 
   // Hide the button on the login page
-  if (location.pathname === "/login" || location.pathname == "/create_acct_pref") {
+  if (location.pathname === "/login" ||
+      location.pathname == "/create_acct_pref" ||
+      location.pathname == "/createtask"
+  ) {
     return null;
   }
 
