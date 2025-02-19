@@ -1,0 +1,66 @@
+name: PR Tests (Cypress & Jest)
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Global Dependencies
+        run: npm install -g @ionic/cli wait-on
+
+      - name: Install Dependencies (Frontend)
+        run: npm install
+        working-directory: frontend
+
+      - name: Install Dependencies (Backend)
+        run: npm install
+        working-directory: backend
+
+      - name: Create Firebase Service Account Key
+        run: |
+          echo "$FIREBASE_SERVICE_ACCOUNT" > backend/serviceAccountKey.json
+          ls -la backend/
+          cat backend/serviceAccountKey.json 
+        shell: bash
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Create .env File for Backend
+        run: |
+          echo "$BACKEND_ENV" > backend/.env
+          cat backend/.env  # Debugging (Remove if sensitive)
+        shell: bash
+        env:
+          BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
+
+      - name: Start Backend Server
+        run: |
+          npm run dev > backend.log 2>&1 &
+          sleep 10
+          cat backend.log
+        working-directory: backend
+
+      - name: Start Frontend Server
+        run: ionic serve --no-open --no-interactive --port 8100 &
+        working-directory: frontend
+
+      - name: Run Specific Cypress Test
+        run: npx cypress run --spec cypress/e2e/login.cy.ts --config video=false
+        working-directory: frontend
