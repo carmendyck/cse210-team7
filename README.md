@@ -5,9 +5,19 @@ Dependencies:
 npm install -g @ionic/cli
 npm install @ionic/react-router
 npm install @fullcalendar/react @fullcalendar/timegrid
+npm install nodemon
+npm install ts-node
+
+
 ```
 How to Run:
-navigate to frontend: 
+navigate to backend:
+```
+cd backend
+npm run dev
+```
+
+navigate to frontend in a different terminal: 
 ```
 $ cd frontend 
 ```
