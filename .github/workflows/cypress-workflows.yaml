@@ -32,7 +32,7 @@ jobs:
       - name: Install Dependencies (Backend)
         run: npm install
         working-directory: backend
-        
+
       - name: Create Firebase Service Account Key
         run: |
           echo "$FIREBASE_SERVICE_ACCOUNT" > backend/serviceAccountKey.json
@@ -42,7 +42,13 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
-
+      - name: Create .env File for Backend
+        run: |
+          echo "$BACKEND_ENV" > backend/.env
+          cat backend/.env  # Debugging (Remove if sensitive)
+        shell: bash
+        env:
+          BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
 
       - name: Start Backend Server
         run: |
