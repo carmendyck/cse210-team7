@@ -33,6 +33,12 @@ jobs:
         run: npm install
         working-directory: backend
 
+      - name: Create Firebase Service Account Key
+        run: echo "$FIREBASE_SERVICE_ACCOUNT" | base64 --decode > backend/serviceAccountKey.json
+        shell: bash
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
       - name: Start Backend Server
         run: |
           npm run dev > backend.log 2>&1 &
