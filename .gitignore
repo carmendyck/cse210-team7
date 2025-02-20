@@ -1,7 +1,4 @@
 node_modules/
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
 .env
 .env.*
 .vscode/
@@ -9,4 +6,3 @@ pnpm-lock.yaml
 Thumbs.db
 backend/serviceAccountKey.json
 backend/serviceAccountKey.json
-frontend/node_modules/
