@@ -18,9 +18,7 @@ const TaskList: React.FC = () => {
   const selectTask = (taskId: number) => {
     console.log("moved to viewtask");
     // history.push(`/viewtask/${taskId}`);
-    history.push(`/viewtask`);
-    window.location.reload(); // TODO: Figure out how to remove this
-    //
+    history.push(`/viewtask`); // <---- once backend is connected, make sure to push specific task into view
   };
 
   const removeTask = (taskId: number) => {
