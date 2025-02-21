@@ -162,18 +162,24 @@ const CreateTask: React.FC = () => {
 
       <IonContent className="ion-flex ion-justify-content-center ion-align-items-center ion-padding">
         {/* Basic task information */}
-        <IonItem>
-          <IonInput value={taskData.name} onIonChange={(e) => handleInputChange(e, 'name')}
-            label="Name" labelPlacement="fixed" placeholder="Add task name"></IonInput>
-        </IonItem>
-        <IonItem>
-            <IonInput value={taskData.notes} onIonChange={(e) => handleInputChange(e, 'notes')}
-              label="Notes" labelPlacement="fixed" placeholder="Add notes"></IonInput>
-        </IonItem>
-        <IonItem>
-            <IonInput value={taskData.location} onIonChange={(e) => handleInputChange(e, 'location')}
-              label="Location" labelPlacement="fixed" placeholder="Add location (optional)"></IonInput>
-        </IonItem>
+        <IonInput
+          value={taskData.name} onIonChange={(e) => handleInputChange(e, 'name')}
+          aria-label="Name" labelPlacement="fixed" placeholder="Add task name"
+          counter={true} maxlength={50}>
+        </IonInput>
+        {/* TODO: add Notes icon */}
+        <IonInput
+          value={taskData.notes} onIonChange={(e) => handleInputChange(e, 'notes')}
+          aria-label="Notes" labelPlacement="fixed" placeholder="Add notes (optional)"
+          counter={true} maxlength={500}>
+        </IonInput>
+        {/* TODO: add location icon */}
+        <IonInput
+          value={taskData.location} onIonChange={(e) => handleInputChange(e, 'location')}
+          aria-label="Location" labelPlacement="fixed" placeholder="Add location (optional)"
+          counter={true} maxlength={50}>
+        </IonInput>
+        {/* </IonItem> */}
 
         <IonItem>
           <IonDatetime
