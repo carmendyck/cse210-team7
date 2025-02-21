@@ -1,15 +1,30 @@
-import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { 
+  IonButton, 
+  IonContent, 
+  IonHeader, 
+  IonPage, 
+  IonTitle, 
+  IonToolbar,
+  IonButtons
+} from '@ionic/react';
 import ExploreContainer from '../components/ExploreContainer';
 import { useHistory } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import './TaskList.css';
 
 const TaskList: React.FC = () => {
   const history = useHistory();
+  const { logout } = useAuth();
 
   const selectTask = () => {
     console.log("moved to viewtask");
     history.replace("/viewtask");
-    window.location.reload(); // TODO: Figure out how to remove this
+    window.location.reload();
+  };
+
+  const handleLogout = () => {
+    logout();
+    history.push('/login');
   };
 
   return (
@@ -17,6 +32,11 @@ const TaskList: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonTitle>TaskList</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={handleLogout}>
+              Logout
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>

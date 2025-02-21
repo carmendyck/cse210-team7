@@ -1,0 +1,6 @@
+/* In TaskList.css */
+ion-button[slot="end"] {
+    --color: #ff3b30;
+    font-weight: 500;
+    margin-right: 8px;
+}

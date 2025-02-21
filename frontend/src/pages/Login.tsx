@@ -78,38 +78,38 @@ const Login: React.FC = () => {
 
           <div className="form-group">
             <IonInput
-                type="email"
-                value={email}
-                placeholder="Email"
-                className={`custom-input ${error && !email ? 'error-bg' : ''}`}
-                onIonInput={handleChange("email")}
-                autocomplete="off"
-                autocapitalize="off"
-                spellcheck={false}
-                clearInput={true}
-                clearOnEdit={true}
-                inputmode="email"
-                disabled={isLoading}
-              />
+                  type="email"
+                  value={email}
+                  placeholder="Email"
+                  className={`custom-input ${error && !email ? 'error-bg' : ''}`}
+                  onIonInput={handleChange("email")}
+                  autocomplete="off"
+                  autocapitalize="off"
+                  spellcheck={false}
+                  clearInput={true}
+                  clearOnEdit={true}
+                  inputmode="email"
+                  disabled={isLoading}
+                />
 
-              <IonInput
-                type="password"
-                value={password}
-                placeholder="Password"
-                className={`custom-input ${error && !password ? 'error-bg' : ''}`}
-                onIonInput={handleChange("password")}
-                autocomplete="new-password"
-                autocapitalize="off"
-                spellcheck={false}
-                clearInput={true}
-                clearOnEdit={true}
-                disabled={isLoading}
-              />
+                <IonInput
+                  type="password"
+                  value={password}
+                  placeholder="Password"
+                  className={`custom-input ${error && !password ? 'error-bg' : ''}`}
+                  onIonInput={handleChange("password")}
+                  autocomplete="new-password"
+                  autocapitalize="off"
+                  spellcheck={false}
+                  clearInput={true}
+                  clearOnEdit={true}
+                  disabled={isLoading}
+                />
           </div>
 
-          {/* <div className="forgot-password" onClick={() => console.log("Forgot password clicked")}>
+          <div className="forgot-password" onClick={() => console.log("Forgot password clicked")}>
             Forgot your password?
-          </div> */}
+          </div>
 
           <IonButton
             expand="block"

@@ -60,7 +60,7 @@ h1 {
     --background: #fff2f2;
 }
 
-.signup-button {
+ion-button.button-block.button-solid.ion-activatable.ion-focusable {
     --background: #333333;
     --color: #ffffff;
     --border-radius: 8px;
