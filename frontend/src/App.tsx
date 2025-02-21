@@ -12,12 +12,13 @@ import {
 import { IonReactRouter } from "@ionic/react-router";
 import { calendarOutline, listOutline, settingsOutline } from "ionicons/icons";
 import { useLocation } from "react-router-dom";
-import Home from "./Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import CreateTaskButton from "./components/CreateTaskButton";
 import CreateTask from "./pages/CreateTask";
+import TaskList from "./pages/TaskList";
 import CreateAccountPreferences from "./pages/CreateAccountPreferences";
+import CreateAccountPrefPage2 from "./pages/CreateAccountPrefPage2";
 import ViewTask from "./pages/ViewTask";
 import Preferences from "./pages/Preferences";
 import Breaks from "./pages/Breaks";
@@ -35,6 +36,11 @@ import "@ionic/react/css/flex-utils.css";
 import "@ionic/react/css/display.css";
 import "./theme/variables.css";
 
+// copied from old Home.tsx; uncomment if needed
+// import '@ionic/react/css/float-elements.css';
+// import '@ionic/react/css/text-alignment.css';
+// import '@ionic/react/css/text-transformation.css';
+
 setupIonicReact();
 
 const ProtectedRoute: React.FC<{ exact?: boolean; path: string; component: React.FC }> = ({ exact, path, component }) => {
@@ -50,9 +56,10 @@ const RenderContent: React.FC = () => {
       <IonRouterOutlet animated={false} key={location.pathname}>
         <Route exact path="/login" component={Login} />
         <Route exact path="/signup" component={Signup} />
-        <ProtectedRoute exact path="/tasklist" component={Home} />
+        <ProtectedRoute exact path="/tasklist" component={TaskList} />
         <ProtectedRoute exact path="/createtask" component={CreateTask} />
         <ProtectedRoute exact path="/create_acct_pref" component={CreateAccountPreferences} />
+        <ProtectedRoute exact path="/create_acct_pref_pg2" component={CreateAccountPrefPage2} />
         <ProtectedRoute exact path="/viewtask" component={ViewTask} />
         <ProtectedRoute exact path="/breaks" component={Breaks} />
         <ProtectedRoute exact path="/notifications" component={Notifications} />
@@ -73,7 +80,7 @@ const App: React.FC = () => {
             <IonTabs>
               <IonRouterOutlet>
                 <ProtectedRoute exact path="/calendar" component={CalendarView} />
-                <ProtectedRoute exact path="/tasklist" component={Home} />
+                <ProtectedRoute exact path="/tasklist" component={TaskList} />
                 <ProtectedRoute exact path="/preferences" component={Preferences} />
               </IonRouterOutlet>
               <IonTabBar slot="bottom">
