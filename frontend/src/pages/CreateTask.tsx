@@ -33,33 +33,16 @@ import { NewTask } from '../interfaces/TaskInterface';
 import { Course } from '../interfaces/CourseInterface';
 import { Tag } from '../interfaces/TagInterface';
 
+import { getTomorrowBeforeMidnight, formatLocalDateForIonDatetime }  from '../components/HandleDatetime';
+
 const CreateTask: React.FC = () => {
   const user = useAuth();
   const history = useHistory();
 
-  // Functions for working with datetimes
-  const getTomorrowBeforeMidnight = (): Date => {
-    const dueDateTime = new Date();
-    dueDateTime.setDate(dueDateTime.getDate() + 1);
-    dueDateTime.setHours(23, 59, 59, 999);
-    return dueDateTime;
-  };
-
-  const formatLocalDateForIonDatetime = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // months are 0-based
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-
-    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
-  };
-
   // Storing constants to be used upon task creation
   const [ taskData, setTaskData ] = useState<NewTask>({
     // Basic info
-    user_id: "aNlyq8aiGeS8VmMGzjjDuugSBXy2",//user.uid,
+    user_id: "aNlyq8aiGeS8VmMGzjjDuugSBXy2", //user.uid,
 
     name: null,
     notes: null,
@@ -67,7 +50,7 @@ const CreateTask: React.FC = () => {
     due_datetime: getTomorrowBeforeMidnight(),
 
     // To filter data
-    course_id: "48XHCzjPwb3i4BS3fk6X",
+    course_id: "/course/48XHCzjPwb3i4BS3fk6X",
     tags: [],
 
     // Time/completion (optional)
@@ -119,29 +102,32 @@ const CreateTask: React.FC = () => {
     history.push("/tasklist"); // Redirects to the main app
   };
 
-  const handleCreate = async () => {
+  const isTaskValid = () => {
     // [Required fields]: name, course (other fields have valid defaults)
     const required: (keyof NewTask)[] = ['name', 'course_id'];
-    const missing: string[] = [];
-      required.forEach((field) => {
-        if (taskData[field] == null) {
-          missing.push(`<${field[0].toUpperCase() + field.slice(1)}>`);
-        }
-      });
+    const missing: string[] = required.filter(field => !taskData[field]);
 
-    // Task validation-- make sure required fields are completed
     if (missing.length > 0) {
-      let message = missing.length > 1 ? missing.join(' and ') : missing[0];
-      let verb = missing.length > 1 ? "are" : "is";
-      message = `${message} ${verb} required!`;
+      let message = missing.map(field => `<${field[0].toUpperCase() + field.slice(1)}>`).join(' and ');
+      message += missing.length > 1 ? ' are required!' : ' is required!';
       setInvalidTaskMessage(message);
       console.error(message);
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  const handleCreate = async () => {
+    if (!isTaskValid()) {
       return;
     }
+
     // TODO: Add storing of task
     console.log("Storing task: ", taskData);
+
     try {
-      const response = await fetch("http://localhost:5050/api/tasks/addnewtask", {
+      const response = await fetch("http://localhost:5050/api/createTasks/addnewtask", {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify( taskData ),
@@ -150,17 +136,13 @@ const CreateTask: React.FC = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        console.log("Something went wrong..."); // TODO: more specific error catching
-        throw new Error('Unable to create task.');
+        console.log("Error storing task, fetching from API: ", data.error || 'Unknown error');
       } else {
-        console.log("Task successfully added!", data);
-
-        // TODO: trigger auto-scheduling
-        console.log("Auto schedule? ", autoSchedule);
+        console.log("Task successfully added:", data);
         history.push("/tasklist");
       }
     } catch (error) {
-
+      console.error("Error connecting to the API: ", error);
     }
   };
 
