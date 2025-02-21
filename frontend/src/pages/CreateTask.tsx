@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import {
   InputChangeEventDetail,
   IonInputCustomEvent,
@@ -28,11 +29,12 @@ import {
   IonText,
 } from "@ionic/react";
 
-import { Task } from '../interfaces/TaskInterface';
+import { NewTask } from '../interfaces/TaskInterface';
 import { Course } from '../interfaces/CourseInterface';
 import { Tag } from '../interfaces/TagInterface';
 
 const CreateTask: React.FC = () => {
+  const user = useAuth();
   const history = useHistory();
 
   // Functions for working with datetimes
@@ -55,22 +57,25 @@ const CreateTask: React.FC = () => {
   };
 
   // Storing constants to be used upon task creation
-  const [ taskData, setTaskData ] = useState<Task>({
+  const [ taskData, setTaskData ] = useState<NewTask>({
     // Basic info
+    user_id: "aNlyq8aiGeS8VmMGzjjDuugSBXy2",//user.uid,
+
     name: null,
     notes: null,
     location: null,  // (optional)
     due_datetime: getTomorrowBeforeMidnight(),
 
     // To filter data
-    course: null,
+    course_id: "48XHCzjPwb3i4BS3fk6X",
     tags: [],
 
     // Time/completion (optional)
-    next_worktimes: [],
-    prev_worktimes: [],
-    time_left_estimate: 1,
+    next_start_time: null,
+    next_end_time: null,
+
     time_spent: 0,
+    total_time_estimate: 1,
 
     completed: false,
   });
@@ -80,7 +85,7 @@ const CreateTask: React.FC = () => {
   const [ invalidTaskMessage, setInvalidTaskMessage ] = useState<string>();
 
   // Handling changes to inputs-- updating states
-  const handleInputChange = (e: IonInputCustomEvent<InputChangeEventDetail>, field: keyof Task) => {
+  const handleInputChange = (e: IonInputCustomEvent<InputChangeEventDetail>, field: keyof NewTask) => {
     console.log("Field [", field, "] set to [", e.target.value, "]");
     setTaskData({ ...taskData, [field]: e.target.value, });
   };
@@ -96,8 +101,8 @@ const CreateTask: React.FC = () => {
     }
   };
 
-  const handleSelectionChange = (e: IonSelectCustomEvent<SelectChangeEventDetail>, field: keyof Task) => {
-    if (field == 'course' || field == 'tags') {
+  const handleSelectionChange = (e: IonSelectCustomEvent<SelectChangeEventDetail>, field: keyof NewTask) => {
+    if (field == 'course_id' || field == 'tags') {
       console.log("Field [", field, "] set to [", e.detail.value, "]");
       setTaskData({ ...taskData, [field]: e.detail.value, });
     } else {
@@ -114,9 +119,9 @@ const CreateTask: React.FC = () => {
     history.push("/tasklist"); // Redirects to the main app
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     // [Required fields]: name, course (other fields have valid defaults)
-    const required: (keyof Task)[] = ['name', 'course'];
+    const required: (keyof NewTask)[] = ['name', 'course_id'];
     const missing: string[] = [];
       required.forEach((field) => {
         if (taskData[field] == null) {
@@ -131,14 +136,31 @@ const CreateTask: React.FC = () => {
       message = `${message} ${verb} required!`;
       setInvalidTaskMessage(message);
       console.error(message);
-
       return;
-    } else {
-      // TODO: Add storing of task
-      console.log("Storing task: ", taskData);
-      // TODO: trigger auto-scheduling
-      console.log("Auto schedule? ", autoSchedule);
-      history.push("/tasklist");
+    }
+    // TODO: Add storing of task
+    console.log("Storing task: ", taskData);
+    try {
+      const response = await fetch("http://localhost:5050/api/tasks/addnewtask", {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify( taskData ),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.log("Something went wrong..."); // TODO: more specific error catching
+        throw new Error('Unable to create task.');
+      } else {
+        console.log("Task successfully added!", data);
+
+        // TODO: trigger auto-scheduling
+        console.log("Auto schedule? ", autoSchedule);
+        history.push("/tasklist");
+      }
+    } catch (error) {
+
     }
   };
 
@@ -180,19 +202,19 @@ const CreateTask: React.FC = () => {
         </IonItem>
 
         {/* Course/tags for task */}
-        <IonItem>
-          <IonSelect value={taskData.course}
-            label="Course"
-            placeholder="Course"
-            multiple={false}
-            onIonChange={(e) => handleSelectionChange(e, 'course')}>
+        {/* <IonItem> */}
+          {/* <IonSelect value={taskData.course_id} */}
+            {/* // label="Course" */}
+            {/* // placeholder="Course" */}
+            {/* // multiple={false} */}
+            {/* // onIonChange={(e) => handleSelectionChange(e, 'course_id')}> */}
             {/* TODO: import categories from account preferences */}
-            <IonSelectOption value="MATH 100">Abstract Alg.</IonSelectOption>
-            <IonSelectOption value="CSE 210">SWE Principles</IonSelectOption>
-            <IonSelectOption value="CSE 141">Comp. Arch.</IonSelectOption>
+            {/* <IonSelectOption value="MATH 100">Abstract Alg.</IonSelectOption> */}
+            {/* <IonSelectOption value="CSE 210">SWE Principles</IonSelectOption> */}
+            {/* <IonSelectOption value="CSE 141">Comp. Arch.</IonSelectOption> */}
             {/* TODO: add option to add new category? */}
-          </IonSelect>
-        </IonItem>
+          {/* </IonSelect> */}
+        {/* </IonItem> */}
 
         <IonItem>
           <IonSelect value={taskData.tags}
@@ -211,8 +233,8 @@ const CreateTask: React.FC = () => {
 
         {/* Scheduling and time */}
         <IonItem>
-          <IonInput value={taskData.time_left_estimate}
-            onIonChange={(e) => handleInputChange(e, 'time_left_estimate')}
+          <IonInput value={taskData.total_time_estimate}
+            onIonChange={(e) => handleInputChange(e, 'total_time_estimate')}
             type="number" label="Time Estimate (hours)" placeholder="1" min="0"></IonInput>
         </IonItem>
 
