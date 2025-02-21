@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 
 interface AuthContextType {
   user: string | null;
-  login: (token: string) => void;
+  login: (token: string, isNewSignup?: boolean) => void;
   logout: () => void;
 }
 
@@ -12,17 +12,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<string | null>(localStorage.getItem("authToken"));
   const history = useHistory();
+  const location = useLocation();
 
-  // 🔹 Ensure re-routing happens when the auth state changes
   useEffect(() => {
-    if (user) {
-      history.push("/tasklist"); // Redirect when user logs in
+    if (user && location.pathname === '/login') {
+      history.push("/tasklist");
     }
-  }, [user, history]); // 🔹 Ensure it updates when `user` changes
+  }, [user, history, location]);
 
-  const login = (token: string) => {
+  const login = (token: string, isNewSignup = false) => {
     localStorage.setItem("authToken", token);
     setUser(token);
+    
+    if (!isNewSignup) {
+      history.push("/tasklist");
+    }
   };
 
   const logout = () => {

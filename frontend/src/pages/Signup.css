@@ -15,20 +15,32 @@
 
 h1 {
     margin: 0;
-    font-size: 24px;
-    font-weight: 600;
     color: #000000;
+    font-size: 32px;
+    font-weight: 500;
 }
 
 .welcome-text {
     margin: 8px 0 24px;
-    color: #000000;
+    color: #666666;
     font-size: 16px;
 }
 
-.input-group {
+.error-message {
+    color: #ff3b30;
+    background-color: #fff2f2;
+    padding: 16px;
+    border-radius: 8px;
     margin-bottom: 16px;
-    position: relative;
+    font-size: 16px;
+    text-align: center;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
 }
 
 .custom-input {
@@ -39,38 +51,126 @@ h1 {
     --padding-bottom: 16px;
     --border-radius: 8px;
     --placeholder-color: #666666;
-    --highlight-color: transparent;
+    --color: #000000;
+    font-size: 16px;
+    margin-bottom: 8px;
 }
 
-.custom-input.error {
-    --background: #fff0f0;
-    --border-color: #ff0000;
-}
-
-.required-indicator {
-    position: absolute;
-    top: 50%;
-    right: 12px;
-    transform: translateY(-50%);
-    color: #ff0000;
-    font-size: 18px;
+.custom-input.error-bg {
+    --background: #fff2f2;
 }
 
 .signup-button {
     --background: #333333;
+    --color: #ffffff;
     --border-radius: 8px;
     --padding-top: 16px;
     --padding-bottom: 16px;
-    margin: 24px 0;
     text-transform: none;
-    font-weight: 500;
+    margin: 24px 0;
+    font-size: 16px;
 }
 
-.login-link {
-    display: block;
-    text-align: center;
-    color: #000000;
+.signup-button:disabled {
+    --background: #cccccc;
+}
+
+.login-text {
+    color: #666666;
+    font-size: 16px;
     margin-top: 16px;
-    font-size: 14px;
     cursor: pointer;
+}
+
+/* Success Animation Styles */
+.success-animation {
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Update these specific styles in your Signup.css */
+
+.checkmark-circle {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    margin: 0 auto 24px;
+    background-color: #34c759;
+    border-radius: 50%;
+    transform: scale(0);
+    animation: scaleIn 0.3s ease-out forwards;
+}
+
+.checkmark {
+    width: 28px;
+    height: 56px;
+    position: absolute;
+    border-right: 4px solid #fff;
+    border-bottom: 4px solid #fff;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -70%) rotate(45deg) scale(0);
+    opacity: 0;
+    animation: drawCheck 0.4s ease-in 0.4s forwards;
+}
+
+@keyframes drawCheck {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -70%) rotate(45deg) scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -70%) rotate(45deg) scale(1);
+    }
+}
+.success-text {
+    color: #34c759;
+    font-size: 24px;
+    margin: 0 0 8px;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out 0.8s forwards;
+}
+
+.success-subtext {
+    color: #666666;
+    font-size: 16px;
+    margin: 0;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out 1s forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes drawCheck {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%) rotate(45deg) scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -60%) rotate(45deg) scale(1);
+    }
 }
