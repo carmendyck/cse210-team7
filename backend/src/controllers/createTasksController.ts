@@ -17,7 +17,7 @@ export const addNewTask = async (req: Request, res: Response) => {
     completed,
   } = req.body;
 
-  if (!name || !course_id || !due_datetime) {
+  if (!name || !due_datetime) {
     return res.status(400).json({ error: "Task name, course_id, and due_datetime are all required!" });
   }
 
@@ -47,18 +47,32 @@ export const addNewTask = async (req: Request, res: Response) => {
     end_time: next_end_time,
   }
 
+  const prevWorktime = {
+    start_time: null,
+    end_time: null
+  }
+
   try {
     const taskRef = await db.collection('tasks').add(newTask);
 
     const nextWorktimesRef = taskRef.collection('next_worktimes');
     const nextTimeRef = await nextWorktimesRef.add(nextWorktime);
 
+    const prevWorktimesRef = taskRef.collection('prev_worktimes');
+    const prevTimeRef = await prevWorktimesRef.add(prevWorktime);
+
     res.status(201).json({
       message: 'Task added successfully!',
       taskId: taskRef.id,
       task: newTask,
-      worktimeId: nextTimeRef.id,
-      nextWorktime: nextWorktime,
+      worktimeIds: {
+        next_worktime: nextTimeRef.id,
+        prev_worktime: prevTimeRef.id,
+      },
+      worktimes: {
+        next_worktime: nextWorktime,
+        prev_worktime: prevWorktime,
+      },
     });
   } catch (error) {
     console.log(error);

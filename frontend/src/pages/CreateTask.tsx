@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useUid } from "../context/AuthContext";
 import {
   InputChangeEventDetail,
   IonInputCustomEvent,
@@ -36,13 +36,13 @@ import { Tag } from '../interfaces/TagInterface';
 import { getTomorrowBeforeMidnight, formatLocalDateForIonDatetime }  from '../components/HandleDatetime';
 
 const CreateTask: React.FC = () => {
-  const user = useAuth();
+  const uid = useUid();
   const history = useHistory();
 
   // Storing constants to be used upon task creation
   const [ taskData, setTaskData ] = useState<NewTask>({
     // Basic info
-    user_id: "aNlyq8aiGeS8VmMGzjjDuugSBXy2", //user.uid,
+    user_id: uid,
 
     name: null,
     notes: null,
@@ -50,7 +50,7 @@ const CreateTask: React.FC = () => {
     due_datetime: getTomorrowBeforeMidnight(),
 
     // To filter data
-    course_id: "/course/48XHCzjPwb3i4BS3fk6X",
+    course_id: null, // TODO: Update once course preferences are linked to database
     tags: [],
 
     // Time/completion (optional)
@@ -104,7 +104,7 @@ const CreateTask: React.FC = () => {
 
   const isTaskValid = () => {
     // [Required fields]: name, course (other fields have valid defaults)
-    const required: (keyof NewTask)[] = ['name', 'course_id'];
+    const required: (keyof NewTask)[] = ['name'];
     const missing: string[] = required.filter(field => !taskData[field]);
 
     if (missing.length > 0) {
