@@ -28,7 +28,7 @@ const Login: React.FC = () => {
 
       if (response.ok) {
         setMessage("Login successful! Redirecting...");
-        login(data.token);
+        login(data.token, data.uid);
         history.push("/tasklist");
       } else {
         if (data.error.includes("EMAIL_NOT_FOUND")) {
