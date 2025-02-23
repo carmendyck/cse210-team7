@@ -19,7 +19,6 @@ import CreateTask from "./pages/CreateTask";
 import TaskList from "./pages/TaskList";
 import CreateAccountPreferences from "./pages/CreateAccountPreferences";
 import CreateAccountPrefPage2 from "./pages/CreateAccountPrefPage2";
-import CreateAccountPrefPage2 from "./pages/CreateAccountPrefPage2";
 import ViewTask from "./pages/ViewTask";
 import Preferences from "./pages/Preferences";
 import Breaks from "./pages/Breaks";
@@ -60,6 +59,7 @@ const RenderContent: React.FC = () => {
         <ProtectedRoute exact path="/tasklist" component={TaskList} />
         <ProtectedRoute exact path="/createtask" component={CreateTask} />
         <ProtectedRoute exact path="/create_acct_pref" component={CreateAccountPreferences} />
+        <ProtectedRoute exact path="/create_acct_pref_pg2" component={CreateAccountPrefPage2} />
         <ProtectedRoute exact path="/viewtask" component={ViewTask} />
         <ProtectedRoute exact path="/breaks" component={Breaks} />
         <ProtectedRoute exact path="/notifications" component={Notifications} />
