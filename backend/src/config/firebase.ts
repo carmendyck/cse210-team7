@@ -6,7 +6,7 @@ dotenv.config();
 const serviceAccount = require("../../serviceAccountKey.json");
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(serviceAccount)
 });
 
 export const auth = admin.auth();

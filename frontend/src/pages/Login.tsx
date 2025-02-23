@@ -49,7 +49,7 @@ const Login: React.FC = () => {
       const data = await response.json();
 
       if (response.ok) {
-        login(data.token);
+        login(data.token, data.uid);
         history.push("/tasklist");
       } else {
         if (data.error === "NO_ACCOUNT_EXISTS") {

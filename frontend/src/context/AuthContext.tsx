@@ -3,7 +3,7 @@ import { useHistory, useLocation } from "react-router-dom";
 
 interface AuthContextType {
   user: string | null;
-  login: (token: string, isNewSignup?: boolean) => void;
+  login: (token: string, uid: string, isNewSignup?: boolean) => void;
   logout: () => void;
 }
 
@@ -11,6 +11,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<string | null>(localStorage.getItem("authToken"));
+  const [uid, setUid] = useState<string | null>(localStorage.getItem("uid"));
   const history = useHistory();
   const location = useLocation();
 
@@ -20,10 +21,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [user, history, location]);
 
-  const login = (token: string, isNewSignup = false) => {
+  const login = (token: string, uid: string, isNewSignup = false) => {
     localStorage.setItem("authToken", token);
+    localStorage.setItem("uid", uid);
     setUser(token);
-    
+    setUid(uid);
+
     if (!isNewSignup) {
       history.push("/tasklist");
     }
@@ -31,7 +34,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     localStorage.removeItem("authToken");
+    localStorage.removeItem("uid");
     setUser(null);
+    setUid(null);
     history.push("/login");
   };
 
@@ -46,4 +51,9 @@ export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
+};
+
+export const useUid = (): string | null => {
+  const uid = localStorage.getItem("uid");
+  return uid;
 };
