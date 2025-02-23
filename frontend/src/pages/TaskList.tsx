@@ -8,7 +8,7 @@ const initialTasks = [
   { id: '2', title: "Prepare a presentation", duration: "2h", dueDate: "Feb 16", category: "study", color: "yellow" },
   { id: '3', title: "Go to the Gym", duration: "1h", dueDate: "Feb 17", category: "personal", color: "green" },
   { id: '4', title: "Plan your meal", duration: "20mins", dueDate: "Feb 18", category: "personal", color: "green" },
-  { id: 'ah9j2KOEXvnrXo570o9', title: "Review daily goals before sleeping.", duration: "5mins", dueDate: "Feb 19", category: "personal", color: "green" }
+  { id: '1ah9j2KOEXvnrXo570o9', title: "Review daily goals before sleeping.", duration: "5mins", dueDate: "Feb 19", category: "personal", color: "green" }
 ];
 
 const TaskList: React.FC = () => {

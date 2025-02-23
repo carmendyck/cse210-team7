@@ -128,9 +128,6 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
         <IonButton className="back-button" onClick={handleBack}>
           &#8592; {/* Unicode for left arrow */}
         </IonButton>
-        <IonButton className="back-button" onClick={getTaskInfo}>
-          test button {/* Unicode for left arrow */}
-        </IonButton>
         <div className="content-wrapper">
           <IonText className="task-name">
             <h1>CSE 210 User Stories</h1>
