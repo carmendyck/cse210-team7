@@ -11,7 +11,7 @@ import {
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import { calendarOutline, listOutline, settingsOutline } from "ionicons/icons";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import CreateTaskButton from "./components/CreateTaskButton";
@@ -45,6 +45,7 @@ setupIonicReact();
 
 const ProtectedRoute: React.FC<{ exact?: boolean; path: string; component: React.FC }> = ({ exact, path, component }) => {
   const { user } = useAuth();
+  const params = useParams(); // Capture route params
   return user ? <Route exact={exact} path={path} component={component} /> : <Redirect to="/login" />;
 };
 
@@ -60,7 +61,7 @@ const RenderContent: React.FC = () => {
         <ProtectedRoute exact path="/createtask" component={CreateTask} />
         <ProtectedRoute exact path="/create_acct_pref" component={CreateAccountPreferences} />
         <ProtectedRoute exact path="/create_acct_pref_pg2" component={CreateAccountPrefPage2} />
-        <ProtectedRoute exact path="/viewtask" component={ViewTask} />
+        <ProtectedRoute path="/viewtask/:id" component={ViewTask} />
         <ProtectedRoute exact path="/breaks" component={Breaks} />
         <ProtectedRoute exact path="/notifications" component={Notifications} />
         <Redirect exact from="/" to="/login" />
