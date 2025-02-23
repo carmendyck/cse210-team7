@@ -17,6 +17,9 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
   const history = useHistory();
   const location = useLocation();
   const [forceUpdate, setForceUpdate] = useState(0);
+  const [task, setTask] = useState<{ name: string, notes: string } | null>(null); // Ensure correct type
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Either load or start from 0
   const [timer, setTimer] = useState<number>(() => {
@@ -51,6 +54,39 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     console.log("ViewTask mounted or URL changed:", location.pathname);
     setForceUpdate(prev => prev + 1);
   }, [location.pathname]);
+
+  const getTaskInfo = async () => {
+    try {
+      const response = await fetch(`http://localhost:5050/api/viewTask/getTask/${params.id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch task");
+      }
+      const data = await response.json();
+      console.log("Task Data:", data);
+      setTask(data.task); // Store task in state
+      console.log("Task Data:",task)
+    } catch (error) {
+      console.error("Error fetching task:", error);
+      setError("Failed to load task");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (params.id) {
+      getTaskInfo();
+    }
+  }, []); // Runs when `id` changes
+
+  useEffect(() => {
+    console.log("Updated Task State:", task);
+    console.log("Task Name: ", task?.name)
+  }, [task]); // Logs whenever `task` updates
 
   // Handle timer updates while running
   useEffect(() => {
@@ -101,24 +137,6 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     localStorage.removeItem('isPaused');
   };
 
-  const getTaskInfo = async () => {
-    try {
-      const response = await fetch(`http://localhost:5050/api/viewTask/getTask/${params.id}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-  
-      if (!response.ok) {
-        throw new Error("Failed to fetch task");
-      }
-  
-      const data = await response.json();
-      console.log("Task Data:", data);
-    } catch (error) {
-      console.error("Error fetching task:", error);
-    }
-  };
-
   const closeTask = async () => {
     try {
       const response = await fetch(`http://localhost:5050/api/viewTask/closeTask/${params.id}`, {
@@ -155,56 +173,70 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     }
   };
 
+  if (loading) return <p>Loading task...</p>;
+  if (error) return <p>{error}</p>;
+
   return (
     <IonPage key={forceUpdate}>
       <IonToolbar>
         <IonTitle>View Task</IonTitle>
       </IonToolbar>
       <IonContent className="ion-padding">
+        {/* Back button always renders */}
         <IonButton className="back-button" onClick={handleBack}>
           &#8592; {/* Unicode for left arrow */}
         </IonButton>
-        <div className="content-wrapper">
-          <IonText className="task-name">
-            <h1>CSE 210 User Stories</h1>
-          </IonText>
-          <div className="details-container">
-            <IonText className="details">
-              <p><strong>Due: </strong>January 29, 2025</p>
-              <p><strong>Time Estimate: </strong>0.5 hours</p>
+  
+        {/* Show loading state */}
+        {loading ? (
+          <IonText>Loading task...</IonText>
+        ) : task ? (
+          // Render task details only when task exists and loading is false
+          <div className="content-wrapper">
+            <IonText className="task-name">
+              <h1>{task.name}</h1>
             </IonText>
-            <div className="priority-box">P0</div>
-          </div>
-          <IonItemDivider />
-          <IonText className="description">
-            <p><strong>Description:</strong></p>
-            <p>
-              Come up with user stories, break into subtasks, add to Github project 
-            </p>
-          </IonText>
-          <IonItemDivider />
-          <div className="timer-container">
-            <IonText className="timer-display">
-              <h2>{new Date(timer * 1000).toISOString().substr(11, 8)}</h2>
+            <div className="details-container">
+              <IonText className="details">
+                <p><strong>Due: </strong>January 29, 2025</p>
+                <p><strong>Time Estimate: </strong>0.5 hours</p>
+              </IonText>
+              <div className="priority-box">P0</div>
+            </div>
+            <IonItemDivider />
+            <IonText className="description">
+              <p><strong>Description:</strong></p>
+              <p>
+                {task.notes} 
+              </p>
             </IonText>
-            {/* Timer control buttons */}
-            {isRunning && !isPaused ? (
-              <IonButton className="timer-button" onClick={handlePause}>Pause Task</IonButton>
-            ) : isPaused ? (
-              <IonButton className="timer-button" onClick={handleStart}>Resume Task</IonButton>
-            ) : (
-              <IonButton className="timer-button" onClick={handleStart}>Start Task</IonButton>
-            )}
-
-            {/* Show Stop button only when the timer has started */}
-            {(isRunning || isPaused) && (
-              <IonButton className="timer-button" onClick={handleStop} color="danger">Stop Task</IonButton>
-            )}
+            <IonItemDivider />
+            <div className="timer-container">
+              <IonText className="timer-display">
+                <h2>{new Date(timer * 1000).toISOString().substr(11, 8)}</h2>
+              </IonText>
+              {/* Timer control buttons */}
+              {isRunning && !isPaused ? (
+                <IonButton className="timer-button" onClick={handlePause}>Pause Task</IonButton>
+              ) : isPaused ? (
+                <IonButton className="timer-button" onClick={handleStart}>Resume Task</IonButton>
+              ) : (
+                <IonButton className="timer-button" onClick={handleStart}>Start Task</IonButton>
+              )}
+  
+              {/* Show Stop button only when the timer has started */}
+              {(isRunning || isPaused) && (
+                <IonButton className="timer-button" onClick={handleStop} color="danger">Stop Task</IonButton>
+              )}
+            </div>
           </div>
-        </div>
+        ) : (
+          // Show error message if task is missing
+          <IonText>Error: Task not found</IonText>
+        )}
       </IonContent>
     </IonPage>
-  );
+  );  
 };
 
 export default ViewTask;
