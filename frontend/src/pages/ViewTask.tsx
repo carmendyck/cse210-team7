@@ -4,7 +4,16 @@ import { useHistory } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import './ViewTask.css'; // Import the CSS file
 
-const ViewTask: React.FC = () => {
+
+interface ViewTaskProps {
+  params: {
+    id: string;
+  };
+}
+
+// Use the id from the url via {params.id}
+
+const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
   const history = useHistory();
   const location = useLocation();
   const [forceUpdate, setForceUpdate] = useState(0);

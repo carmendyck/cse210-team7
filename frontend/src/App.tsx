@@ -43,10 +43,24 @@ import "./theme/variables.css";
 
 setupIonicReact();
 
-const ProtectedRoute: React.FC<{ exact?: boolean; path: string; component: React.FC }> = ({ exact, path, component }) => {
+interface ProtectedRouteProps {
+  exact?: boolean;
+  path: string;
+  component: React.FC<any>;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ exact, path, component: Component }) => {
   const { user } = useAuth();
-  const params = useParams(); // Capture route params
-  return user ? <Route exact={exact} path={path} component={component} /> : <Redirect to="/login" />;
+
+  return (
+    <Route
+      exact={exact}
+      path={path}
+      render={(props) =>
+        user ? <Component {...props} params={props.match.params} /> : <Redirect to="/login" />
+      }
+    />
+  );
 };
 
 const RenderContent: React.FC = () => {
