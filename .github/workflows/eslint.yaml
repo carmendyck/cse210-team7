@@ -5,6 +5,7 @@ on: [push, pull_request]
 jobs:
   eslint:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -14,8 +15,24 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install dependencies
-        run: npm ci
+      # Run ESLint for Frontend
+      - name: Install dependencies (Frontend)
+        run: |
+          cd frontend
+          npm ci
 
-      - name: Run ESLint
-        run: npx eslint . || true  # Ensures it does not block the CI
+      - name: Run ESLint (Frontend)
+        run: |
+          cd frontend
+          npx eslint . || true  # Prevents CI from failing due to warnings
+
+      # Run ESLint for Backend
+      - name: Install dependencies (Backend)
+        run: |
+          cd backend
+          npm ci
+
+      - name: Run ESLint (Backend)
+        run: |
+          cd backend
+          npx eslint . || true  # Prevents CI from failing due to warnings
