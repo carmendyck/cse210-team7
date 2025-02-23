@@ -17,7 +17,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
   const history = useHistory();
   const location = useLocation();
   const [forceUpdate, setForceUpdate] = useState(0);
-  const [task, setTask] = useState<{ name: string, notes: string } | null>(null); // Ensure correct type
+  const [task, setTask] = useState<{ name: string, notes: string, total_time_estimate: number } | null>(null); // Ensure correct type
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -199,7 +199,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
             <div className="details-container">
               <IonText className="details">
                 <p><strong>Due: </strong>January 29, 2025</p>
-                <p><strong>Time Estimate: </strong>0.5 hours</p>
+                <p><strong>Time Estimate: </strong>{task.total_time_estimate} hours</p>
               </IonText>
               <div className="priority-box">P0</div>
             </div>
