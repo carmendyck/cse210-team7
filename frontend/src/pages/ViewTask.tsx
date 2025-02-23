@@ -101,6 +101,24 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     localStorage.removeItem('isPaused');
   };
 
+  const getTaskInfo = async () => {
+    try {
+      const response = await fetch(`http://localhost:5050/api/viewTask/getTask/${params.id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch task");
+      }
+  
+      const data = await response.json();
+      console.log("Task Data:", data);
+    } catch (error) {
+      console.error("Error fetching task:", error);
+    }
+  };
+
   return (
     <IonPage key={forceUpdate}>
       <IonToolbar>
@@ -109,6 +127,9 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
       <IonContent className="ion-padding">
         <IonButton className="back-button" onClick={handleBack}>
           &#8592; {/* Unicode for left arrow */}
+        </IonButton>
+        <IonButton className="back-button" onClick={getTaskInfo}>
+          test button {/* Unicode for left arrow */}
         </IonButton>
         <div className="content-wrapper">
           <IonText className="task-name">
