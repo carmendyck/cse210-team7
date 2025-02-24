@@ -3,6 +3,7 @@ import { IonButton, IonContent, IonPage, IonTitle, IonToolbar, IonText, IonItemD
 import { useHistory } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import './ViewTask.css'; // Import the CSS file
+import { format } from "date-fns";
 
 
 interface ViewTaskProps {
@@ -17,7 +18,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
   const history = useHistory();
   const location = useLocation();
   const [forceUpdate, setForceUpdate] = useState(0);
-  const [task, setTask] = useState<{ name: string, notes: string, total_time_estimate: number, priority: number, completed: boolean } | null>(null); // Ensure correct type
+  const [task, setTask] = useState<{ name: string, notes: string, total_time_estimate: number, priority: number, completed: boolean, due_datetime: string } | null>(null); // Ensure correct type
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [checkboxLoading, setCheckboxLoading] = useState(false); // Add state for checkbox loading
@@ -212,7 +213,14 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
             </IonText>
             <div className="details-container">
               <IonText className="details">
-                <p><strong>Due: </strong>January 29, 2025</p>
+                <p><strong>Due: </strong>{new Date(task.due_datetime).toLocaleString("en-US", {
+                  year: "numeric",  // "2025"
+                  month: "long",    // "February"
+                  day: "numeric",   // "23"
+                  hour: "2-digit",  // "11 AM"
+                  minute: "2-digit",// "59"
+                  hour12: true      // AM/PM format
+                })}</p>
                 <p><strong>Time Estimate: </strong>{task.total_time_estimate} hours</p>
               </IonText>
               {task.priority !== undefined && (
