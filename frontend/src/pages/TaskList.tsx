@@ -31,7 +31,7 @@ const TaskList: React.FC = () => {
 
   const selectTask = (taskId: string) => {
     console.log("Moved to viewtask");
-    history.push(`/viewtask`);
+    history.push(`/viewtask/${taskId}`);
   };
 
   const removeTask = (taskId: string) => {
