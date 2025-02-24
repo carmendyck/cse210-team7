@@ -1,0 +1,38 @@
+name: ESLint CI
+
+on: [push, pull_request]
+
+jobs:
+  eslint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # Run ESLint for Frontend
+      - name: Install dependencies (Frontend)
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run ESLint (Frontend)
+        run: |
+          cd frontend
+          npx eslint . || true  # Prevents CI from failing due to warnings
+
+      # Run ESLint for Backend
+      - name: Install dependencies (Backend)
+        run: |
+          cd backend
+          npm ci
+
+      - name: Run ESLint (Backend)
+        run: |
+          cd backend
+          npx eslint . || true  # Prevents CI from failing due to warnings

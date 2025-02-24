@@ -15,18 +15,31 @@
 
 h1 {
     margin: 0;
-    font-size: 24px;
-    font-weight: 600;
     color: #000000;
+    font-size: 32px;
+    font-weight: 500;
 }
 
 .welcome-text {
     margin: 8px 0 24px;
-    color: #000000;
+    color: #666666;
     font-size: 16px;
 }
 
-.input-group {
+.error-message {
+    color: #ff3b30;
+    background-color: #fff2f2;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 16px;
+    text-align: center;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     margin-bottom: 16px;
 }
 
@@ -38,36 +51,46 @@ h1 {
     --padding-bottom: 16px;
     --border-radius: 8px;
     --placeholder-color: #666666;
-    margin-bottom: 16px;
+    --color: #000000;
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.custom-input.error-bg {
+    --background: #fff2f2;
 }
 
 .forgot-password {
-    display: block;
-    text-align: center;
     color: #000000;
+    font-size: 16px;
     margin: 16px 0;
-    font-size: 14px;
     cursor: pointer;
 }
 
-.sign-in-button {
+.signin-button {
     --background: #333333;
+    --color: #ffffff;
     --border-radius: 8px;
     --padding-top: 16px;
     --padding-bottom: 16px;
-    margin: 24px 0;
     text-transform: none;
-    font-weight: 500;
+    margin: 24px 0;
+    font-size: 16px;
 }
 
-.create-account {
-    display: block;
-    text-align: center;
-    color: #000000;
-    margin-top: 16px;
-    font-size: 14px;
-    cursor: pointer;
+.create-account-button {
+    --background: #3478f6;
+    --color: #ffffff;
+    --border-radius: 8px;
+    --padding-top: 16px;
+    --padding-bottom: 16px;
+    text-transform: none;
+    margin: 0;
+    font-size: 16px;
 }
-.custom-input {
-    caret-color: black;
+
+.signin-button:disabled,
+.create-account-button:disabled {
+    --background: #cccccc;
+    opacity: 0.7;
 }
