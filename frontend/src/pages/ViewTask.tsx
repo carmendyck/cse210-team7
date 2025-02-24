@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IonButton, IonContent, IonPage, IonTitle, IonToolbar, IonText, IonItemDivider } from "@ionic/react";
+import { IonButton, IonContent, IonPage, IonTitle, IonToolbar, IonText, IonItemDivider, IonSpinner } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import './ViewTask.css'; // Import the CSS file
@@ -17,9 +17,10 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
   const history = useHistory();
   const location = useLocation();
   const [forceUpdate, setForceUpdate] = useState(0);
-  const [task, setTask] = useState<{ name: string, notes: string, total_time_estimate: number, priority: number } | null>(null); // Ensure correct type
+  const [task, setTask] = useState<{ name: string, notes: string, total_time_estimate: number, priority: number, completed: boolean } | null>(null); // Ensure correct type
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [checkboxLoading, setCheckboxLoading] = useState(false); // Add state for checkbox loading
 
   // Either load or start from 0
   const [timer, setTimer] = useState<number>(() => {
@@ -153,6 +154,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     } catch (error) {
       console.error("Error fetching task:", error);
     }
+    // TODO: should this remove the task from any future dates in the plan since it's done?
   };
 
   const openTask = async () => {
@@ -171,6 +173,18 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     } catch (error) {
       console.error("Error fetching task:", error);
     }
+  };
+
+  const handleCheckboxChange = async () => {
+    setCheckboxLoading(true)
+    if (task?.completed) {
+      await openTask();
+      setTask(prevTask => prevTask ? { ...prevTask, completed: false } : null);
+    } else {
+      await closeTask();
+      setTask(prevTask => prevTask ? { ...prevTask, completed: true } : null);
+    }
+    setCheckboxLoading(false)
   };
 
   if (loading) return <p>Loading task...</p>;
@@ -236,9 +250,18 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
             <IonItemDivider />
             <div className="completed-container">
               <IonText className="completed-label">
-                <p><strong>Completed:</strong></p>
+                <p><strong>Task Completed:</strong></p>
               </IonText>
-              <input type="checkbox" className="completed-checkbox" />
+              {checkboxLoading ? (
+                <IonSpinner name="dots" />
+              ) : (
+                <input
+                  type="checkbox"
+                  className="completed-checkbox"
+                  checked={task.completed}
+                  onChange={handleCheckboxChange}
+                />
+              )}
             </div>
           </div>
         ) : (
