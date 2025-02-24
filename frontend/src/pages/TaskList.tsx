@@ -29,12 +29,12 @@ const TaskList: React.FC = () => {
   const history = useHistory();
   const { logout } = useAuth();
 
-  const selectTask = (taskId: number) => {
+  const selectTask = (taskId: string) => {
     console.log("Moved to viewtask");
     history.push(`/viewtask`);
   };
 
-  const removeTask = (taskId: number) => {
+  const removeTask = (taskId: string) => {
     const updatedTasks = tasks.filter(task => task.id !== taskId);
     setTasks(updatedTasks);
   };
