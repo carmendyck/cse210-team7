@@ -35,8 +35,8 @@ const TaskList: React.FC = () => {
   };
 
   const removeTask = (taskId: string) => {
-    const updatedTasks = tasks.filter(task => task.id !== taskId);
-    setTasks(updatedTasks);
+    const updatedTasks = tasks.filter(task => task.id !== taskId); // Filter out the selected task
+    setTasks(updatedTasks); // Update the state to remove the task
   };
 
   const handleLogout = () => {
