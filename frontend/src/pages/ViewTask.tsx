@@ -218,18 +218,27 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
                 <h2>{new Date(timer * 1000).toISOString().substr(11, 8)}</h2>
               </IonText>
               {/* Timer control buttons */}
-              {isRunning && !isPaused ? (
-                <IonButton className="timer-button" onClick={handlePause}>Pause Task</IonButton>
-              ) : isPaused ? (
-                <IonButton className="timer-button" onClick={handleStart}>Resume Task</IonButton>
-              ) : (
-                <IonButton className="timer-button" onClick={handleStart}>Start Task</IonButton>
-              )}
-  
-              {/* Show Stop button only when the timer has started */}
-              {(isRunning || isPaused) && (
-                <IonButton className="timer-button" onClick={handleStop} color="danger">Stop Task</IonButton>
-              )}
+              <div className="timer-buttons">
+                {isRunning && !isPaused ? (
+                  <IonButton className="timer-button" onClick={handlePause}>Pause Task</IonButton>
+                ) : isPaused ? (
+                  <IonButton className="timer-button" onClick={handleStart}>Resume Task</IonButton>
+                ) : (
+                  <IonButton className="timer-button" onClick={handleStart}>Start Task</IonButton>
+                )}
+    
+                {/* Show Stop button only when the timer has started */}
+                {(isRunning || isPaused) && (
+                  <IonButton className="timer-button" onClick={handleStop} color="danger">Stop Task</IonButton>
+                )}
+              </div>
+            </div>
+            <IonItemDivider />
+            <div className="completed-container">
+              <IonText className="completed-label">
+                <p><strong>Completed:</strong></p>
+              </IonText>
+              <input type="checkbox" className="completed-checkbox" />
             </div>
           </div>
         ) : (
