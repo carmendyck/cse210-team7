@@ -4,7 +4,16 @@ import { useHistory } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import './ViewTask.css'; // Import the CSS file
 
-const ViewTask: React.FC = () => {
+
+interface ViewTaskProps {
+  params: {
+    id: string;
+  };
+}
+
+// Use the id from the url via {params.id}
+
+const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
   const history = useHistory();
   const location = useLocation();
   const [forceUpdate, setForceUpdate] = useState(0);
@@ -90,6 +99,60 @@ const ViewTask: React.FC = () => {
     localStorage.removeItem('timer');
     localStorage.removeItem('isRunning');
     localStorage.removeItem('isPaused');
+  };
+
+  const getTaskInfo = async () => {
+    try {
+      const response = await fetch(`http://localhost:5050/api/viewTask/getTask/${params.id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch task");
+      }
+  
+      const data = await response.json();
+      console.log("Task Data:", data);
+    } catch (error) {
+      console.error("Error fetching task:", error);
+    }
+  };
+
+  const closeTask = async () => {
+    try {
+      const response = await fetch(`http://localhost:5050/api/viewTask/closeTask/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch task");
+      }
+  
+      const data = await response.json();
+      console.log("Response Data:", data);
+    } catch (error) {
+      console.error("Error fetching task:", error);
+    }
+  };
+
+  const openTask = async () => {
+    try {
+      const response = await fetch(`http://localhost:5050/api/viewTask/openTask/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch task");
+      }
+  
+      const data = await response.json();
+      console.log("Response Data:", data);
+    } catch (error) {
+      console.error("Error fetching task:", error);
+    }
   };
 
   return (
