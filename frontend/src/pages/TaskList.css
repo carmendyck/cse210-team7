@@ -85,3 +85,16 @@ ion-button[slot="end"] {
     border-radius: 50%;
 }
 
+.centered-datetime-item {
+    display: flex;
+    justify-content: center;
+  }
+  
+
+.my-datetime {
+max-height: 150px; 
+width: 100%;
+text-align: center; 
+margin: 0 auto;
+}
+
