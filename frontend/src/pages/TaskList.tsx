@@ -1,6 +1,19 @@
-import { useState } from "react";
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonCheckbox} from '@ionic/react';
+import { 
+  IonButton, 
+  IonContent, 
+  IonHeader, 
+  IonPage, 
+  IonTitle, 
+  IonToolbar,
+  IonButtons,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonCheckbox
+} from '@ionic/react';
+import { useState } from 'react';
 import { useHistory } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import './TaskList.css';
 
 const initialTasks = [
@@ -14,6 +27,7 @@ const initialTasks = [
 const TaskList: React.FC = () => {
   const [tasks, setTasks] = useState(initialTasks);
   const history = useHistory();
+  const { logout } = useAuth();
 
   const selectTask = (taskId: string) => {
     console.log("moved to viewtask");
@@ -25,33 +39,38 @@ const TaskList: React.FC = () => {
     setTasks(updatedTasks); // Update the state to remove the task
   };
 
+  const handleLogout = () => {
+    logout();
+    history.push('/login');
+  };
+
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>TaskList</IonTitle>
+          <IonTitle>Task List</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={handleLogout}>Logout</IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-
         <IonList>
           {tasks.map((task) => (
-          <IonItem key={task.id} className={`task-item ${task.color}`} onClick={() => selectTask(task.id)}>
-          <IonCheckbox
-            slot="start"
-            onClick={(e) => e.stopPropagation()} 
-            onIonChange={() => removeTask(task.id)}
-          />
-          <IonLabel> 
-            <h2>{task.title}</h2>
-            <p className="due-date">Due: {task.dueDate}</p>
-          </IonLabel>
-          <span className="duration">{task.duration}</span>
-        </IonItem>
+            <IonItem key={task.id} className={`task-item ${task.color}`} onClick={() => selectTask(task.id)}>
+              <IonCheckbox
+                slot="start"
+                onClick={(e) => e.stopPropagation()} 
+                onIonChange={() => removeTask(task.id)}
+              />
+              <IonLabel>
+                <h2>{task.title}</h2>
+                <p className="due-date">Due: {task.dueDate}</p>
+              </IonLabel>
+              <span className="duration">{task.duration}</span>
+            </IonItem>
           ))}
         </IonList>
-
-   
       </IonContent>
     </IonPage>
   );
