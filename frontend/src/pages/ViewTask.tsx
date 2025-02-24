@@ -17,10 +17,11 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
   const history = useHistory();
   const location = useLocation();
   const [forceUpdate, setForceUpdate] = useState(0);
-  const [task, setTask] = useState<{ name: string, notes: string, total_time_estimate: number, priority: number, completed: boolean, due_datetime: string } | null>(null); // Ensure correct type
+  const [task, setTask] = useState<{ name: string, notes: string, total_time_estimate: number, priority: number, completed: boolean, due_datetime: string, time_spent: number } | null>(null); // Ensure correct type
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [checkboxLoading, setCheckboxLoading] = useState(false); // Add state for checkbox loading
+  const [loadingTimeSpent, setLoadingTimeSpent] = useState(false); // Add state for checkbox loading
 
   // Either load or start from 0
   const [timer, setTimer] = useState<number>(() => {
@@ -129,13 +130,17 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     setIsRunning(false);
   };
 
-  const handleStop = () => {
+  const handleStop = async () => {
     setIsRunning(false);
     setIsPaused(false);
+
+    await updateTimeSpent();
+
     setTimer(0);
     localStorage.removeItem('timer');
     localStorage.removeItem('isRunning');
     localStorage.removeItem('isPaused');
+    
   };
 
   const closeTask = async () => {
@@ -172,6 +177,33 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
       console.log("Response Data:", data);
     } catch (error) {
       console.error("Error fetching task:", error);
+    }
+  };
+
+  const updateTimeSpent = async () => {
+    setLoadingTimeSpent(true)
+    const additionalTime = timer / 3600; // Convert seconds to hours
+
+    try {
+      const response = await fetch(`http://localhost:5050/api/viewTask/updateTimeSpent/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ additionalTime }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to update time spent");
+      }
+  
+      const data = await response.json();
+      console.log("Response Data:", data);
+
+      // Update local state to reflect the new time_spent, ensuring 2 decimals
+      setTask(prevTask => prevTask ? { ...prevTask, time_spent: parseFloat(data.newTimeSpent.toFixed(2)) } : null);
+    } catch (error) {
+      console.error("Error fetching task:", error);
+    } finally {
+      setLoadingTimeSpent(false); // Hide loading indicator
     }
   };
 
@@ -221,6 +253,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
                   hour12: true      // AM/PM format
                 })}</p>
                 <p><strong>Time Estimate: </strong>{task.total_time_estimate} hours</p>
+                <p><strong>Time Spent: </strong>{task.time_spent.toFixed(2)} {task.time_spent === 1 ? "hour" : "hours"}</p>
               </IonText>
               {task.priority !== undefined && (
                 <div className="priority-box">P{task.priority}</div>
@@ -235,6 +268,13 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
             </IonText>
             <IonItemDivider />
             <div className="timer-container">
+              {/* Loading Overlay */}
+              {loadingTimeSpent && (
+                <div className="loading-overlay">
+                  <IonSpinner name="circles" />
+                </div>
+              )}
+              
               <IonText className="timer-display">
                 <h2>{new Date(timer * 1000).toISOString().substr(11, 8)}</h2>
               </IonText>
@@ -260,7 +300,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
                 <p><strong>Task Completed:</strong></p>
               </IonText>
               {checkboxLoading ? (
-                <IonSpinner name="dots" />
+                <IonSpinner name="circles" />
               ) : (
                 <input
                   type="checkbox"

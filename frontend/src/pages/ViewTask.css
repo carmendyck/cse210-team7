@@ -48,6 +48,7 @@
 }
 
 .timer-container {
+    position: relative; /* Needed for overlay loading */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -112,4 +113,18 @@
     border-width: 0 4px 4px 0; /* Thickness and style of the checkmark */
     transform: translate(-50%, -50%) rotate(45deg); /* Center and rotate the checkmark */
 }
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.7); /* Light transparent background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10; /* Ensure it's above the timer */
+    border-radius: 10px; /* Optional: smooth corners */
+  }
 
