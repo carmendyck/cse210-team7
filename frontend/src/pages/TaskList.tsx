@@ -39,6 +39,11 @@ const TaskList: React.FC = () => {
     setTasks(updatedTasks); // Update the state to remove the task
   };
 
+  const handleLogout = () => {
+    logout();
+    history.push('/login');
+  };
+
   return (
     <IonPage>
       <IonHeader>
