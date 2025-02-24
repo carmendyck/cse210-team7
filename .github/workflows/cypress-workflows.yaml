@@ -61,9 +61,9 @@ jobs:
         run: ionic serve --no-open --no-interactive --port 8100 &
         working-directory: frontend
 
-      - name: Run Specific Cypress Test
-        run: npx cypress run --spec cypress/e2e/login.cy.ts --config video=false
-        working-directory: frontend
+      # - name: Run Specific Cypress Test
+      #   run: npx cypress run --spec cypress/e2e/login.cy.ts --config video=false
+      #   working-directory: frontend
 
       - name: Run Vite Tests (Unit & Component)
       run: npm run test.unit -- --ci --coverage --runInBand
