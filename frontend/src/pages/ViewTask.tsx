@@ -3,7 +3,6 @@ import { IonButton, IonContent, IonPage, IonTitle, IonToolbar, IonText, IonItemD
 import { useHistory } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import './ViewTask.css'; // Import the CSS file
-import { format } from "date-fns";
 
 
 interface ViewTaskProps {
