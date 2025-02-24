@@ -62,7 +62,7 @@ const SignUp: React.FC = () => {
         setShowSuccess(true);
         localStorage.setItem("redirectPath", "/create_acct_pref");
         setTimeout(() => {
-          login(data.token);
+          login(data.token, data.uid);
           history.push("/create_acct_pref");
         }, 2000);
       } else {

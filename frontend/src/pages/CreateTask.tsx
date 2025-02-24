@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from "react-router-dom";
-import { useUid } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 import {
   InputChangeEventDetail,
   IonInputCustomEvent,
@@ -36,7 +36,7 @@ import { Tag } from '../interfaces/TagInterface';
 import { getTomorrowBeforeMidnight, formatLocalDateForIonDatetime }  from '../components/HandleDatetime';
 
 const CreateTask: React.FC = () => {
-  const uid = useUid();
+  const { uid } = useAuth();
   const history = useHistory();
 
   // Storing constants to be used upon task creation
