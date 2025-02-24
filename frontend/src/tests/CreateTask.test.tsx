@@ -52,6 +52,43 @@ describe('CreateTask Component', () => {
     expect(await screen.findByText("<Name> is required!")).toBeInTheDocument();
   });
 
+  test("input task name has correct number of characters", () => {
+    render(
+      <MemoryRouter>
+        <CreateTask />
+      </MemoryRouter>
+    );
+
+    const nameInput = screen.getByPlaceholderText("Add task name") as HTMLInputElement;
+    const maxLength = 50;
+
+    // Simulate typing a valid task name
+    const newTaskName = "A ".repeat(25); // 50 characters long
+    fireEvent.change(nameInput, { target: { value: newTaskName } });
+
+    expect(nameInput.value).toBe(newTaskName);
+    expect(nameInput.value.length).toBeLessThanOrEqual(maxLength);
+
+    // Try to exceed max length and ensure it doesn't change
+    fireEvent.change(nameInput, { target: { value: "A ".repeat(60) } });
+    expect(nameInput.value.length).toBeLessThanOrEqual(maxLength);
+  });
+
+  test("time estimate input can be interacted with", () => {
+    render(
+      <MemoryRouter>
+        <CreateTask />
+      </MemoryRouter>
+    );
+
+    const timeEstimateInput = screen.getByPlaceholderText("1") as HTMLInputElement;
+
+    // Simulate input change
+    fireEvent.change(timeEstimateInput, { target: { value: '5' } });
+
+    expect(timeEstimateInput.value).toBe('5');
+  });
+
   // Failing this test currently
   test('submits the form successfully when a valid task name is provided', async () => {
     setup();
