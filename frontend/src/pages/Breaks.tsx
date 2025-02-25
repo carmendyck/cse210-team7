@@ -53,4 +53,3 @@ const Breaks: React.FC = () => {
 };
 
 export default Breaks;
-
