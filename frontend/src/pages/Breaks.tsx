@@ -3,7 +3,8 @@ import { useState } from 'react';
 import './Breaks.css';
 
 const Breaks: React.FC = () => {
-  const [breakDuration, setBreakDuration] = useState(15);
+  const [breakDuration, setBreakDuration] = useState(5);
+  const [workDuration, setWorkDuration] = useState(30);
   const tickValues = [10, 20, 30, 40, 50, 60];
 
   return (
@@ -13,30 +14,52 @@ const Breaks: React.FC = () => {
           <IonButtons slot="start">
             <IonBackButton defaultHref="/preferences" />
           </IonButtons>
-          <IonTitle>Breaks</IonTitle>
+          <IonTitle>Break Preferences</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
+
         <IonItem>
-          <IonLabel>How long do you like your breaks (in minutes)?</IonLabel>
-        </IonItem>
-        <IonItem>
+          <IonLabel>How long do you prefer to work before a break (in minutes)?</IonLabel>
           <IonRange 
-            min={10} 
-            max={60} 
-            step={10} 
-            snaps 
-            ticks 
-            value={breakDuration} 
-            onIonChange={(e) => setBreakDuration(e.detail.value as number)}
-          />
+            min={15} 
+            max={120} 
+            step={5} 
+            value={workDuration}
+            ticks={true} 
+            snaps={true}
+            pin={true} 
+            pinFormatter={(value: number) => `${value} min`}
+            onIonChange={(e) => setWorkDuration(e.detail.value as number)}
+            labelPlacement="fixed" 
+            label={`${workDuration} min`}
+            style={{ width: '150%' }}
+          >
+            <IonLabel slot="start">15 min</IonLabel>
+            <IonLabel slot="end">120 min</IonLabel>
+          </IonRange>
         </IonItem>
 
-        <div className="range-labels">
-          {tickValues.map((value) => (
-            <span key={value} className="range-label">{value}</span>
-          ))}
-        </div>
+        <IonItem>
+          <IonLabel>How long do you like your breaks (in minutes)?</IonLabel>
+          <IonRange 
+            min={5} 
+            max={60} 
+            step={1} 
+            value={breakDuration}
+            ticks={true} 
+            snaps={true}
+            pin={true} 
+            pinFormatter={(value: number) => `${value} min`}
+            onIonChange={(e) => setBreakDuration(e.detail.value as number)}
+            labelPlacement="fixed" 
+            label={`${breakDuration} min`}
+            style={{ width: '150%' }}
+          >
+            <IonLabel slot="start">5 min</IonLabel>
+            <IonLabel slot="end">60 min</IonLabel>
+          </IonRange>
+        </IonItem>
 
         <IonItem>
           <IonLabel>What types of breaks do you want suggestions for?</IonLabel>
