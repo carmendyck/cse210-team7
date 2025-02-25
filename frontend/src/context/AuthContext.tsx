@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 
 interface AuthContextType {
   user: string | null;
-  login: (token: string, uid: string) => void;
+  uid: string | null;
+  login: (token: string, uid: string, isNewSignup?: boolean) => void;
   logout: () => void;
 }
 
@@ -13,19 +14,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<string | null>(localStorage.getItem("authToken"));
   const [uid, setUid] = useState<string | null>(localStorage.getItem("uid"));
   const history = useHistory();
+  const location = useLocation();
 
-  // 🔹 Ensure re-routing happens when the auth state changes
   useEffect(() => {
-    if (user) {
-      history.push("/tasklist"); // Redirect when user logs in
+    if (user && location.pathname === '/login') {
+      history.push("/tasklist");
     }
-  }, [user, history]); // 🔹 Ensure it updates when `user` changes
+  }, [user, history, location]);
 
-  const login = (token: string, uid: string) => {
+  const login = (token: string, uid: string, isNewSignup = false) => {
     localStorage.setItem("authToken", token);
     localStorage.setItem("uid", uid);
     setUser(token);
     setUid(uid);
+
+    if (!isNewSignup) {
+      history.push("/tasklist");
+    }
   };
 
   const logout = () => {
@@ -37,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, uid, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -47,9 +52,4 @@ export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
-};
-
-export const useUid = (): string | null => {
-  const uid = localStorage.getItem("uid");
-  return uid;
 };
