@@ -35,3 +35,24 @@
 //     }
 //   }
 // }
+
+// Extend Cypress types to recognize custom commands
+declare namespace Cypress {
+    interface Chainable {
+      login(): Chainable<void>;
+      waitForFirestore(): Chainable<void>;
+    }
+  }
+
+Cypress.Commands.add("login", () => {
+    cy.window().then((win) => {
+      win.localStorage.setItem("authUser", JSON.stringify({ uid: "aNlyq8aiGeS8VmMGzjjDuugSBXy2", email: "db_test@gmail.com" }));
+    });
+  });
+
+  Cypress.Commands.add("waitForFirestore", () => {
+    cy.intercept("GET", "**/api/viewTask/getTask/**", { fixture: "taskview.json" }).as("getTask");
+    cy.wait("@getTask");
+  });
+  
+  
