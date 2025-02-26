@@ -163,19 +163,19 @@ const CreateTask: React.FC = () => {
       <IonContent className="ion-flex ion-justify-content-center ion-align-items-center ion-padding">
         {/* Basic task information */}
         <IonInput
-          value={taskData.name} onIonChange={(e) => handleInputChange(e, 'name')}
+          value={taskData.name} onIonInput={(e) => handleInputChange(e, 'name')}
           aria-label="Name" labelPlacement="fixed" placeholder="Add task name"
           counter={true} maxlength={50}>
         </IonInput>
         {/* TODO: add Notes icon */}
         <IonInput
-          value={taskData.notes} onIonChange={(e) => handleInputChange(e, 'notes')}
+          value={taskData.notes} onIonInput={(e) => handleInputChange(e, 'notes')}
           aria-label="Notes" labelPlacement="fixed" placeholder="Add notes (optional)"
           counter={true} maxlength={500}>
         </IonInput>
         {/* TODO: add location icon */}
         <IonInput
-          value={taskData.location} onIonChange={(e) => handleInputChange(e, 'location')}
+          value={taskData.location} onIonInput={(e) => handleInputChange(e, 'location')}
           aria-label="Location" labelPlacement="fixed" placeholder="Add location (optional)"
           counter={true} maxlength={50}>
         </IonInput>
@@ -222,7 +222,7 @@ const CreateTask: React.FC = () => {
         {/* Scheduling and time */}
         <IonItem>
           <IonInput value={taskData.total_time_estimate}
-            onIonChange={(e) => handleInputChange(e, 'total_time_estimate')}
+            onIonInput={(e) => handleInputChange(e, 'total_time_estimate')}
             type="number" label="Time Estimate (hours)" placeholder="1" min="0"></IonInput>
         </IonItem>
 
