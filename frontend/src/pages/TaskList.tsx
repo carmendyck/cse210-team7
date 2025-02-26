@@ -12,65 +12,98 @@ import {
   IonCheckbox,
   IonDatetime
 } from '@ionic/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useHistory } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { DatetimeChangeEventDetail, IonDatetimeCustomEvent } from "@ionic/core";
 import './TaskList.css';
+import { TaskListItem } from '../interfaces/TaskListItemInterface';
 
-const monthMap: Record<string, string> = {
-  Jan: "01",
-  Feb: "02",
-  Mar: "03",
-  Apr: "04",
-  May: "05",
-  Jun: "06",
-  Jul: "07",
-  Aug: "08",
-  Sep: "09",
-  Oct: "10",
-  Nov: "11",
-  Dec: "12",
-};
 
-function parseDueDate(dueDate: string) {
-  const [monthAbbr, day] = dueDate.split(" ");
-  const month = monthMap[monthAbbr] || "01";
-  const dayPadded = day.padStart(2, "0");
-  return `2025-${month}-${dayPadded}`;
+
+function formatDueDate(dueDatetime: string): string {
+  const date = new Date(dueDatetime); 
+  const year = date.getUTCFullYear(); 
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0"); 
+  const day = String(date.getUTCDate()).padStart(2, "0"); 
+
+  return `${year}-${month}-${day}`;
 }
 
-const initialTasks = [
-  { id: 1, title: "Finish CSE210 homework", duration: "5h", dueDate: "Feb 15", category: "study", color: "red" },
-  { id: 2, title: "Prepare a presentation", duration: "2h", dueDate: "Feb 16", category: "study", color: "yellow" },
-  { id: 3, title: "Go to the Gym", duration: "1h", dueDate: "Feb 17", category: "personal", color: "green" },
-  { id: 4, title: "Plan your meal", duration: "20mins", dueDate: "Feb 18", category: "personal", color: "green" },
-  { id: 5, title: "Review daily goals before sleeping.", duration: "5mins", dueDate: "Feb 19", category: "personal", color: "green" }
-];
+// const initialTasks = [
+//   { id: 'Ebj1j5kdNkrcqPwYMpBx', title: "Finish CSE210 homework", duration: "5h", dueDate: "Feb 15", category: "study", color: "red" },
+//   { id: 'AqEq8KnXVGc8F98Hy4LL', title: "Prepare a presentation", duration: "2h", dueDate: "Feb 16", category: "study", color: "yellow" },
+//   { id: '7mRIqexhfoOBbxSts6aa', title: "Go to the Gym", duration: "1h", dueDate: "Feb 17", category: "personal", color: "green" },
+//   { id: '3T8cAvTXcbQMerDZNFnF', title: "Plan your meal", duration: "20mins", dueDate: "Feb 18", category: "personal", color: "green" },
+//   { id: '1ah9j2KOEXvnrXo570o9', title: "Review daily goals before sleeping.", duration: "5mins", dueDate: "Feb 19", category: "personal", color: "green" }
+// ];
+
 
 const TaskList: React.FC = () => {
-  const [tasks, setTasks] = useState(initialTasks);
+  const [tasks, setTasks] = useState<TaskListItem[]>([])
+  // const [tasks, setTasks] = useState<{id: string, name: string, total_time_estimate: number, priority: number, completed: boolean, due_datetime: string, time_spent: number } | null>(null); 
+  const history = useHistory();
+  const { logout } = useAuth();
+  const { uid } = useAuth();
+
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     const now = new Date();
     return now.toISOString().split('T')[0]; // e.g. "2025-02-23"
   });
-  const history = useHistory();
-  const { logout } = useAuth();
 
-  const selectTask = (taskId: number) => {
+  // TODO: associate priority with color.
+  // this is here since priority hasn't been implemented yet,
+  // and database has no color field
+  const defaultColor = "green"; 
+
+  const selectTask = (taskId: string) => {
     console.log("Moved to viewtask");
-    history.push(`/viewtask`);
+    history.push(`/viewtask/${taskId}`);
   };
 
-  const removeTask = (taskId: number) => {
-    const updatedTasks = tasks.filter(task => task.id !== taskId);
-    setTasks(updatedTasks);
+  // TODO: Connect to backend
+  // + possibly move to bottom (checked) instead of making it disappear from list
+  const removeTask = (taskId: string) => {
+    const updatedTasks = tasks.filter(task => task.id !== taskId); // Filter out the selected task
+    setTasks(updatedTasks); // Update the state to remove the task
   };
 
   const handleLogout = () => {
     logout();
     history.push('/login');
   };
+
+  const getAllTasks = async () => {
+    try {
+      console.log("fetching tasks for uid ", uid);
+      const response = await fetch(`http://localhost:5050/api/tasklist/getAllTasks/${uid}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.log("Error fetching tasks: ", data.error || 'Unknown error');
+        throw new Error("Failed to fetch task");
+      }
+
+      console.log(data.message);
+
+      const taskList : TaskListItem[] = data.tasks;
+      setTasks(taskList);
+      console.log("Task List:", taskList);
+
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  }
+
+  // gets tasks once on page load
+  // TODO: figure out why this is getting called 4 times
+  useEffect(() => {
+    getAllTasks();
+  }, []);
 
   const handleDateChange = (e: IonDatetimeCustomEvent<DatetimeChangeEventDetail>) => {
     const value = e.detail.value;
@@ -81,7 +114,7 @@ const TaskList: React.FC = () => {
     }
   };
 
-  const filteredTasks = tasks.filter(task => parseDueDate(task.dueDate) === selectedDate);
+  const filteredTasks = tasks.filter(task => formatDueDate(task.due_datetime.toLocaleString()) === selectedDate);
 
 return (
   <IonPage>
@@ -111,7 +144,7 @@ return (
         {filteredTasks.map((task) => (
           <IonItem
             key={task.id}
-            className={`task-item ${task.color}`}
+            className={`task-item ${defaultColor}`}
             onClick={() => selectTask(task.id)}
           >
             <IonCheckbox
@@ -120,14 +153,13 @@ return (
               onIonChange={() => removeTask(task.id)}
             />
             <IonLabel>
-              <h2>{task.title}</h2>
-              <p className="due-date">Due: {task.dueDate}</p>
-            </IonLabel>
-            <span className="duration">{task.duration}</span>
-          </IonItem>
+               <h2>{task.name}</h2>
+                <p className="due-date">Due: {formatDueDate(task.due_datetime.toLocaleString())}</p>
+             </IonLabel>
+             <span className="duration">{task.total_time_estimate}</span>
+           </IonItem>
         ))}
       </IonList>
-
     </IonContent>
   </IonPage>
 );
