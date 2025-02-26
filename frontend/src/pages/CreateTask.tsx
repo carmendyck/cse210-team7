@@ -44,9 +44,9 @@ const CreateTask: React.FC = () => {
     // Basic info
     user_id: uid,
 
-    name: null,
-    notes: null,
-    location: null,  // (optional)
+    name: '',
+    notes: '',
+    location: '',  // (optional)
     due_datetime: getTomorrowBeforeMidnight(),
 
     // To filter data
@@ -68,9 +68,20 @@ const CreateTask: React.FC = () => {
   const [ invalidTaskMessage, setInvalidTaskMessage ] = useState<string>();
 
   // Handling changes to inputs-- updating states
-  const handleInputChange = (e: IonInputCustomEvent<InputChangeEventDetail>, field: keyof NewTask) => {
-    console.log("Field [", field, "] set to [", e.target.value, "]");
-    setTaskData({ ...taskData, [field]: e.target.value, });
+  const handleInputChange = (e: IonInputCustomEvent<InputChangeEventDetail>,
+                             field: keyof NewTask, maxLength: number) => {
+    const newValue = e.target.value;
+    console.log('Input value:', newValue);
+    if (typeof newValue === 'string' && newValue.length > maxLength) {
+      console.warn(`Input length ${newValue.length} must be less than ${maxLength}!`);
+
+      const newValueTruncated = newValue.slice(0, maxLength);
+      setTaskData({ ...taskData, [field]: newValueTruncated, });
+      console.log("Field [", field, "] set to [", newValueTruncated, "]");
+    } else {
+      setTaskData({ ...taskData, [field]: newValue, });
+      console.log("Field [", field, "] set to [", newValue, "]");
+    }
   };
 
   const handleDueDateChange = (e: IonDatetimeCustomEvent<DatetimeChangeEventDetail>) => {
@@ -105,7 +116,8 @@ const CreateTask: React.FC = () => {
   const isTaskValid = () => {
     // [Required fields]: name, course (other fields have valid defaults)
     const required: (keyof NewTask)[] = ['name'];
-    const missing: string[] = required.filter(field => !taskData[field]);
+    const missing: string[] = required.filter(field => !taskData[field] ||
+      (typeof taskData[field] === 'string' && taskData[field].trim() === ''));
 
     if (missing.length > 0) {
       let message = missing.map(field => `<${field[0].toUpperCase() + field.slice(1)}>`).join(' and ');
@@ -163,19 +175,19 @@ const CreateTask: React.FC = () => {
       <IonContent className="ion-flex ion-justify-content-center ion-align-items-center ion-padding">
         {/* Basic task information */}
         <IonInput
-          value={taskData.name} onIonInput={(e) => handleInputChange(e, 'name')}
+          value={taskData.name} onIonInput={(e) => handleInputChange(e, 'name', 50)}
           aria-label="Name" labelPlacement="fixed" placeholder="Add task name"
           counter={true} maxlength={50}>
         </IonInput>
         {/* TODO: add Notes icon */}
         <IonInput
-          value={taskData.notes} onIonInput={(e) => handleInputChange(e, 'notes')}
+          value={taskData.notes} onIonInput={(e) => handleInputChange(e, 'notes', 500)}
           aria-label="Notes" labelPlacement="fixed" placeholder="Add notes (optional)"
           counter={true} maxlength={500}>
         </IonInput>
         {/* TODO: add location icon */}
         <IonInput
-          value={taskData.location} onIonInput={(e) => handleInputChange(e, 'location')}
+          value={taskData.location} onIonInput={(e) => handleInputChange(e, 'location', 50)}
           aria-label="Location" labelPlacement="fixed" placeholder="Add location (optional)"
           counter={true} maxlength={50}>
         </IonInput>
@@ -222,7 +234,7 @@ const CreateTask: React.FC = () => {
         {/* Scheduling and time */}
         <IonItem>
           <IonInput value={taskData.total_time_estimate}
-            onIonInput={(e) => handleInputChange(e, 'total_time_estimate')}
+            onIonInput={(e) => handleInputChange(e, 'total_time_estimate', Infinity)}
             type="number" label="Time Estimate (hours)" placeholder="1" min="0"></IonInput>
         </IonItem>
 
