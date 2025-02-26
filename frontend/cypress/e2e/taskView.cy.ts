@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 describe("ViewTask Page", () => {
     beforeEach(() => {
       cy.clearLocalStorage();
