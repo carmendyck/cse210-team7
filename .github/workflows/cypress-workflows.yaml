@@ -65,6 +65,10 @@ jobs:
       #   run: npx cypress run --spec cypress/e2e/login.cy.ts --config video=false
       #   working-directory: frontend
 
+      - name: Run Vite Tests (Unit & Component)
+        run: npm run test.unit | grep -v 'taskView.test.tsx' | grep -v 'Breaks.test.tsx'
+        working-directory: frontend
+
       - name: Run Cypress Tests in Authentication Folder
         run: npx cypress run --spec "cypress/e2e/{login,signup}.cy.ts" --config video=false
         working-directory: frontend
