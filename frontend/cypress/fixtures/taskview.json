@@ -1,0 +1,11 @@
+{
+    "task": {
+        "name": "Example task",
+        "due_datetime": "2025-02-21T07:59:00.000Z",
+        "total_time_estimate": 3,
+        "time_spent": 2,
+        "priority": 0,
+        "notes": "description",
+        "uid": "yq8aiGeS8VmMGzjjDuugSBXy2"
+    }
+  }
