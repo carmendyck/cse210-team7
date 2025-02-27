@@ -254,7 +254,7 @@ const CreateTask: React.FC = () => {
           )}
 
           <IonButtons slot="primary">
-            <IonButton shape="round" onClick={handleCreate}>Create</IonButton>
+            <IonButton shape="round" className="create-task-button" onClick={handleCreate}>Create</IonButton>
           </IonButtons>
         </IonToolbar>
       </IonContent>
