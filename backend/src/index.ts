@@ -4,6 +4,7 @@ import authRoutes from "./routes/authRoutes";
 import createTasksRoutes from "./routes/createTasksRoutes";
 import viewTaskRoutes from "./routes/viewTaskRoutes";
 import prefSettingsRoutes from "./routes/prefSettingsRoutes"
+import taskListRoutes from "./routes/taskListRoutes";
 
 import dotenv from "dotenv";
 
@@ -15,6 +16,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/createTasks", createTasksRoutes)
+app.use("/api/tasklist", taskListRoutes)
 app.use("/api/viewTask", viewTaskRoutes)
 app.use("/api/breaks", prefSettingsRoutes)
 
