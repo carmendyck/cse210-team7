@@ -3,7 +3,7 @@ import cors from "cors";
 import authRoutes from "./routes/authRoutes";
 import createTasksRoutes from "./routes/createTasksRoutes";
 import viewTaskRoutes from "./routes/viewTaskRoutes";
-import prefSettingsRouter from "./routes/prefSettingsRouter"
+import prefSettingsRoutes from "./routes/prefSettingsRoutes"
 
 import dotenv from "dotenv";
 
@@ -16,7 +16,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/createTasks", createTasksRoutes)
 app.use("/api/viewTask", viewTaskRoutes)
-app.use("/api/breaks", prefSettingsRouter)
+app.use("/api/breaks", prefSettingsRoutes)
 
 const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => {
