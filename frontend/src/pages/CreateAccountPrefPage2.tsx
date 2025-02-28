@@ -1,51 +1,35 @@
 import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonItem, IonLabel, IonPage, IonRange, IonSegment, IonSegmentButton,IonTitle, IonToolbar } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 import { useState } from 'react';
+import { stringTimeOfDay, stringFlexibility} from "../util/prefConversions"
 
 const CreateAccountPrefPage2: React.FC = () => {
   const history = useHistory();
-
-  const handleFinish = () => {
-    history.push("/tasklist"); // Redirects to the main app
-  };
 
   const [mostProductiveTime, setMostProductiveTime] = useState(2);
   const [flexibility, setFlexibility] = useState(2);
   const [workDuration, setWorkDuration] = useState(30);
 
-  // There's probably better ways to implement this conversion stuff lol 
+  const handleFinish = () => {
 
-  // converts ion-range value to time-of-day string to be displayed on pin + label
-  function stringTimeOfDay(rangeValue: number) : string {
-    switch(rangeValue) {
-      case 0:
-        return "Morning";
-      case 1:
-        return "Noon";
-      case 2:
-        return "Afternoon";
-      case 3:
-        return "Evening";
-      default: // 4
-        return "Nighttime";
-    }
-  }
+    // Gather data to push
+    // - user_id, productivity, flexibility, work_duration, break_duration, selected_breaks
 
-  // converts ion-range value to time-of-day string to be displayed on pin + label
-  function stringFlexibility(rangeValue: number) : string {
-    switch(rangeValue) {
-      case 0:
-        return "Very Rigid";
-      case 1:
-        return "Moderately Rigid";
-      case 2:
-        return "Neutral";
-      case 3:
-        return "Moderately Flexible";
-      default: // 4
-        return "Very Flexible";
-    }
-  }
+
+
+    // Push preferences updates to DB
+
+
+
+
+
+    // Save confirmation pop up
+
+
+    // Redirect to main app
+    history.push("/tasklist"); // Redirects to the main app
+  };
+
 
   // == Set-Up - Scheduling Preferences ==
   // -- When are you most productive? --
@@ -70,7 +54,7 @@ const CreateAccountPrefPage2: React.FC = () => {
             <IonBackButton defaultHref="/create_acct_pref"></IonBackButton>
           </IonButtons>
           <IonButtons slot="end">
-            <IonButton onClick={handleFinish}>Finish</IonButton>
+            <IonButton onClick={handleFinish}>Save & Finish</IonButton>
           </IonButtons>
           <IonTitle>Set-Up - Scheduling Preferences</IonTitle>
         </IonToolbar>
