@@ -23,6 +23,7 @@ import {
   IonRange,
   IonCheckbox,
   IonList,
+  IonLoading,
 } from "@ionic/react";
 
 
@@ -39,6 +40,8 @@ const Breaks: React.FC = () => {
     "Active Break": true,
     "Meditation Break": true,
   });
+
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleRangeChange = (e: IonRangeCustomEvent<RangeChangeEventDetail>, field: 'breakDuration' | 'workDuration') => {
     const value = e.detail.value as number;
@@ -64,7 +67,8 @@ const Breaks: React.FC = () => {
   };
 
   const handleSave = async () => {
-    // TODO: Add storing of preferences
+    setIsSaving(true);
+
     console.log("Storing break preferences: ", {
       breakDuration,
       workDuration,
@@ -91,10 +95,14 @@ const Breaks: React.FC = () => {
         console.log("Error storing preferences, fetching from API: ", data.error || 'Unknown error');
       } else {
         console.log("Preferences successfully saved:", data);
-        history.push("/preferences"); // Redirect after successful save
+        setTimeout(() => {
+          history.push("/preferences"); // Redirect after successful save
+        }, 1500); // Delay for 1.5 seconds
       }
     } catch (error) {
       console.error("Error connecting to the API: ", error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -171,6 +179,10 @@ const Breaks: React.FC = () => {
                 <IonButtons shape="round" onClick={handleSave}>Save</IonButtons>
             </IonButtons>
         </IonToolbar>
+        <IonLoading
+            isOpen={isSaving}
+            message={'Saving preferences...'}
+          />
       </IonContent>
     </IonPage>
   );
