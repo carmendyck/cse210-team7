@@ -58,7 +58,17 @@
 .timer-display h2 {
     font-size: 2em;
     margin-bottom: 15px;
-}    
+}   
+
+.disabled-timer {
+    color: lightgray;
+}
+
+.another-task-message {
+  color: lightcoral;
+  text-align: center;
+  margin-top: 10px;
+}
 
 .timer-buttons {
     display: flex;
