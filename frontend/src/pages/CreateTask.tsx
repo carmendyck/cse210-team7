@@ -33,7 +33,7 @@ import { NewTask } from '../interfaces/TaskInterface';
 import { Course } from '../interfaces/CourseInterface';
 import { Tag } from '../interfaces/TagInterface';
 
-import { getTomorrowBeforeMidnight, formatLocalDateForIonDatetime }  from '../components/HandleDatetime';
+import { getTomorrowBeforeMidnight, formatLocalDateForIonDatetime }  from '../utils/HandleDatetime';
 
 const CreateTask: React.FC = () => {
   const { uid } = useAuth();
@@ -67,21 +67,30 @@ const CreateTask: React.FC = () => {
 
   const [ invalidTaskMessage, setInvalidTaskMessage ] = useState<string>();
 
-  // Handling changes to inputs-- updating states
   const handleInputChange = (e: IonInputCustomEvent<InputChangeEventDetail>,
                              field: keyof NewTask, maxLength: number) => {
-    const newValue = e.target.value;
-    console.log('Input value:', newValue);
-    if (typeof newValue === 'string' && newValue.length > maxLength) {
-      console.warn(`Input length ${newValue.length} must be less than ${maxLength}!`);
+    const stringInputFields: (keyof NewTask)[] = ["name", "notes", "location"];
+    const numberInputFields: (keyof NewTask)[] = ["total_time_estimate"];
 
-      const newValueTruncated = newValue.slice(0, maxLength);
-      setTaskData({ ...taskData, [field]: newValueTruncated, });
-      console.log("Field [", field, "] set to [", newValueTruncated, "]");
-    } else {
-      setTaskData({ ...taskData, [field]: newValue, });
-      console.log("Field [", field, "] set to [", newValue, "]");
+    let newValue: any = String(e.target.value) || '';
+    console.log('Input value [', newValue, '] with type [', typeof newValue, ']');
+
+    // String input fields must be under max character limit
+    if (stringInputFields.includes(field)) {
+      if (newValue.length > maxLength) {
+        console.warn(`Input length ${newValue.length} must be less than ${maxLength}!`);
+        newValue = newValue.slice(0, maxLength);
+      }
+    // Total time estimate must be non-negative
+    } else if (numberInputFields.includes(field)) {
+      newValue = Number(newValue);
+      if (newValue < 0) {
+        console.warn(`Input value ${newValue} must be greater than or equal to ${0}!`);
+        newValue = 0;
+      }
     }
+    setTaskData({ ...taskData, [field]: newValue, });
+    console.log("Field [", field, "] set to [", newValue, "]");
   };
 
   const handleDueDateChange = (e: IonDatetimeCustomEvent<DatetimeChangeEventDetail>) => {
@@ -128,6 +137,8 @@ const CreateTask: React.FC = () => {
     } else {
       return true;
     }
+
+    // TODO: if date is too far into future, give popup
   };
 
   const handleCreate = async () => {
@@ -196,6 +207,7 @@ const CreateTask: React.FC = () => {
         <IonItem>
           <IonDatetime
             value={formatLocalDateForIonDatetime(taskData.due_datetime)}
+            min={formatLocalDateForIonDatetime(new Date())}
             onIonChange={(e) => handleDueDateChange(e)}>
             <span slot="title">Due date/time</span>
           </IonDatetime>
@@ -227,6 +239,7 @@ const CreateTask: React.FC = () => {
             <IonSelectOption value="Quiz">Quiz</IonSelectOption>
             <IonSelectOption value="Exam">Exam</IonSelectOption>
             <IonSelectOption value="Reading">Reading</IonSelectOption>
+            <IonSelectOption value="Paper">Paper</IonSelectOption>
             {/* TODO: add option to add new tag? */}
           </IonSelect>
         </IonItem>
@@ -248,7 +261,7 @@ const CreateTask: React.FC = () => {
 
         <IonToolbar>
           {invalidTaskMessage && (
-            <IonText color="danger">
+            <IonText color="danger" className="invalid-task-message">
               <p>{invalidTaskMessage}</p>
             </IonText>
           )}
