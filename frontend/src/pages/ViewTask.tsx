@@ -338,7 +338,8 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
               {/* Timer control buttons */}
               <div className="timer-buttons">
               {anotherTaskRunning ? (
-                  <IonText className="another-task-message">You have a task in progress: <strong>{localStorage.getItem('runningTaskName')}</strong>. Please stop it before starting this task.</IonText>
+                  <IonText className="another-task-message">You have a task in progress: <strong>{localStorage.getItem('runningTaskName')}</strong>. 
+                  Please stop it before starting this task.</IonText>
                 ) : (
                   <>
                     {isRunning && !isPaused ? (
@@ -359,7 +360,16 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
             </div>
             {/* Manual time entry */}
             <IonItemDivider />
-            <IonButton className="manual-time" color="medium" onClick={() => setShowModal(true)}>Enter Time Manually</IonButton>
+            <div title={anotherTaskRunning ? "Please stop the other task to enter time." : ""}>
+              <IonButton 
+                className="manual-time" 
+                color="medium" 
+                onClick={() => setShowModal(true)}
+                disabled={anotherTaskRunning}
+              >
+                Enter Time Manually
+              </IonButton>
+            </div>
             {/* "Completed" checkbox */}
             <IonItemDivider />
             <div className="completed-container">
