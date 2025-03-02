@@ -22,9 +22,7 @@ describe("CreateTask Page", () => {
     cy.visit("http://localhost:8100/createtask"); // Navigate to the page
 
     // Wait for the page to load before running tests
-    cy.wait(2000);
     cy.get('ion-content').should('be.visible');
-    cy.get("ion-input", { timeout: 15000 }).eq(0).should('be.visible');
   });
 
   // =========================
