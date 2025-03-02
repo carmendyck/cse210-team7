@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IonButton, IonContent, IonPage, IonTitle, IonToolbar, IonText, IonItemDivider, IonSpinner } from "@ionic/react";
+import { IonButton, IonContent, IonPage, IonTitle, IonToolbar, IonText, IonItemDivider, IonSpinner, IonModal, IonItem, IonLabel, IonInput } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import './ViewTask.css'; // Import the CSS file
@@ -23,6 +23,9 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
   const [checkboxLoading, setCheckboxLoading] = useState(false); 
   const [loadingTimeSpent, setLoadingTimeSpent] = useState(false); 
   const [anotherTaskRunning, setAnotherTaskRunning] = useState(false); 
+  const [showModal, setShowModal] = useState(false);
+  const [manualHours, setManualHours] = useState<number | null>(null);
+  const [manualMinutes, setManualMinutes] = useState<number | null>(null);
 
   // Either load or start from 0
   const [timer, setTimer] = useState<number>(() => {
@@ -160,6 +163,15 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     localStorage.removeItem('isPaused');
     localStorage.removeItem('runningTaskId');
     localStorage.removeItem('runningTaskName');
+  };
+
+  const handleManualTimeSubmit = () => {
+    if (manualHours !== null && manualMinutes !== null) {
+      const additionalTime = manualHours + manualMinutes / 60;
+      // Update the task's time spent with the manually entered time
+      //setTask(prevTask => prevTask ? { ...prevTask, time_spent: prevTask.time_spent + additionalTime } : null);
+      setShowModal(false);
+    }
   };
 
   const closeTask = async () => {
@@ -320,7 +332,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
               </div>
             </div>
             <IonItemDivider />
-            <IonButton className="manual-time" color="medium">Enter Time Manually</IonButton>
+            <IonButton className="manual-time" color="medium" onClick={() => setShowModal(true)}>Enter Time Manually</IonButton>
             <IonItemDivider />
             <div className="completed-container">
               <IonText className="completed-label">
@@ -342,6 +354,22 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
           // Show error message if task is missing
           <IonText>Error: Task not found</IonText>
         )}
+
+        {/* Modal for entering time manually */}
+        <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)} className="manual-time-modal">
+          <IonContent className="ion-padding">
+            <IonItem>
+              <IonLabel position="stacked">Hours</IonLabel>
+              <IonInput type="number" value={manualHours} onIonChange={e => setManualHours(parseInt(e.detail.value!, 10))} />
+            </IonItem>
+            <IonItem>
+              <IonLabel position="stacked">Minutes</IonLabel>
+              <IonInput type="number" value={manualMinutes} onIonChange={e => setManualMinutes(parseInt(e.detail.value!, 10))} />
+            </IonItem>
+            <IonButton expand="block" onClick={handleManualTimeSubmit}>Submit</IonButton>
+            <IonButton expand="block" color="light" onClick={() => setShowModal(false)}>Cancel</IonButton>
+          </IonContent>
+        </IonModal>
       </IonContent>
     </IonPage>
   );  
