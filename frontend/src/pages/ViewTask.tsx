@@ -120,7 +120,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     return () => clearInterval(timerInterval);
   }, [isRunning, isPaused]); 
 
-  // Save timer state 
+  // Set timer state 
   useEffect(() => {
     localStorage.setItem('timer', timer.toString());
     localStorage.setItem('isRunning', JSON.stringify(isRunning));
@@ -138,6 +138,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     history.replace("/tasklist");
   };
 
+  // Timer start/resume
   const handleStart = () => {
     localStorage.setItem('runningTaskId', params.id);
     localStorage.setItem('runningTaskName', task?.name ?? "None");
@@ -146,11 +147,13 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     setIsPaused(false);
   };
 
+  // Timer pause
   const handlePause = () => {
     setIsPaused(true);
     setIsRunning(false);
   };
 
+  // Timer stop - opens modal to handle time checking/editing
   const handleStop = async () => {
     // Pause timer in case they hit cancel in the modal
     handlePause()
@@ -164,6 +167,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     setShowModal(true)
   };
 
+  // Submit clicked 
   const handleManualTimeSubmit = async () => {
     // Update the time 
     const additionalTime = (manualHours ?? 0) + (manualMinutes ?? 0) / 60; 
@@ -183,8 +187,8 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     setManualHours(null)
     setManualMinutes(null)
 
+    // Close modal
     setShowModal(false);
-
   };
 
   const handleModalCancel = () => {
@@ -232,6 +236,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     }
   };
 
+  // DB call for updating time spent
   const updateTimeSpent = async (additionalTime: number) => {
     setLoadingTimeSpent(true)
 
@@ -258,6 +263,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     }
   };
 
+  // Task completed checked/unchecked
   const handleCheckboxChange = async () => {
     setCheckboxLoading(true)
     if (task?.completed) {
@@ -325,7 +331,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
                   <IonSpinner name="circles" />
                 </div>
               )}
-              
+              {/* Timer */}
               <IonText className={`timer-display ${anotherTaskRunning ? 'disabled-timer' : ''}`}>
                 <h2>{anotherTaskRunning ? '00:00:00' : new Date(timer * 1000).toISOString().substr(11, 8)}</h2>
               </IonText>
@@ -351,8 +357,10 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
                 )}
               </div>
             </div>
+            {/* Manual time entry */}
             <IonItemDivider />
             <IonButton className="manual-time" color="medium" onClick={() => setShowModal(true)}>Enter Time Manually</IonButton>
+            {/* "Completed" checkbox */}
             <IonItemDivider />
             <div className="completed-container">
               <IonText className="completed-label">
