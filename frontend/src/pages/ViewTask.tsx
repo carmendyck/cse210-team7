@@ -152,39 +152,49 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
   };
 
   const handleStop = async () => {
-    setIsRunning(false);
-    setIsPaused(false);
+    // Pause timer in case they hit cancel in the modal
+    handlePause()
 
+    // Set modal values from timer
     const additionalTime = timer / 3600; // Convert seconds to hours
+    setManualHours(Math.floor(additionalTime))
+    setManualMinutes(Math.round((additionalTime % 1) * 60))
+
+    // Pull up modal to confirm time
+    setShowModal(true)
+  };
+
+  const handleManualTimeSubmit = async () => {
+    // Update the time 
+    const additionalTime = (manualHours ?? 0) + (manualMinutes ?? 0) / 60; 
     await updateTimeSpent(additionalTime);
 
+    // Reset any timer 
+    setIsRunning(false);
+    setIsPaused(false);
     setTimer(0);
     localStorage.removeItem('timer');
     localStorage.removeItem('isRunning');
     localStorage.removeItem('isPaused');
     localStorage.removeItem('runningTaskId');
     localStorage.removeItem('runningTaskName');
+
+    // Reset modal values
+    setManualHours(null)
+    setManualMinutes(null)
+
+    setShowModal(false);
+
   };
 
-  const handleManualTimeSubmit = async () => {
-    if (manualHours !== null && manualMinutes !== null) {
-      // Update the time 
-      const additionalTime = manualHours + manualMinutes / 60;
-      await updateTimeSpent(additionalTime);
+  const handleModalCancel = () => {
+    // Reset modal values
+    setManualHours(null)
+    setManualMinutes(null)
 
-      // Reset any timer 
-      setIsRunning(false);
-      setIsPaused(false);
-      setTimer(0);
-      localStorage.removeItem('timer');
-      localStorage.removeItem('isRunning');
-      localStorage.removeItem('isPaused');
-      localStorage.removeItem('runningTaskId');
-      localStorage.removeItem('runningTaskName');
-
-      setShowModal(false);
-    }
-  };
+    // Close modal
+    setShowModal(false)
+  }
 
   const closeTask = async () => {
     try {
@@ -293,7 +303,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
                   minute: "2-digit",// "59"
                   hour12: true      // AM/PM format
                 })}</p>
-                <p><strong>Time Estimate: </strong>{task.total_time_estimate} hours</p>
+                <p><strong>Time Estimated: </strong>{task.total_time_estimate} hours</p>
                 <p><strong>Time Spent: </strong>{task.time_spent.toFixed(2)} {task.time_spent === 1 ? "hour" : "hours"}</p>
               </IonText>
               {task.priority !== undefined && (
@@ -322,7 +332,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
               {/* Timer control buttons */}
               <div className="timer-buttons">
               {anotherTaskRunning ? (
-                  <IonText className="another-task-message">You have a task in progress: {localStorage.getItem('runningTaskName')}. Please stop it before starting this task.</IonText>
+                  <IonText className="another-task-message">You have a task in progress: <strong>{localStorage.getItem('runningTaskName')}</strong>. Please stop it before starting this task.</IonText>
                 ) : (
                   <>
                     {isRunning && !isPaused ? (
@@ -380,7 +390,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
               <IonInput type="number" value={manualMinutes} onIonChange={e => setManualMinutes(parseInt(e.detail.value!, 10))} />
             </IonItem>
             <IonButton expand="block" onClick={handleManualTimeSubmit}>Submit</IonButton>
-            <IonButton expand="block" color="light" onClick={() => setShowModal(false)}>Cancel</IonButton>
+            <IonButton expand="block" color="light" onClick={handleModalCancel}>Cancel</IonButton>
           </IonContent>
         </IonModal>
       </IonContent>
