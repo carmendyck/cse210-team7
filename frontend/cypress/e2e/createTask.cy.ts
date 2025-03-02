@@ -53,22 +53,29 @@ describe("CreateTask Page", () => {
     cy.get("ion-input").eq(0).find('input').should('have.value', newTaskName);
   });
 
-  it("should correctly update the task time estimate input field", () => {
-    // Default value should be 1
-    cy.get("ion-input[label='Time Estimate (hours)']").find('input').should('have.value', 1);
+  it("should not allow users to surpass the set max character length for names", () => {
+    const maxLength = 50;
 
-    // Set valid input, check value
-    const taskTime = "5";
-    cy.get("ion-input[label='Time Estimate (hours)']").find('input').clear()
-    cy.get("ion-input[label='Time Estimate (hours)']").find('input').type("{moveToEnd}" + taskTime);
-    cy.get("ion-input[label='Time Estimate (hours)']").find('input').should('have.value', taskTime);
+    // Enter invalid task name (longer than 50 characters), and check that length is <= 50
+    const invalidTaskName = "A ".repeat(60);
+    cy.get("ion-input").eq(0).type(invalidTaskName);
+
+    // Check that invalid long name is truncated
+    const truncatedName = invalidTaskName.slice(0, maxLength);
+    cy.get("ion-input").eq(0).find('input').should('have.value', truncatedName);
+    cy.get("ion-input").eq(0).find('input').invoke('val').should('have.length.lessThan', maxLength + 1);
   });
 
-  it("should not allow negative or non-numeric time estimates", () => {
-    // Negative numbers should trigger reverting field to 0
-    const negativeTime = "5{moveToStart}-";
-    cy.get("ion-input[label='Time Estimate (hours)']").find('input').clear().type(negativeTime);
-    cy.get("ion-input[label='Time Estimate (hours)']").find('input').should('have.value', 0);
+  it("should correctly update the task notes input field", () => {
+    const newNotes = "This is a note for the task";
+    cy.get("ion-input").eq(1).type(newNotes);
+    cy.get("ion-input").eq(1).find('input').should('have.value', newNotes);
+  });
+
+  it("should correctly update the task location input field", () => {
+    const newLocation = "New Location";
+    cy.get("ion-input").eq(2).type(newLocation);
+    cy.get("ion-input").eq(2).find('input').should('have.value', newLocation);
   });
 
   it("should correctly update the due date input field when inputs are changed", () => {
@@ -105,7 +112,7 @@ describe("CreateTask Page", () => {
         cy.get('ion-picker-column[aria-label="Select a day period"]').find('ion-picker-column-option')
           .contains(period).shadow().find('button').click({ force: true });
       });
-      cy.get('body').click(0, 0);  // exit time picker
+      cy.get('body').click(0, 0);  // exit time pickergi
 
     // Verify that the selected date and time are 1 week later at 10AM
     cy.get('ion-datetime').shadow().find('.datetime-selected-date').should('have.text', formattedDate);
@@ -126,17 +133,36 @@ describe("CreateTask Page", () => {
       .should('exist').should('have.attr', 'disabled');
   });
 
-  it("should not allow users to surpass the set max character length for names", () => {
-    const maxLength = 50;
+  it("should correctly update the tags field", () => {
+    const selectedTags = ["Assignment", "Exam"];
 
-    // Enter invalid task name (longer than 50 characters), and check that length is <= 50
-    const invalidTaskName = "A ".repeat(60);
-    cy.get("ion-input").eq(0).type(invalidTaskName);
+    // Open Tags selection, select tags, and click OK
+    cy.get("ion-select[label='Tags']").click();
+    selectedTags.forEach((tag) => {
+      cy.contains(".alert-checkbox-label", tag).parent().click();
+    });
+    cy.get('button').contains('OK').click();
 
-    // Check that invalid long name is truncated
-    const truncatedName = invalidTaskName.slice(0, maxLength);
-    cy.get("ion-input").eq(0).find('input').should('have.value', truncatedName);
-    cy.get("ion-input").eq(0).find('input').invoke('val').should('have.length.lessThan', maxLength + 1);
+    // Verify that the tags field is updated with the selected tags
+    cy.get("ion-select[label='Tags']").shadow().find("div.select-text").should("contain.text", selectedTags.join(", "));
+  });
+
+  it("should correctly update the task time estimate input field", () => {
+    // Default value should be 1
+    cy.get("ion-input[label='Time Estimate (hours)']").find('input').should('have.value', 1);
+
+    // Set valid input, check value
+    const taskTime = "5";
+    cy.get("ion-input[label='Time Estimate (hours)']").find('input').clear()
+    cy.get("ion-input[label='Time Estimate (hours)']").find('input').type("{moveToEnd}" + taskTime);
+    cy.get("ion-input[label='Time Estimate (hours)']").find('input').should('have.value', taskTime);
+  });
+
+  it("should not allow negative or non-numeric time estimates", () => {
+    // Negative numbers should trigger reverting field to 0
+    const negativeTime = "5{moveToStart}-";
+    cy.get("ion-input[label='Time Estimate (hours)']").find('input').clear().type(negativeTime);
+    cy.get("ion-input[label='Time Estimate (hours)']").find('input').should('have.value', 0);
   });
 
   // ==============================
@@ -148,11 +174,38 @@ describe("CreateTask Page", () => {
     cy.get('.invalid-task-message').should("contain", "<Name> is required!");
   });
 
-  // it("should successfully submit form when creating a valid task", () => {
+  it("should successfully submit form when creating a valid task", () => {
+    cy.fixture('newtask.json').then((fixtureData) => {
+      cy.intercept('POST', 'http://localhost:5050/api/createTasks/addnewtask', {
+        statusCode: 201,
+        body: {
+          message: 'Task added successfully!',
+          taskId: '123abc', // mock taskId
+          task: fixtureData.newTask, // use the mock task data from the fixture
+          worktimeIds: {
+            next_worktime: 'nextTimeRef.id',
+            prev_worktime: 'prevTimeRef.id',
+          },
+          worktimes: {
+            next_worktime: {
+              start_time: '2025-02-25T08:00:00Z',
+              end_time: '2025-02-25T10:00:00Z',
+            },
+            prev_worktime: {
+              start_time: null,
+              end_time: null,
+            },
+          },
+        },
+      }).as('createTask');
+    });
 
-  // });
+    const newTaskName = "This is a task name";
+    cy.get("ion-input").eq(0).type(newTaskName);
+    cy.get("ion-input").eq(0).find('input').should('have.value', newTaskName);
+    cy.get('.create-task-button').click();
 
-  // it("should return to the tasklist page when task is successfully added to database", () => {
-
-  // });
+    cy.wait("@createTask", { timeout: 10000 });
+    cy.url().should("include", "/tasklist");
+  });
 });
