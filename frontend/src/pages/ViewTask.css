@@ -58,7 +58,17 @@
 .timer-display h2 {
     font-size: 2em;
     margin-bottom: 15px;
-}    
+}   
+
+.disabled-timer {
+    color: lightgray;
+}
+
+.another-task-message {
+  color: lightcoral;
+  text-align: center;
+  margin-top: 10px;
+}
 
 .timer-buttons {
     display: flex;
@@ -71,6 +81,32 @@
     margin: 10px; 
     font-size: 16px; 
     line-height: 3;
+}
+
+.manual-time {
+    width: 200px;
+    height: 40px;
+    font-size: 12px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    margin: 20px auto; 
+    margin-bottom: 0px;
+}
+
+.manual-time-modal {
+    --width: 300px;
+    --height: 350px;
+    --border-radius: 10px;
+    --background: white;
+    --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --padding: 20px;
+    --margin: auto;
+    --top: 50%;
+    --left: 50%;
+    --transform: translate(-50%, -50%);
+    --position: absolute;
 }
 
 .completed-container {
