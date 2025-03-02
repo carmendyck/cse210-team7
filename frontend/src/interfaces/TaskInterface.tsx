@@ -4,9 +4,9 @@ import { Tag } from './TagInterface';
 export interface NewTask {
   user_id: string | null;
 
-  name: string | null;
-  notes: string | null;
-  location: string | null;
+  name: string;
+  notes: string;
+  location: string;
   due_datetime: Date;
 
   course_id: String | null;
