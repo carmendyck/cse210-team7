@@ -320,6 +320,8 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
               </div>
             </div>
             <IonItemDivider />
+            <IonButton className="manual-time" color="medium">Enter Time Manually</IonButton>
+            <IonItemDivider />
             <div className="completed-container">
               <IonText className="completed-label">
                 <p><strong>Task Completed:</strong></p>
