@@ -401,11 +401,32 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
             </IonItem>
             <IonItem>
               <IonLabel position="stacked">Hours</IonLabel>
-              <IonInput type="number" value={manualHours} onIonChange={e => setManualHours(parseInt(e.detail.value!, 10))} />
+              <IonInput 
+                type="number" 
+                inputmode="numeric"
+                min="0" 
+                step="1" 
+                value={manualHours} 
+                onIonChange={e => {
+                  const value = parseInt(e.detail.value!, 10);
+                  setManualHours(isNaN(value) || value < 0 ? 0 : value);
+                }} 
+              />
             </IonItem>
             <IonItem>
               <IonLabel position="stacked">Minutes</IonLabel>
-              <IonInput type="number" value={manualMinutes} onIonChange={e => setManualMinutes(parseInt(e.detail.value!, 10))} />
+              <IonInput 
+                type="number" 
+                inputmode="numeric"
+                min="0" 
+                max="59" 
+                step="1" 
+                value={manualMinutes} 
+                onIonChange={e => {
+                  const value = parseInt(e.detail.value!, 10);
+                  setManualMinutes(isNaN(value) || value < 0 ? 0 : value);
+                }} 
+              />
             </IonItem>
             <IonButton expand="block" onClick={handleManualTimeSubmit}>Submit</IonButton>
             <IonButton expand="block" color="light" onClick={handleModalCancel}>Cancel</IonButton>
