@@ -97,7 +97,7 @@
 
 .manual-time-modal {
     --width: 300px;
-    --height: 300px;
+    --height: 350px;
     --border-radius: 10px;
     --background: white;
     --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);

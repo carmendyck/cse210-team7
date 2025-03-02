@@ -155,7 +155,8 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     setIsRunning(false);
     setIsPaused(false);
 
-    await updateTimeSpent();
+    const additionalTime = timer / 3600; // Convert seconds to hours
+    await updateTimeSpent(additionalTime);
 
     setTimer(0);
     localStorage.removeItem('timer');
@@ -165,11 +166,22 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     localStorage.removeItem('runningTaskName');
   };
 
-  const handleManualTimeSubmit = () => {
+  const handleManualTimeSubmit = async () => {
     if (manualHours !== null && manualMinutes !== null) {
+      // Update the time 
       const additionalTime = manualHours + manualMinutes / 60;
-      // Update the task's time spent with the manually entered time
-      //setTask(prevTask => prevTask ? { ...prevTask, time_spent: prevTask.time_spent + additionalTime } : null);
+      await updateTimeSpent(additionalTime);
+
+      // Reset any timer 
+      setIsRunning(false);
+      setIsPaused(false);
+      setTimer(0);
+      localStorage.removeItem('timer');
+      localStorage.removeItem('isRunning');
+      localStorage.removeItem('isPaused');
+      localStorage.removeItem('runningTaskId');
+      localStorage.removeItem('runningTaskName');
+
       setShowModal(false);
     }
   };
@@ -190,7 +202,6 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     } catch (error) {
       console.error("Error fetching task:", error);
     }
-    // TODO: should this remove the task from any future dates in the plan since it's done?
   };
 
   const openTask = async () => {
@@ -211,9 +222,8 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     }
   };
 
-  const updateTimeSpent = async () => {
+  const updateTimeSpent = async (additionalTime: number) => {
     setLoadingTimeSpent(true)
-    const additionalTime = timer / 3600; // Convert seconds to hours
 
     try {
       const response = await fetch(`http://localhost:5050/api/viewTask/updateTimeSpent/${params.id}`, {
@@ -358,6 +368,9 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
         {/* Modal for entering time manually */}
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)} className="manual-time-modal">
           <IonContent className="ion-padding">
+            <IonItem>
+              <IonText><strong>Time Spent:</strong></IonText>
+            </IonItem>
             <IonItem>
               <IonLabel position="stacked">Hours</IonLabel>
               <IonInput type="number" value={manualHours} onIonChange={e => setManualHours(parseInt(e.detail.value!, 10))} />
