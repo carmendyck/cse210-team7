@@ -56,7 +56,7 @@ def authenticate():
     # Initialize app
     firebase_admin.initialize_app(cred)
     # Authentication
-    custom_token = auth.create_custom_token("aNlyq8aiGeS8VmMGzjjDuugSBXy2").decode("utf-8")
+    custom_token = "" # check slack for line to replace this with
     url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key={api_key}"
     data = {"token": custom_token, "returnSecureToken": True}
     response = requests.post(url, json=data)
