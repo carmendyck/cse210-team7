@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IonButton, IonContent, IonPage, IonTitle, IonToolbar, IonText, IonItemDivider, IonSpinner } from "@ionic/react";
+import { IonButton, IonContent, IonPage, IonTitle, IonToolbar, IonText, IonItemDivider, IonSpinner, IonModal, IonItem, IonLabel, IonInput } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import './ViewTask.css'; // Import the CSS file
@@ -23,6 +23,9 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
   const [checkboxLoading, setCheckboxLoading] = useState(false); 
   const [loadingTimeSpent, setLoadingTimeSpent] = useState(false); 
   const [anotherTaskRunning, setAnotherTaskRunning] = useState(false); 
+  const [showModal, setShowModal] = useState(false);
+  const [manualHours, setManualHours] = useState<number | null>(null);
+  const [manualMinutes, setManualMinutes] = useState<number | null>(null);
 
   // Either load or start from 0
   const [timer, setTimer] = useState<number>(() => {
@@ -117,7 +120,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     return () => clearInterval(timerInterval);
   }, [isRunning, isPaused]); 
 
-  // Save timer state 
+  // Set timer state 
   useEffect(() => {
     localStorage.setItem('timer', timer.toString());
     localStorage.setItem('isRunning', JSON.stringify(isRunning));
@@ -135,6 +138,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     history.replace("/tasklist");
   };
 
+  // Timer start/resume
   const handleStart = () => {
     localStorage.setItem('runningTaskId', params.id);
     localStorage.setItem('runningTaskName', task?.name ?? "None");
@@ -143,24 +147,58 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     setIsPaused(false);
   };
 
+  // Timer pause
   const handlePause = () => {
     setIsPaused(true);
     setIsRunning(false);
   };
 
+  // Timer stop - opens modal to handle time checking/editing
   const handleStop = async () => {
+    // Pause timer in case they hit cancel in the modal
+    handlePause()
+
+    // Set modal values from timer
+    const additionalTime = timer / 3600; // Convert seconds to hours
+    setManualHours(Math.floor(additionalTime))
+    setManualMinutes(Math.round((additionalTime % 1) * 60))
+
+    // Pull up modal to confirm time
+    setShowModal(true)
+  };
+
+  // Submit clicked 
+  const handleManualTimeSubmit = async () => {
+    // Update the time 
+    const additionalTime = (manualHours ?? 0) + (manualMinutes ?? 0) / 60; 
+    await updateTimeSpent(additionalTime);
+
+    // Reset any timer 
     setIsRunning(false);
     setIsPaused(false);
-
-    await updateTimeSpent();
-
     setTimer(0);
     localStorage.removeItem('timer');
     localStorage.removeItem('isRunning');
     localStorage.removeItem('isPaused');
     localStorage.removeItem('runningTaskId');
     localStorage.removeItem('runningTaskName');
+
+    // Reset modal values
+    setManualHours(null)
+    setManualMinutes(null)
+
+    // Close modal
+    setShowModal(false);
   };
+
+  const handleModalCancel = () => {
+    // Reset modal values
+    setManualHours(null)
+    setManualMinutes(null)
+
+    // Close modal
+    setShowModal(false)
+  }
 
   const closeTask = async () => {
     try {
@@ -178,7 +216,6 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     } catch (error) {
       console.error("Error fetching task:", error);
     }
-    // TODO: should this remove the task from any future dates in the plan since it's done?
   };
 
   const openTask = async () => {
@@ -199,9 +236,9 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     }
   };
 
-  const updateTimeSpent = async () => {
+  // DB call for updating time spent
+  const updateTimeSpent = async (additionalTime: number) => {
     setLoadingTimeSpent(true)
-    const additionalTime = timer / 3600; // Convert seconds to hours
 
     try {
       const response = await fetch(`http://localhost:5050/api/viewTask/updateTimeSpent/${params.id}`, {
@@ -226,6 +263,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     }
   };
 
+  // Task completed checked/unchecked
   const handleCheckboxChange = async () => {
     setCheckboxLoading(true)
     if (task?.completed) {
@@ -271,7 +309,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
                   minute: "2-digit",// "59"
                   hour12: true      // AM/PM format
                 })}</p>
-                <p><strong>Time Estimate: </strong>{task.total_time_estimate} hours</p>
+                <p><strong>Time Estimated: </strong>{task.total_time_estimate} hours</p>
                 <p><strong>Time Spent: </strong>{task.time_spent.toFixed(2)} {task.time_spent === 1 ? "hour" : "hours"}</p>
               </IonText>
               {task.priority !== undefined && (
@@ -293,14 +331,15 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
                   <IonSpinner name="circles" />
                 </div>
               )}
-              
+              {/* Timer */}
               <IonText className={`timer-display ${anotherTaskRunning ? 'disabled-timer' : ''}`}>
                 <h2>{anotherTaskRunning ? '00:00:00' : new Date(timer * 1000).toISOString().substr(11, 8)}</h2>
               </IonText>
               {/* Timer control buttons */}
               <div className="timer-buttons">
               {anotherTaskRunning ? (
-                  <IonText className="another-task-message">You have a task in progress: {localStorage.getItem('runningTaskName')}. Please stop it before starting this task.</IonText>
+                  <IonText className="another-task-message">You have a task in progress: <strong>{localStorage.getItem('runningTaskName')}</strong>. 
+                  Please stop it before starting this task.</IonText>
                 ) : (
                   <>
                     {isRunning && !isPaused ? (
@@ -319,6 +358,19 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
                 )}
               </div>
             </div>
+            {/* Manual time entry */}
+            <IonItemDivider />
+            <div title={anotherTaskRunning ? "Please stop the other task to enter time." : ""}>
+              <IonButton 
+                className="manual-time" 
+                color="medium" 
+                onClick={() => setShowModal(true)}
+                disabled={anotherTaskRunning}
+              >
+                Enter Time Manually
+              </IonButton>
+            </div>
+            {/* "Completed" checkbox */}
             <IonItemDivider />
             <div className="completed-container">
               <IonText className="completed-label">
@@ -340,6 +392,46 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
           // Show error message if task is missing
           <IonText>Error: Task not found</IonText>
         )}
+
+        {/* Modal for entering time manually */}
+        <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)} className="manual-time-modal">
+          <IonContent className="ion-padding">
+            <IonItem>
+              <IonText><strong>Time Spent:</strong></IonText>
+            </IonItem>
+            <IonItem>
+              <IonLabel position="stacked">Hours</IonLabel>
+              <IonInput 
+                type="number" 
+                inputmode="numeric"
+                min="0" 
+                step="1" 
+                value={manualHours} 
+                onIonChange={e => {
+                  const value = parseInt(e.detail.value!, 10);
+                  setManualHours(isNaN(value) || value < 0 ? 0 : value);
+                }} 
+              />
+            </IonItem>
+            <IonItem>
+              <IonLabel position="stacked">Minutes</IonLabel>
+              <IonInput 
+                type="number" 
+                inputmode="numeric"
+                min="0" 
+                max="59" 
+                step="1" 
+                value={manualMinutes} 
+                onIonChange={e => {
+                  const value = parseInt(e.detail.value!, 10);
+                  setManualMinutes(isNaN(value) || value < 0 ? 0 : value);
+                }} 
+              />
+            </IonItem>
+            <IonButton expand="block" onClick={handleManualTimeSubmit}>Submit</IonButton>
+            <IonButton expand="block" color="light" onClick={handleModalCancel}>Cancel</IonButton>
+          </IonContent>
+        </IonModal>
       </IonContent>
     </IonPage>
   );  
