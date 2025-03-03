@@ -1,12 +1,58 @@
 import { IonButton, IonButtons, IonContent, IonDatetime, IonDatetimeButton, IonHeader, IonInput, IonItem, IonLabel, IonModal, IonPage, IonSegment, IonSegmentButton,IonTitle, IonToolbar } from "@ionic/react";
 import { useHistory } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { Course } from '../interfaces/CourseInterface';
+import React, { useState } from 'react';
+
+import {
+  InputChangeEventDetail,
+  IonInputCustomEvent,
+} from '@ionic/core';
+
 
 const CreateAccountPreferences: React.FC = () => {
   const history = useHistory();
-
+  const { uid } = useAuth();
   const handleNext = () => {
     history.push("/create_acct_pref_pg2");
   };
+
+   const [ taskData, setTaskData ] = useState<Course>({
+      course_name: null,
+      academic_term: null,
+      notes: null,
+      user_id: uid,
+    });
+
+    const handleInputChange = (e: IonInputCustomEvent<InputChangeEventDetail>, field: keyof Course) => {
+      console.log("Field [", field, "] set to [", e.target.value, "]");
+      setTaskData({ ...taskData, [field]: e.target.value, });
+    };
+
+    const handleCreate = async () => {
+   
+      // TODO: Add storing of task
+      console.log("Storing task: ", taskData);
+  
+      try {
+        const response = await fetch("http://localhost:5050/api/courseSelect/addCourseSelection", {
+          method: 'POST',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify( taskData ),
+        });
+  
+        const data = await response.json();
+  
+        if (!response.ok) {
+          console.log("Error storing task, fetching from API: ", data.error || 'Unknown error');
+        } else {
+          console.log("Task successfully added:", data);
+          history.push("/tasklist");
+        }
+      } catch (error) {
+        console.error("Error connecting to the API: ", error);
+      }
+    };
 
   // == Set-Up - Courses ==
 
