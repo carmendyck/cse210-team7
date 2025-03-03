@@ -1,1 +1,8 @@
-
+ion-item-divider {
+    --background: #0055e925;
+    --color: #000000;  
+    /* --padding-top: 10px;
+    --padding-bottom: 10px;
+    --padding-start: 20px;
+    --padding-end: 20px; */
+  }
