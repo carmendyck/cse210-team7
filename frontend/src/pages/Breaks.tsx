@@ -11,6 +11,7 @@ import {
 } from '@ionic/core';
 
 import {
+  IonButton,
   IonButtons,
   IonBackButton,
   IonContent,
@@ -62,9 +63,9 @@ const Breaks: React.FC = () => {
     }));
   };
 
-  const handleBack = () => {
-    history.push("/preferences"); // Redirects to preferences page
-  };
+  // const handleBack = () => {
+  //   history.push("/preferences"); // Redirects to preferences page
+  // };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -111,7 +112,7 @@ const Breaks: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/preferences" onClick={handleBack} />
+            <IonBackButton defaultHref="/preferences" /* onClick={handleBack} */ />
           </IonButtons>
           <IonTitle>Break Preferences</IonTitle>
         </IonToolbar>
@@ -176,7 +177,7 @@ const Breaks: React.FC = () => {
         </IonList>
         <IonToolbar>
             <IonButtons slot="primary">
-                <IonButtons shape="round" onClick={handleSave}>Save</IonButtons>
+                <IonButton shape="round" onClick={handleSave}>Save</IonButton>
             </IonButtons>
         </IonToolbar>
         <IonLoading
