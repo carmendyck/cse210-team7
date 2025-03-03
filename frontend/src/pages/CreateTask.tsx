@@ -33,7 +33,7 @@ import { NewTask } from '../interfaces/TaskInterface';
 import { Course } from '../interfaces/CourseInterface';
 import { Tag } from '../interfaces/TagInterface';
 
-import { getTomorrowBeforeMidnight, formatLocalDateForIonDatetime }  from '../utils/HandleDatetime';
+import { getTomorrowBeforeMidnight, getInTwoYears, formatLocalDateForIonDatetime }  from '../utils/HandleDatetime';
 
 const CreateTask: React.FC = () => {
   const { uid } = useAuth();
@@ -208,6 +208,7 @@ const CreateTask: React.FC = () => {
           <IonDatetime
             value={formatLocalDateForIonDatetime(taskData.due_datetime)}
             min={formatLocalDateForIonDatetime(new Date())}
+            max={formatLocalDateForIonDatetime(getInTwoYears())}
             onIonChange={(e) => handleDueDateChange(e)}>
             <span slot="title">Due date/time</span>
           </IonDatetime>
