@@ -20,8 +20,9 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
   const [task, setTask] = useState<{ name: string, notes: string, total_time_estimate: number, priority: number, completed: boolean, due_datetime: string, time_spent: number } | null>(null); // Ensure correct type
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [checkboxLoading, setCheckboxLoading] = useState(false); // Add state for checkbox loading
-  const [loadingTimeSpent, setLoadingTimeSpent] = useState(false); // Add state for checkbox loading
+  const [checkboxLoading, setCheckboxLoading] = useState(false); 
+  const [loadingTimeSpent, setLoadingTimeSpent] = useState(false); 
+  const [anotherTaskRunning, setAnotherTaskRunning] = useState(false); 
 
   // Either load or start from 0
   const [timer, setTimer] = useState<number>(() => {
@@ -90,6 +91,20 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     console.log("Task Name: ", task?.name)
   }, [task]); // Logs whenever `task` updates
 
+  // Check if another task's timer is running
+  useEffect(() => {
+    const taskInProgress = JSON.parse(localStorage.getItem('isRunning') || "false") || 
+                          JSON.parse(localStorage.getItem('isPaused') || "false"); // parse it as a bool
+    const runningTaskId = localStorage.getItem('runningTaskId');
+    if (taskInProgress === true && runningTaskId && runningTaskId !== params.id) {
+      setAnotherTaskRunning(true);
+    } else {
+      setAnotherTaskRunning(false);
+    }
+    console.log("Task running:", runningTaskId);
+    console.log("This task:", params.id)
+  }, [params.id]);
+
   // Handle timer updates while running
   useEffect(() => {
     if (isRunning && !isPaused) {
@@ -121,6 +136,9 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
   };
 
   const handleStart = () => {
+    localStorage.setItem('runningTaskId', params.id);
+    localStorage.setItem('runningTaskName', task?.name ?? "None");
+
     setIsRunning(true);
     setIsPaused(false);
   };
@@ -140,7 +158,8 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     localStorage.removeItem('timer');
     localStorage.removeItem('isRunning');
     localStorage.removeItem('isPaused');
-    
+    localStorage.removeItem('runningTaskId');
+    localStorage.removeItem('runningTaskName');
   };
 
   const closeTask = async () => {
@@ -275,22 +294,28 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
                 </div>
               )}
               
-              <IonText className="timer-display">
-                <h2>{new Date(timer * 1000).toISOString().substr(11, 8)}</h2>
+              <IonText className={`timer-display ${anotherTaskRunning ? 'disabled-timer' : ''}`}>
+                <h2>{anotherTaskRunning ? '00:00:00' : new Date(timer * 1000).toISOString().substr(11, 8)}</h2>
               </IonText>
               {/* Timer control buttons */}
               <div className="timer-buttons">
-                {isRunning && !isPaused ? (
-                  <IonButton className="timer-button" onClick={handlePause}>Pause Task</IonButton>
-                ) : isPaused ? (
-                  <IonButton className="timer-button" onClick={handleStart}>Resume Task</IonButton>
+              {anotherTaskRunning ? (
+                  <IonText className="another-task-message">You have a task in progress: {localStorage.getItem('runningTaskName')}. Please stop it before starting this task.</IonText>
                 ) : (
-                  <IonButton className="timer-button" onClick={handleStart}>Start Task</IonButton>
-                )}
+                  <>
+                    {isRunning && !isPaused ? (
+                      <IonButton className="timer-button" onClick={handlePause}>Pause Task</IonButton>
+                    ) : isPaused ? (
+                      <IonButton className="timer-button" onClick={handleStart}>Resume Task</IonButton>
+                    ) : (
+                      <IonButton className="timer-button" onClick={handleStart}>Start Task</IonButton>
+                    )}
     
-                {/* Show Stop button only when the timer has started */}
-                {(isRunning || isPaused) && (
-                  <IonButton className="timer-button" onClick={handleStop} color="danger">Stop Task</IonButton>
+                    {/* Show Stop button only when the timer has started */}
+                    {(isRunning || isPaused) && (
+                      <IonButton className="timer-button" onClick={handleStop} color="danger">Stop Task</IonButton>
+                    )}
+                  </>
                 )}
               </div>
             </div>
