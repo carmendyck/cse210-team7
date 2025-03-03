@@ -38,9 +38,19 @@ ion-button[slot="end"] {
 
 /* Ensure text fills the available space */
 .task-item h2 {
+    margin: 0;
     font-size: 16px;
-    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
+
+.task-item ion-label {
+    flex: 1;               /* Take up remaining space */
+    overflow: hidden;      /* Prevent internal overflow */
+    margin-right: 10px;     /* Space between text and duration */
+}
+
 
 .due-date {
     font-size: 14px;
@@ -50,8 +60,9 @@ ion-button[slot="end"] {
 
 /* Style for the duration label */
 .task-item .duration {
+    flex-shrink: 0;
     margin-left: auto;
-    background: rgba(255, 255, 255, 0.4); /* Slight transparency */
+    background: rgba(255, 255, 255, 0.4);
     padding: 4px 8px;
     border-radius: 8px;
 }
@@ -84,4 +95,24 @@ ion-button[slot="end"] {
     right: 20px;
     border-radius: 50%;
 }
+
+.centered-datetime-item {
+    display: flex;
+    justify-content: center;
+  }
+  
+
+.my-datetime {
+max-height: 150px; 
+width: 100%;
+text-align: center; 
+margin: 0 auto;
+}
+
+.section-title {
+    font-size: 16px; 
+    margin-left: 20px; 
+    font-weight: bold;  
+    color: #666; 
+  }
 
