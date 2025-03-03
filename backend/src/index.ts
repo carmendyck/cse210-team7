@@ -5,6 +5,7 @@ import createTasksRoutes from "./routes/createTasksRoutes";
 import viewTaskRoutes from "./routes/viewTaskRoutes";
 import prefSettingsRoutes from "./routes/prefSettingsRoutes"
 import taskListRoutes from "./routes/taskListRoutes";
+import onboardPrefRoutes from "./routes/onboardPrefRoutes";
 
 import dotenv from "dotenv";
 
@@ -19,6 +20,7 @@ app.use("/api/createTasks", createTasksRoutes)
 app.use("/api/tasklist", taskListRoutes)
 app.use("/api/viewTask", viewTaskRoutes)
 app.use("/api/breaks", prefSettingsRoutes)
+app.use("/api/onboardPref", onboardPrefRoutes)
 
 const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => {

@@ -23,7 +23,8 @@ import {
   IonItem,
   IonItemDivider,
   IonLabel,
-  IonList, 
+  IonList,
+  IonLoading,
   IonPage,
   IonRange,
   IonSegment,
@@ -36,6 +37,8 @@ const CreateAccountPrefPage2: React.FC = () => {
   const { uid } = useAuth(); // Using AuthContext to get user ID
   const history = useHistory();
 
+  const [isSaving, setIsSaving] = useState(false);
+  
   const [mostProductiveTime, setMostProductiveTime] = useState(2);
   const [flexibility, setFlexibility] = useState(2);
   const [workDuration, setWorkDuration] = useState(30);
@@ -50,7 +53,6 @@ const CreateAccountPrefPage2: React.FC = () => {
   const handleRangeChange = (e: IonRangeCustomEvent<RangeChangeEventDetail>, field: string) => {
     const value = e.detail.value as number;
     console.log(`Field [${field}] set to [${value}]`);
-
     switch (field) {
       case 'mostProductiveTime':
         setMostProductiveTime(value);
@@ -76,24 +78,59 @@ const CreateAccountPrefPage2: React.FC = () => {
     }));
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
+    try {
+      // Trigger save dialog pop up
+      setIsSaving(true);
 
-    // Gather data to push
-    // - user_id, productivity, flexibility, work_duration, break_duration, selected_breaks
+      // Gather data to push
+      // - user_id, productivity, flexibility, work_duration, break_duration, selected_breaks
+      console.log("Storing initial preferences for uid: ", uid, {
+        mostProductiveTime,
+        flexibility,
+        workDuration,
+        breakDuration,
+        selectedBreaks,
+        user_id: uid,
+      })
 
+      // Push preferences updates to DB
+      const response = await fetch("http://localhost:5050/api/onboardPref/addInitialPrefs", {
+        method: 'POST',
+        headers: {"Content-Type": "application/json" },
+        body: JSON.stringify({
+          mostProductiveTime,
+          flexibility,
+          workDuration,
+          breakDuration,
+          selectedBreaks,
+          user_id: uid,
+        }),
+      });
 
+      const data = await response.json();
 
-    // Push preferences updates to DB
+      if (!response.ok) {
+        console.log("Error storing preferences, fetching from API: ", data.error || 'Unknown error');
+        throw new Error("Failed to store preferences");
+      }
 
+      // Success, redirect to main app
+      console.log(data.message);
+      // console.log("Preference ID: ", data.preferencesId);
+      console.log("Preferences: ", data.preferences);
 
+      setTimeout(() => {
+        setIsSaving(false);
+        history.push("/tasklist");
+      }, 1500); // Delay for 1.5 seconds
 
-
-
-    // Save confirmation pop up
-
-
-    // Redirect to main app
-    history.push("/tasklist"); // Redirects to the main app
+    } catch (error) {
+      console.error("Error connecting to the API: ", error);
+    }
+    // finally {
+    //   setIsSaving(false);
+    // }
   };
 
 
@@ -214,6 +251,11 @@ const CreateAccountPrefPage2: React.FC = () => {
             </IonItem>
           ))}
         </IonList>
+
+        <IonLoading
+          isOpen={isSaving}
+          message={'Saving preferences...'}
+        />
 
 
       </IonContent>

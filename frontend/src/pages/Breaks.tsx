@@ -97,14 +97,16 @@ const Breaks: React.FC = () => {
       } else {
         console.log("Preferences successfully saved:", data);
         setTimeout(() => {
+          setIsSaving(false);
           history.push("/preferences"); // Redirect after successful save
         }, 1500); // Delay for 1.5 seconds
       }
     } catch (error) {
       console.error("Error connecting to the API: ", error);
-    } finally {
-      setIsSaving(false);
     }
+    // finally {
+    //   setIsSaving(false);
+    // }
   };
 
   return (
@@ -177,7 +179,7 @@ const Breaks: React.FC = () => {
         </IonList>
         <IonToolbar>
             <IonButtons slot="primary">
-                <IonButton shape="round" onClick={handleSave}>Save</IonButton>
+                <IonButton shape="round" fill="solid" color="primary" onClick={handleSave}>Save</IonButton>
             </IonButtons>
         </IonToolbar>
         <IonLoading
