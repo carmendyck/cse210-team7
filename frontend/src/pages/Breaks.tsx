@@ -11,6 +11,7 @@ import {
 } from '@ionic/core';
 
 import {
+  IonButton,
   IonButtons,
   IonBackButton,
   IonContent,
@@ -62,9 +63,9 @@ const Breaks: React.FC = () => {
     }));
   };
 
-  const handleBack = () => {
-    history.push("/preferences"); // Redirects to preferences page
-  };
+  // const handleBack = () => {
+  //   history.push("/preferences"); // Redirects to preferences page
+  // };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -96,14 +97,16 @@ const Breaks: React.FC = () => {
       } else {
         console.log("Preferences successfully saved:", data);
         setTimeout(() => {
+          setIsSaving(false);
           history.push("/preferences"); // Redirect after successful save
         }, 1500); // Delay for 1.5 seconds
       }
     } catch (error) {
       console.error("Error connecting to the API: ", error);
-    } finally {
-      setIsSaving(false);
     }
+    // finally {
+    //   setIsSaving(false);
+    // }
   };
 
   return (
@@ -111,7 +114,7 @@ const Breaks: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/preferences" onClick={handleBack} />
+            <IonBackButton defaultHref="/preferences" /* onClick={handleBack} */ />
           </IonButtons>
           <IonTitle>Break Preferences</IonTitle>
         </IonToolbar>
@@ -176,7 +179,7 @@ const Breaks: React.FC = () => {
         </IonList>
         <IonToolbar>
             <IonButtons slot="primary">
-                <IonButtons shape="round" onClick={handleSave}>Save</IonButtons>
+                <IonButton shape="round" fill="solid" color="primary" onClick={handleSave}>Save</IonButton>
             </IonButtons>
         </IonToolbar>
         <IonLoading
