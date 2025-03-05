@@ -68,7 +68,7 @@ h1 {
 }
 
 .signin-button {
-    --background: #333333;
+    --background: #182B49 !important;
     --color: #ffffff;
     --border-radius: 8px;
     --padding-top: 16px;
@@ -79,7 +79,7 @@ h1 {
 }
 
 .create-account-button {
-    --background: #3478f6;
+    --background: #182B49 !important;
     --color: #ffffff;
     --border-radius: 8px;
     --padding-top: 16px;
@@ -89,6 +89,10 @@ h1 {
     font-size: 16px;
 }
 
+.signup-logo {
+    width: 100px;
+    height: auto;
+}
 .signin-button:disabled,
 .create-account-button:disabled {
     --background: #cccccc;
