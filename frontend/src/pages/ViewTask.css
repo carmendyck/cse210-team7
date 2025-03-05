@@ -1,3 +1,8 @@
+.nav-button-container {
+  position: relative;
+  width: 100%;
+}
+
 .back-button {
     position: absolute;
     top: 10px;
@@ -14,8 +19,15 @@
     border-radius: 50%;
 }
 
+.edit-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 15px;
+}
+
 .content-wrapper {
-    padding-top: 40px; /* Adjust this value as needed to create space for the back button */
+    padding-top: 55px; /* Adjust this value as needed to create space for the back button */
 }
 
 .task-name h1 {
@@ -28,7 +40,7 @@
     align-items: center;
     justify-content: space-between;
 }
-  
+
 .details p {
     font-size: 1em;
     margin: 10px 0;
@@ -41,7 +53,7 @@
     border-radius: 4px;
     font-size: 1.5em;
 }
-  
+
 .description p {
     font-size: 1em;
     margin: 10px 0;
@@ -58,7 +70,7 @@
 .timer-display h2 {
     font-size: 2em;
     margin-bottom: 15px;
-}   
+}
 
 .disabled-timer {
     color: lightgray;
@@ -76,10 +88,10 @@
 }
 
 .timer-button {
-    width: 80px; 
-    height: 50px; 
-    margin: 10px; 
-    font-size: 16px; 
+    width: 80px;
+    height: 50px;
+    margin: 10px;
+    font-size: 16px;
     line-height: 3;
 }
 
@@ -90,8 +102,8 @@
     margin-top: 10px;
     display: flex;
     align-items: center;
-    justify-content: center; 
-    margin: 20px auto; 
+    justify-content: center;
+    margin: 20px auto;
     margin-bottom: 0px;
 }
 

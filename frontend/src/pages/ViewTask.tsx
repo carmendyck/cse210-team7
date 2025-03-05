@@ -20,9 +20,9 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
   const [task, setTask] = useState<{ name: string, notes: string, total_time_estimate: number, priority: number, completed: boolean, due_datetime: string, time_spent: number } | null>(null); // Ensure correct type
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [checkboxLoading, setCheckboxLoading] = useState(false); 
-  const [loadingTimeSpent, setLoadingTimeSpent] = useState(false); 
-  const [anotherTaskRunning, setAnotherTaskRunning] = useState(false); 
+  const [checkboxLoading, setCheckboxLoading] = useState(false);
+  const [loadingTimeSpent, setLoadingTimeSpent] = useState(false);
+  const [anotherTaskRunning, setAnotherTaskRunning] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [manualHours, setManualHours] = useState<number | null>(null);
   const [manualMinutes, setManualMinutes] = useState<number | null>(null);
@@ -67,7 +67,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to fetch task");
       }
@@ -96,7 +96,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
 
   // Check if another task's timer is running
   useEffect(() => {
-    const taskInProgress = JSON.parse(localStorage.getItem('isRunning') || "false") || 
+    const taskInProgress = JSON.parse(localStorage.getItem('isRunning') || "false") ||
                           JSON.parse(localStorage.getItem('isPaused') || "false"); // parse it as a bool
     const runningTaskId = localStorage.getItem('runningTaskId');
     if (taskInProgress === true && runningTaskId && runningTaskId !== params.id) {
@@ -118,16 +118,16 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
       clearInterval(timerInterval);
     }
     return () => clearInterval(timerInterval);
-  }, [isRunning, isPaused]); 
+  }, [isRunning, isPaused]);
 
-  // Set timer state 
+  // Set timer state
   useEffect(() => {
     localStorage.setItem('timer', timer.toString());
     localStorage.setItem('isRunning', JSON.stringify(isRunning));
     localStorage.setItem('isPaused', JSON.stringify(isPaused));
 
     if (isRunning && !isPaused) {
-      // We only want to track elapsed time if the timer is running 
+      // We only want to track elapsed time if the timer is running
       localStorage.setItem('startTime', Date.now().toString());
     } else {
       localStorage.removeItem('startTime');
@@ -136,6 +136,10 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
 
   const handleBack = () => {
     history.replace("/tasklist");
+  };
+
+  const handleEdit = () => {
+    history.push(`/edittask/${params.id}`);
   };
 
   // Timer start/resume
@@ -167,13 +171,13 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     setShowModal(true)
   };
 
-  // Submit clicked 
+  // Submit clicked
   const handleManualTimeSubmit = async () => {
-    // Update the time 
-    const additionalTime = (manualHours ?? 0) + (manualMinutes ?? 0) / 60; 
+    // Update the time
+    const additionalTime = (manualHours ?? 0) + (manualMinutes ?? 0) / 60;
     await updateTimeSpent(additionalTime);
 
-    // Reset any timer 
+    // Reset any timer
     setIsRunning(false);
     setIsPaused(false);
     setTimer(0);
@@ -206,11 +210,11 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to fetch task");
       }
-  
+
       const data = await response.json();
       console.log("Response Data:", data);
     } catch (error) {
@@ -224,11 +228,11 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to fetch task");
       }
-  
+
       const data = await response.json();
       console.log("Response Data:", data);
     } catch (error) {
@@ -246,11 +250,11 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ additionalTime }),
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to update time spent");
       }
-  
+
       const data = await response.json();
       console.log("Response Data:", data);
 
@@ -286,10 +290,15 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
       </IonToolbar>
       <IonContent className="ion-padding">
         {/* Back button always renders */}
-        <IonButton className="back-button" onClick={handleBack}>
-          &#8592; {/* Unicode for left arrow */}
-        </IonButton>
-  
+        <div className="nav-button-container">
+          <IonButton className="back-button" onClick={handleBack}>
+            &#8592; {/* Unicode for left arrow */}
+          </IonButton>
+          <IonButton className="edit-button" onClick={handleEdit}>
+            Edit
+          </IonButton>
+        </div>
+
         {/* Show loading state */}
         {loading ? (
           <IonText>Loading task...</IonText>
@@ -314,13 +323,13 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
               </IonText>
               {task.priority !== undefined && (
                 <div className="priority-box">P{task.priority}</div>
-              )} 
+              )}
             </div>
             <IonItemDivider />
             <IonText className="description">
               <p><strong>Description:</strong></p>
               <p>
-                {task.notes} 
+                {task.notes}
               </p>
             </IonText>
             <IonItemDivider />
@@ -338,7 +347,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
               {/* Timer control buttons */}
               <div className="timer-buttons">
               {anotherTaskRunning ? (
-                  <IonText className="another-task-message">You have a task in progress: <strong>{localStorage.getItem('runningTaskName')}</strong>. 
+                  <IonText className="another-task-message">You have a task in progress: <strong>{localStorage.getItem('runningTaskName')}</strong>.
                   Please stop it before starting this task.</IonText>
                 ) : (
                   <>
@@ -349,7 +358,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
                     ) : (
                       <IonButton className="timer-button" onClick={handleStart}>Start Task</IonButton>
                     )}
-    
+
                     {/* Show Stop button only when the timer has started */}
                     {(isRunning || isPaused) && (
                       <IonButton className="timer-button" onClick={handleStop} color="danger">Stop Task</IonButton>
@@ -361,9 +370,9 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
             {/* Manual time entry */}
             <IonItemDivider />
             <div title={anotherTaskRunning ? "Please stop the other task to enter time." : ""}>
-              <IonButton 
-                className="manual-time" 
-                color="medium" 
+              <IonButton
+                className="manual-time"
+                color="medium"
                 onClick={() => setShowModal(true)}
                 disabled={anotherTaskRunning}
               >
@@ -401,31 +410,31 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
             </IonItem>
             <IonItem>
               <IonLabel position="stacked">Hours</IonLabel>
-              <IonInput 
-                type="number" 
+              <IonInput
+                type="number"
                 inputmode="numeric"
-                min="0" 
-                step="1" 
-                value={manualHours} 
+                min="0"
+                step="1"
+                value={manualHours}
                 onIonChange={e => {
                   const value = parseInt(e.detail.value!, 10);
                   setManualHours(isNaN(value) || value < 0 ? 0 : value);
-                }} 
+                }}
               />
             </IonItem>
             <IonItem>
               <IonLabel position="stacked">Minutes</IonLabel>
-              <IonInput 
-                type="number" 
+              <IonInput
+                type="number"
                 inputmode="numeric"
-                min="0" 
-                max="59" 
-                step="1" 
-                value={manualMinutes} 
+                min="0"
+                max="59"
+                step="1"
+                value={manualMinutes}
                 onIonChange={e => {
                   const value = parseInt(e.detail.value!, 10);
                   setManualMinutes(isNaN(value) || value < 0 ? 0 : value);
-                }} 
+                }}
               />
             </IonItem>
             <IonButton expand="block" onClick={handleManualTimeSubmit}>Submit</IonButton>
@@ -434,7 +443,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
         </IonModal>
       </IonContent>
     </IonPage>
-  );  
+  );
 };
 
 export default ViewTask;

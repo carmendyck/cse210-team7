@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -29,48 +29,180 @@ import {
   IonText,
 } from "@ionic/react";
 
-import { NewTask } from '../interfaces/TaskInterface';
+import { NewTask, CurrentTask } from '../interfaces/TaskInterface';
 import { Course } from '../interfaces/CourseInterface';
 import { Tag } from '../interfaces/TagInterface';
 
-import { getTomorrowBeforeMidnight, getInTwoYears, formatLocalDateForIonDatetime }  from '../utils/HandleDatetime';
+import {
+  getTomorrowBeforeMidnight,
+  getInTwoYears,
+  formatLocalDateForIonDatetime
+} from '../utils/HandleDatetime';
 
-const CreateTask: React.FC = () => {
+export const CreateTask: React.FC = () => {
   const { uid } = useAuth();
   const history = useHistory();
 
-  // Storing constants to be used upon task creation
-  const [ taskData, setTaskData ] = useState<NewTask>({
-    // Basic info
-    user_id: uid,
-
+  const currentTask: CurrentTask = {
     name: '',
     notes: '',
-    location: '',  // (optional)
+    location: '',
+
     due_datetime: getTomorrowBeforeMidnight(),
-
-    // To filter data
-    course_id: null, // TODO: Update once course preferences are linked to database
-    tags: [],
-
-    // Time/completion (optional)
-    next_start_time: null,
-    next_end_time: null,
-
-    time_spent: 0,
     total_time_estimate: 1,
 
-    completed: false,
-  });
+    course_id: null,
+    tags: [],
+  };
 
-  const [ autoSchedule, setAutoSchedule ] = useState<boolean>(true);
+  const handleCreate = async (taskData: CurrentTask) => {
+    try {
+      const newTask: NewTask = {
+        user_id: uid,
+
+        name: taskData.name,
+        notes: taskData.notes,
+        location: taskData.location,
+        due_datetime: taskData.due_datetime,
+
+        course_id: taskData.course_id,
+        tags: taskData.tags,
+
+        next_start_time: null,
+        next_end_time: null,
+        time_spent: 0,
+        total_time_estimate: taskData.total_time_estimate,
+
+        completed: false,
+      };
+      console.log("Full new task:", newTask);
+
+      const response = await fetch("http://localhost:5050/api/createTasks/addnewtask", {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify( newTask ),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.log("Error storing task, fetching from API: ", data.error);
+      } else {
+        console.log("Task successfully added:", data);
+        history.push("/tasklist");
+      }
+    } catch (error) {
+      console.error("Error connecting to the API: ", error);
+    }
+  }
+
+  return <TaskForm mode="create" prevTaskData={currentTask} onSubmit={handleCreate} />;
+};
+
+
+interface EditTaskProps {
+  params: {
+    id: string;
+  };
+}
+
+export const EditTask: React.FC <EditTaskProps>= ({ params }) => {
+  const history = useHistory();
+  const [ taskData, setTaskData ] = useState<CurrentTask | null>(null);
+  const [ loading, setLoading ] = useState(true);
+  const [ error, setError ] = useState<string | null>(null);
+
+  const getTaskData = async () => {
+    console.log(`Fetching task with ID: ${params.id}`);
+    try {
+      const response = await fetch(`http://localhost:5050/api/viewTask/getTask/${params.id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch task");
+      }
+
+      const data = await response.json();
+      console.log("Task Data:", data);
+
+      const currentTask: CurrentTask = {
+        name: data.task.name,
+        notes: data.task.notes,
+        location: data.task.location,
+
+        due_datetime: new Date(data.task.due_datetime),
+        course_id: data.task.course_id,
+
+        tags: data.task.tags,
+
+        total_time_estimate: data.task.total_time_estimate,
+      };
+
+      console.log("Current Task:", currentTask);
+      setTaskData(currentTask);
+    } catch (error) {
+      console.error("Error fetching task:", error);
+      setError("Failed to load task");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getTaskData();
+  }, [params.id]);
+
+  if (loading) return <p>Loading task...</p>;
+  if (error) return <p>{error}</p>;
+
+  if (!taskData) {
+    return <p>Task data not found</p>;
+  }
+
+  const handleEdit = async (updatedTaskData: CurrentTask) => {
+    try {
+      console.log("Sending updated task data:", updatedTaskData);
+      const response = await fetch(`http://localhost:5050/api/createTasks/updatetask/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify( updatedTaskData ),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.log("Error updating task: ", data.error);
+      } else {
+        console.log("Task successfully updated:", data);
+        history.push(`/viewtask/${params.id}`);
+      }
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  };
+
+  return <TaskForm mode="edit" prevTaskData={taskData} onSubmit={handleEdit} />;
+};
+
+
+interface TaskFormProps {
+  mode: 'create' | 'edit';
+  prevTaskData: CurrentTask;
+  onSubmit: (updatedTaskData: CurrentTask) => void;
+}
+
+const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => {
+  const [ taskData, setTaskData ] = useState<CurrentTask>(prevTaskData);
 
   const [ invalidTaskMessage, setInvalidTaskMessage ] = useState<string>();
+  const [ autoSchedule, setAutoSchedule ] = useState<boolean>(true);
 
   const handleInputChange = (e: IonInputCustomEvent<InputChangeEventDetail>,
-                             field: keyof NewTask, maxLength: number) => {
-    const stringInputFields: (keyof NewTask)[] = ["name", "notes", "location"];
-    const numberInputFields: (keyof NewTask)[] = ["total_time_estimate"];
+                             field: keyof CurrentTask, maxLength: number) => {
+    const stringInputFields: (keyof CurrentTask)[] = ["name", "notes", "location"];
+    const numberInputFields: (keyof CurrentTask)[] = ["total_time_estimate"];
 
     let newValue: any = String(e.target.value) || '';
     console.log('Input value [', newValue, '] with type [', typeof newValue, ']');
@@ -104,7 +236,7 @@ const CreateTask: React.FC = () => {
     }
   };
 
-  const handleSelectionChange = (e: IonSelectCustomEvent<SelectChangeEventDetail>, field: keyof NewTask) => {
+  const handleSelectionChange = (e: IonSelectCustomEvent<SelectChangeEventDetail>, field: keyof CurrentTask) => {
     if (field == 'course_id' || field == 'tags') {
       console.log("Field [", field, "] set to [", e.detail.value, "]");
       setTaskData({ ...taskData, [field]: e.detail.value, });
@@ -119,12 +251,12 @@ const CreateTask: React.FC = () => {
   };
 
   const handleBack = () => {
-    history.push("/tasklist"); // Redirects to the main app
+    history.back();
   };
 
   const isTaskValid = () => {
     // [Required fields]: name, course (other fields have valid defaults)
-    const required: (keyof NewTask)[] = ['name'];
+    const required: (keyof CurrentTask)[] = ['name'];
     const missing: string[] = required.filter(field => !taskData[field] ||
       (typeof taskData[field] === 'string' && taskData[field].trim() === ''));
 
@@ -134,38 +266,16 @@ const CreateTask: React.FC = () => {
       setInvalidTaskMessage(message);
       console.error(message);
       return false;
-    } else {
-      return true;
     }
+    return true;
 
     // TODO: if date is too far into future, give popup
   };
 
-  const handleCreate = async () => {
-    if (!isTaskValid()) {
-      return;
-    }
-
-    // TODO: Add storing of task
-    console.log("Storing task: ", taskData);
-
-    try {
-      const response = await fetch("http://localhost:5050/api/createTasks/addnewtask", {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify( taskData ),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.log("Error storing task, fetching from API: ", data.error || 'Unknown error');
-      } else {
-        console.log("Task successfully added:", data);
-        history.push("/tasklist");
-      }
-    } catch (error) {
-      console.error("Error connecting to the API: ", error);
+  const handleSubmit = async () => {
+    if (isTaskValid()) {
+      console.log("Storing task: ", taskData);
+      onSubmit(taskData);
     }
   };
 
@@ -179,7 +289,7 @@ const CreateTask: React.FC = () => {
             style={{ paddingLeft: '10px', paddingRight: '10px' }}
             onClick={handleBack}>X
           </IonButton>
-          <IonTitle>Create Task</IonTitle>
+          <IonTitle>{mode === "create" ? "Create" : "Edit"} Task</IonTitle>
         </IonToolbar>
       </IonHeader>
 
@@ -268,12 +378,12 @@ const CreateTask: React.FC = () => {
           )}
 
           <IonButtons slot="primary">
-            <IonButton shape="round" className="create-task-button" onClick={handleCreate}>Create</IonButton>
+            <IonButton shape="round" className="create-task-button" onClick={handleSubmit}>
+              {mode === "create" ? "Create" : "Update"}
+            </IonButton>
           </IonButtons>
         </IonToolbar>
       </IonContent>
     </IonPage>
   );
 };
-
-export default CreateTask;
