@@ -61,7 +61,7 @@ h1 {
 }
 
 ion-button.button-block.button-solid.ion-activatable.ion-focusable {
-    --background: #333333;
+    --background: #182B49 !important;
     --color: #ffffff;
     --border-radius: 8px;
     --padding-top: 16px;
@@ -82,13 +82,11 @@ ion-button.button-block.button-solid.ion-activatable.ion-focusable {
     cursor: pointer;
 }
 
-/* Success Animation Styles */
 .success-animation {
     text-align: center;
     padding: 2rem;
 }
 
-/* Update these specific styles in your Signup.css */
 
 .checkmark-circle {
     width: 100px;
@@ -139,6 +137,13 @@ ion-button.button-block.button-solid.ion-activatable.ion-focusable {
     margin: 0;
     opacity: 0;
     animation: fadeIn 0.5s ease-out 1s forwards;
+}
+.password-match {
+    color: #34c759;
+    font-size: 14px;
+    margin-top: 4px;
+    text-align: left;
+    font-weight: 500;
 }
 
 @keyframes fadeIn {

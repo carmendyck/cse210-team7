@@ -71,9 +71,10 @@ const Login: React.FC = () => {
     <IonPage>
       <IonContent className="login-container">
         <div className="login-box">
+
+        <img src="/src/images/triton.jpg" alt="Triton Logo" className="signup-logo" />
           <h1>Login</h1>
           <p className="welcome-text">Welcome back! Please log in.</p>
-
           {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
