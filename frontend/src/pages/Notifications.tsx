@@ -22,9 +22,13 @@ const Notifications: React.FC = () => {
           <IonToggle slot="end" checked={lockScreen} onIonChange={(e) => setLockScreen(e.detail.checked)} />
         </IonItem>
         <IonItem>
+          <IonLabel>Enable In-App notifications</IonLabel>
+          <IonToggle slot="end" checked={email} onIonChange={(e) => setEmail(e.detail.checked)} />
+        </IonItem>
+        {/* <IonItem>
           <IonLabel>Enable Text/SMS notifications</IonLabel>
           <IonToggle slot="end" checked={sms} onIonChange={(e) => setSms(e.detail.checked)} />
-        </IonItem>
+        </IonItem> */}
         <IonItem>
           <IonLabel>Enable Email notifications</IonLabel>
           <IonToggle slot="end" checked={email} onIonChange={(e) => setEmail(e.detail.checked)} />
