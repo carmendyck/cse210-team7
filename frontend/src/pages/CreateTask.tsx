@@ -83,7 +83,7 @@ const CreateTask: React.FC = () => {
 
     try {
       // const token = await uid.getIdToken(true);
-      const response = await axios.get("http://localhost:8000/init-task-estimate/jzmvSAC0lvu4jojfU57b", {
+      const response = await axios.get(`http://localhost:8000/init-task-estimate/${taskId}`, {
         headers: { "Authorization": `Bearer ${user}` },
       });
   
@@ -168,9 +168,13 @@ const CreateTask: React.FC = () => {
 
       if (!response.ok) {
         console.log("Error storing task, fetching from API: ", data.error || 'Unknown error');
-      } else {
+      } else if (!autoSchedule) {
         console.log("Task successfully added:", data);
         history.push("/tasklist");
+      } else {
+        console.log("Task successfully added:", data);
+        setTaskId(data["taskId"])
+        setGivingAutoSchedule(true)
       }
     } catch (error) {
       console.error("Error connecting to the API: ", error);
@@ -190,7 +194,7 @@ const CreateTask: React.FC = () => {
           <IonTitle>Create Task</IonTitle>
         </IonToolbar>
       </IonHeader>
-      {givingAutoSchedule ? (
+      {!givingAutoSchedule ? (
       <IonContent className="ion-flex ion-justify-content-center ion-align-items-center ion-padding">
         {/* Basic task information */}
         <IonInput
