@@ -32,11 +32,13 @@ import {
 import { NewTask } from '../interfaces/TaskInterface';
 import { Course } from '../interfaces/CourseInterface';
 import { Tag } from '../interfaces/TagInterface';
+import axios from "axios";
 
 import { getTomorrowBeforeMidnight, formatLocalDateForIonDatetime }  from '../components/HandleDatetime';
 
 const CreateTask: React.FC = () => {
   const { uid } = useAuth();
+  const { user } = useAuth()
   const history = useHistory();
 
   // Storing constants to be used upon task creation
@@ -64,8 +66,37 @@ const CreateTask: React.FC = () => {
   });
 
   const [ autoSchedule, setAutoSchedule ] = useState<boolean>(true);
+  const [ givingAutoSchedule, setGivingAutoSchedule ] = useState<boolean>(false);
 
   const [ invalidTaskMessage, setInvalidTaskMessage ] = useState<string>();
+  const [ taskId, setTaskId ] = useState<string>();
+
+  const getTaskEstimate = async () => {
+    if (!uid) {
+      console.error("User not logged in");
+      return;
+    }
+    if (!uid) {
+      console.error("User not logged in");
+      return;
+    }
+
+    try {
+      // const token = await uid.getIdToken(true);
+      const response = await axios.get("http://localhost:8000/init-task-estimate/jzmvSAC0lvu4jojfU57b", {
+        headers: { "Authorization": `Bearer ${user}` },
+      });
+  
+      console.log("Fetched Task Estimate:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching task estimate:", error);
+    }
+  }
+
+  const handleAcceptEstimateButtonClick = async () => {
+    await getTaskEstimate();
+  }
 
   // Handling changes to inputs-- updating states
   const handleInputChange = (e: IonInputCustomEvent<InputChangeEventDetail>, field: keyof NewTask) => {
@@ -159,7 +190,7 @@ const CreateTask: React.FC = () => {
           <IonTitle>Create Task</IonTitle>
         </IonToolbar>
       </IonHeader>
-
+      {givingAutoSchedule ? (
       <IonContent className="ion-flex ion-justify-content-center ion-align-items-center ion-padding">
         {/* Basic task information */}
         <IonInput
@@ -221,15 +252,19 @@ const CreateTask: React.FC = () => {
 
         {/* Scheduling and time */}
         <IonItem>
+          {/* Show loading state */}
+          {!autoSchedule ? (
           <IonInput value={taskData.total_time_estimate}
             onIonChange={(e) => handleInputChange(e, 'total_time_estimate')}
             type="number" label="Time Estimate (hours)" placeholder="1" min="0"></IonInput>
+          ) : <p>Total Time Estimate will be Automatically Calculated</p>
+          }
         </IonItem>
 
         <IonItem>
           {/* TODO: trigger automatic app time estimates */}
           <IonToggle checked={autoSchedule}
-            onIonChange={handleAutoScheduleChange}>Auto-scheduling</IonToggle>
+            onIonChange={handleAutoScheduleChange}>Automatic Time Estimation</IonToggle>
         </IonItem>
 
         {/* TODO: add worktime inputs if no auto-scheduling */}
@@ -246,6 +281,30 @@ const CreateTask: React.FC = () => {
           </IonButtons>
         </IonToolbar>
       </IonContent>
+    ) : 
+    <IonContent className="ion-flex ion-justify-content-center ion-align-items-center ion-padding">
+      <IonItem>
+        <p>
+          The time estimate for your task is:
+        </p>
+        </IonItem>
+        <IonItem>
+        <IonInput value={taskData.total_time_estimate}
+          onIonChange={(e) => handleInputChange(e, 'total_time_estimate')}
+          type="number" label="Time Estimate (hours):" min="0">
+        </IonInput>
+      </IonItem>
+      <IonItem>
+        <p>
+          Either change it above, or accept it by pressing "accept"
+        </p>
+      </IonItem>
+      <IonToolbar>
+          <IonButtons slot="primary">
+            <IonButton shape="round" onClick={handleAcceptEstimateButtonClick}>Accept</IonButton>
+          </IonButtons>
+        </IonToolbar>
+    </IonContent>}
     </IonPage>
   );
 };

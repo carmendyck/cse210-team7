@@ -6,15 +6,21 @@ from dotenv import load_dotenv
 import firebase_admin
 from firebase_admin import credentials, firestore
 from firebase_admin import auth
+from fastapi import FastAPI, Header, HTTPException
 
 class Task:
-    keyword_bank = ["test", "quiz", "homework", "project"]
+    keyword_bank = ["test", "quiz", "homework", "project", "reading"]
 
-    def __init__(self, task_id):
+    def __init__(self, task_id, authorization: str = Header(None)):
+
+        if not authorization or not authorization.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="Missing or invalid token")
+        token = authorization.split("Bearer ")[1]
+        self.id_token = auth.verify_id_token(token)
+        self.db = firestore.client()
+
         # Get information from backend:
-        # TODO: remove this once connected to the rest of the app
         self.task_id = task_id
-        self.id_token, self.db = authenticate()
         url = f"http://localhost:5050/api/viewTask/getTask/{self.task_id}"
         headers = {
             "Authorization": f"Bearer {self.id_token}"
@@ -56,7 +62,7 @@ def authenticate():
     # Initialize app
     firebase_admin.initialize_app(cred)
     # Authentication
-    custom_token = "" # check slack for line to replace this with
+    custom_token = auth.create_custom_token("aNlyq8aiGeS8VmMGzjjDuugSBXy2").decode("utf-8")
     url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key={api_key}"
     data = {"token": custom_token, "returnSecureToken": True}
     response = requests.post(url, json=data)
@@ -65,7 +71,7 @@ def authenticate():
     db = firestore.client()
     return id_token, db
 
-def get_task_keywords(name, description):
+def get_task_keywords(name, description, task=None):
     if name is None:
         name = ""
     if description is None:
@@ -87,7 +93,7 @@ def get_task_keywords(name, description):
         elif keyword_count > max_count:
             top_keywords = [keyword]
             max_count = keyword_count  # Update max count
-
+    
     return top_keywords
 
 # TESTING:
