@@ -52,7 +52,7 @@ const CreateTask: React.FC = () => {
     due_datetime: getTomorrowBeforeMidnight(),
 
     // To filter data
-    course_id: null, // TODO: Update once course preferences are linked to database
+    course_id: "/course/9s6jfTgFP323GCOjTdXy", // TODO: Update once course preferences are linked to database
     tags: [],
 
     // Time/completion (optional)
@@ -71,7 +71,7 @@ const CreateTask: React.FC = () => {
   const [ invalidTaskMessage, setInvalidTaskMessage ] = useState<string>();
   const [ taskId, setTaskId ] = useState<string>();
 
-  const getTaskEstimate = async () => {
+  const getTaskEstimate = async (task_id : string) => {
     if (!uid) {
       console.error("User not logged in");
       return;
@@ -83,7 +83,7 @@ const CreateTask: React.FC = () => {
 
     try {
       // const token = await uid.getIdToken(true);
-      const response = await axios.get(`http://localhost:8000/init-task-estimate/${taskId}`, {
+      const response = await axios.get(`http://localhost:8000/init-task-estimate/${task_id}`, {
         headers: { "Authorization": `Bearer ${user}` },
       });
   
@@ -94,9 +94,9 @@ const CreateTask: React.FC = () => {
     }
   }
 
-  const handleAcceptEstimateButtonClick = async () => {
-    await getTaskEstimate();
-  }
+  // const handleAcceptEstimateButtonClick = async () => {
+  //   await getTaskEstimate();
+  // }
 
   // Handling changes to inputs-- updating states
   const handleInputChange = (e: IonInputCustomEvent<InputChangeEventDetail>, field: keyof NewTask) => {
@@ -174,6 +174,7 @@ const CreateTask: React.FC = () => {
       } else {
         console.log("Task successfully added:", data);
         setTaskId(data["taskId"])
+        await getTaskEstimate(data["taskId"]);
         setGivingAutoSchedule(true)
       }
     } catch (error) {
@@ -305,7 +306,7 @@ const CreateTask: React.FC = () => {
       </IonItem>
       <IonToolbar>
           <IonButtons slot="primary">
-            <IonButton shape="round" onClick={handleAcceptEstimateButtonClick}>Accept</IonButton>
+            <IonButton shape="round">Accept</IonButton>
           </IonButtons>
         </IonToolbar>
     </IonContent>}

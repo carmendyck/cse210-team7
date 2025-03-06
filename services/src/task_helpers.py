@@ -11,23 +11,7 @@ from fastapi import FastAPI, Header, HTTPException
 class Task:
     keyword_bank = ["test", "quiz", "homework", "project", "reading"]
 
-    def __init__(self, task_id, authorization: str = Header(None)):
-
-        if not authorization or not authorization.startswith("Bearer "):
-            raise HTTPException(status_code=401, detail="Missing or invalid token")
-        token = authorization.split("Bearer ")[1]
-        self.id_token = auth.verify_id_token(token)
-        self.db = firestore.client()
-
-        # Get information from backend:
-        self.task_id = task_id
-        url = f"http://localhost:5050/api/viewTask/getTask/{self.task_id}"
-        headers = {
-            "Authorization": f"Bearer {self.id_token}"
-        }
-        response = requests.get(url, headers=headers)
-        task_data = response.json()["task"]
-        print(f"TASK RESPONSE: {task_data}")
+    def __init__(self, task_data, id_token, db):
 
         self.name = task_data["name"]
         self.description = task_data["notes"]
@@ -35,6 +19,8 @@ class Task:
         self.course = task_data["course_id"]
         self.course_id = task_data["course_id"].split("/")[2]
         self.keywords = []
+        self.id_token = id_token
+        self.db = db
 
         # TODO: Replace with API once it's written
         url = f"https://firestore.googleapis.com/v1/projects/tritoncal/databases/(default)/documents/course/{self.course_id}"
@@ -42,6 +28,7 @@ class Task:
             "Authorization": f"Bearer {self.id_token}"
         }
         response = requests.get(url, headers=headers)
+        print(response.json())
         course_data = response.json()["fields"]
         print(f"COURSE RESPONSE: {course_data}")
 

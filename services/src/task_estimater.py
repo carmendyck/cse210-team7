@@ -6,6 +6,9 @@ class TaskEstimator:
         self.keywords = get_task_keywords(task.name, task.description)
 
     def estimate_time(self):
+        if len(self.keywords) == 0:
+            # default value
+            return 2
         avg_time = 0
         for keyword in self.keywords:
             avg_time += self.task.course_time_estimates[keyword]['doubleValue']
