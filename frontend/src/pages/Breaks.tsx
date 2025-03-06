@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; 
+import { useAuth } from "../context/AuthContext";
 import {
   IonButton,
   IonButtons,
@@ -19,82 +19,57 @@ import {
 } from "@ionic/react";
 
 const Breaks: React.FC = () => {
-  const { uid } = useAuth(); 
+  const { uid } = useAuth();
   const history = useHistory();
 
   const [breakDuration, setBreakDuration] = useState(5);
   const [workDuration, setWorkDuration] = useState(30);
   const [selectedBreaks, setSelectedBreaks] = useState<Record<string, boolean>>({});
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // For initial loading of preferences
+  const [isLoading, setIsLoading] = useState(true);
 
-
-
-  // Load user preferences on component mount
-  const fetchPreferences = async (
-    uid: string,
-    setWorkDuration: React.Dispatch<React.SetStateAction<number>>,
-    setBreakDuration: React.Dispatch<React.SetStateAction<number>>,
-    setSelectedBreaks: React.Dispatch<React.SetStateAction<Record<string, boolean>>>,
-    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
-  ) => {
-    try {
-      setIsLoading(true);  // Start loading
-      const response = await fetch(`http://localhost:5050/api/breaks/getBreaks?user_id=${uid}`);
-  
-      if (!response.ok) {
-        throw new Error(`Failed to fetch preferences (status ${response.status})`);
-      }
-  
-      const data = await response.json();
-  
-      setWorkDuration(data.work_duration ?? 30);
-      setBreakDuration(data.break_duration ?? 5);
-      setSelectedBreaks(data.selected_breaks ?? {
-        "Water Break": true,
-        "Snack Break": true,
-        "Active Break": true,
-        "Meditation Break": true,
-      });
-    } catch (error) {
-      console.error("Error loading preferences:", error);
-    } finally {
-      setIsLoading(false); // Stop loading
-    }
-  };
   useEffect(() => {
     if (uid) {
-      fetchPreferences(uid, setWorkDuration, setBreakDuration, setSelectedBreaks, setIsLoading);
+      const fetchPreferences = async () => {
+        try {
+          setIsLoading(true);
+          const response = await fetch(`http://localhost:5050/api/breaks/getBreaks?user_id=${uid}`);
+          if (!response.ok) throw new Error("Failed to fetch preferences");
+          const data = await response.json();
+
+          setWorkDuration(data.work_duration ?? 30);
+          setBreakDuration(data.break_duration ?? 5);
+          setSelectedBreaks(data.selected_breaks ?? {
+            "Water Break": true,
+            "Snack Break": true,
+            "Active Break": true,
+            "Meditation Break": true,
+          });
+        } catch (error) {
+          console.error("Error loading preferences:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchPreferences();
     }
   }, [uid]);
-  
 
   const handleSave = async () => {
     setIsSaving(true);
-
     try {
       const response = await fetch("http://localhost:5050/api/breaks/updateBreaks", {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          breakDuration,
-          workDuration,
-          selectedBreaks,
-          user_id: uid,
-        }),
+        body: JSON.stringify({ breakDuration, workDuration, selectedBreaks, user_id: uid }),
       });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Error saving preferences");
-      }
-
-      console.log("Preferences successfully saved:", data);
-      history.push("/preferences"); 
+      if (!response.ok) throw new Error("Error saving preferences");
+      history.push("/preferences");
     } catch (error) {
       console.error("Error saving preferences:", error);
     } finally {
-      setIsSaving(false); 
+      setIsSaving(false);
     }
   };
 
@@ -108,41 +83,46 @@ const Breaks: React.FC = () => {
           <IonTitle>Break Preferences</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen>
+
+      <IonContent fullscreen className="ion-padding">
         {isLoading ? (
           <IonLoading isOpen={isLoading} message={"Loading preferences..."} />
         ) : (
           <>
             <IonItem>
-              <IonLabel>How long do you prefer to work before a break (in minutes)?</IonLabel>
-              <IonRange
-                min={15}
-                max={120}
-                step={5}
-                value={workDuration}
-                onIonChange={(e) => setWorkDuration(e.detail.value as number)}
-                labelPlacement="fixed"
-                label={`${workDuration} min`}
-              >
-                <IonLabel slot="start">15 min</IonLabel>
-                <IonLabel slot="end">120 min</IonLabel>
-              </IonRange>
+              <IonLabel>How long do you like to work for (minutes)?</IonLabel>
+            </IonItem>
+            <IonRange
+              min={15}
+              max={120}
+              step={5}
+              value={workDuration}
+              pin
+              onIonChange={(e) => setWorkDuration(e.detail.value as number)}
+            >
+              <IonLabel slot="start">15 min</IonLabel>
+              <IonLabel slot="end">120 min</IonLabel>
+            </IonRange>
+            <IonItem>
+              <IonLabel>Current work duration: {workDuration} minutes</IonLabel>
             </IonItem>
 
             <IonItem>
-              <IonLabel>How long do you like your breaks (in minutes)?</IonLabel>
-              <IonRange
-                min={5}
-                max={60}
-                step={1}
-                value={breakDuration}
-                onIonChange={(e) => setBreakDuration(e.detail.value as number)}
-                labelPlacement="fixed"
-                label={`${breakDuration} min`}
-              >
-                <IonLabel slot="start">5 min</IonLabel>
-                <IonLabel slot="end">60 min</IonLabel>
-              </IonRange>
+              <IonLabel>How long do you like your breaks (minutes)?</IonLabel>
+            </IonItem>
+            <IonRange
+              min={5}
+              max={60}
+              step={1}
+              value={breakDuration}
+              pin
+              onIonChange={(e) => setBreakDuration(e.detail.value as number)}
+            >
+              <IonLabel slot="start">5 min</IonLabel>
+              <IonLabel slot="end">60 min</IonLabel>
+            </IonRange>
+            <IonItem>
+              <IonLabel>Current break duration: {breakDuration} minutes</IonLabel>
             </IonItem>
 
             <IonItem>
@@ -155,7 +135,7 @@ const Breaks: React.FC = () => {
                   <IonCheckbox
                     slot="end"
                     checked={selectedBreaks[breakType]}
-                    onIonChange={(e) => 
+                    onIonChange={(e) =>
                       setSelectedBreaks((prev) => ({
                         ...prev,
                         [breakType]: e.detail.checked,
@@ -166,15 +146,14 @@ const Breaks: React.FC = () => {
               ))}
             </IonList>
 
-            <IonToolbar>
-              <IonButtons slot="primary">
-                <IonButton shape="round" fill="solid" color="primary" onClick={handleSave}>
-                  Save
-                </IonButton>
-              </IonButtons>
-            </IonToolbar>
+            <div className="ion-text-center ion-padding">
+              <IonButton expand="block" shape="round" fill="solid" color="primary" onClick={handleSave}>
+                Save
+              </IonButton>
+            </div>
           </>
         )}
+
         <IonLoading isOpen={isSaving} message={"Saving preferences..."} />
       </IonContent>
     </IonPage>
