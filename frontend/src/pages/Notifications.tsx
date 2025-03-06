@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 const Notifications: React.FC = () => {
   const [lockScreen, setLockScreen] = useState(true);
-  const [sms, setSms] = useState(true);
+  const [inapp, setInApp] = useState(true);
   const [email, setEmail] = useState(true);
 
   return (
@@ -22,13 +22,9 @@ const Notifications: React.FC = () => {
           <IonToggle slot="end" checked={lockScreen} onIonChange={(e) => setLockScreen(e.detail.checked)} />
         </IonItem>
         <IonItem>
-          <IonLabel>Enable In-App notifications</IonLabel>
-          <IonToggle slot="end" checked={email} onIonChange={(e) => setEmail(e.detail.checked)} />
-        </IonItem>
-        {/* <IonItem>
           <IonLabel>Enable Text/SMS notifications</IonLabel>
-          <IonToggle slot="end" checked={sms} onIonChange={(e) => setSms(e.detail.checked)} />
-        </IonItem> */}
+          <IonToggle slot="end" checked={inapp} onIonChange={(e) => setInApp(e.detail.checked)} />
+        </IonItem>
         <IonItem>
           <IonLabel>Enable Email notifications</IonLabel>
           <IonToggle slot="end" checked={email} onIonChange={(e) => setEmail(e.detail.checked)} />
