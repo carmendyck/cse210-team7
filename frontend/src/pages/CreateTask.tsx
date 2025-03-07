@@ -78,7 +78,6 @@ export const CreateTask: React.FC = () => {
 
         completed: false,
       };
-      console.log("Full new task:", newTask);
 
       const response = await fetch("http://localhost:5050/api/createTasks/addnewtask", {
         method: 'POST',
@@ -128,7 +127,6 @@ export const EditTask: React.FC <EditTaskProps>= ({ params }) => {
       }
 
       const data = await response.json();
-      console.log("Task Data:", data);
 
       const currentTask: CurrentTask = {
         name: data.task.name,
