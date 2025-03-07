@@ -1,2 +1,46 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
+
+
+/* filepath: /Users/lexiestucki/Desktop/cse210/project/cse210-team7/frontend/src/styles/variables.css */
+
+/* Define color variables */
+:root {
+    /* Basic colors */
+    --ion-color-primary:  #182B49;  /* Primary color (affects buttons, headers, etc.) */
+    --ion-color-secondary: #00629B; /* Secondary color */
+    --ion-color-tertiary: #FFCD00;  /* Tertiary color */
+    --ion-color-success: #6E963B;   /* Success color */
+    --ion-color-warning: #FC8900;   /* Warning color */
+    --ion-color-danger: #D462AD;    /* Danger color */
+    --ion-color-light: #B6B1A9;     /* Light color */
+    --ion-color-medium: #747678;    /* Medium color */
+    --ion-color-dark: #000000;      /* Dark color */
+  
+    /* Custom background colors */
+    --ion-background-color: #ffffff;  /* Background color for the whole app */
+    --ion-card-background-color: #f4f5f8; /* Background color for cards */
+    --ion-item-background-color: #f9f9f9; /* Background for list items */
+
+    /* Button colors */
+    --ion-button-background: var(--ion-color-primary); /* Set primary button background */
+    --ion-button-text-color: #ffffff;                  /* Set button text color */
+    --ion-button-hover-background: var(--ion-color-secondary); /* Button hover effect */
+    --ion-button-disabled-background: #d1d1d1;         /* Disabled button background */
+    --ion-button-disabled-text-color: #a0a0a0;         /* Disabled button text color */
+
+    /* Font styles */
+    --ion-font-family: 'Arial', sans-serif;         /* Global font family */
+    --ion-font-size-base: 16px;                      /* Base font size */
+    --ion-font-size-small: 14px;                     /* Small font size */
+    --ion-font-size-large: 18px;                     /* Large font size */
+    --ion-font-weight-normal: 400;                   /* Normal font weight */
+    --ion-font-weight-bold: 700;                     /* Bold font weight */
+
+    /* Input and form field customization */
+    --ion-input-background: #f1f1f1;  /* Input background color */
+    --ion-input-color: #222428;       /* Input text color */
+    --ion-input-placeholder-color: #888888; /* Placeholder text color */
+    --ion-item-background-color: #ffffff;  /* Background color of input items */
+    --ion-select-background: #ffffff;      /* Select input background */
+}
