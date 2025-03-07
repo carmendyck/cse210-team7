@@ -9,29 +9,36 @@ import {
   IonList,
   IonItem,
   IonLabel,
-  IonCheckbox
+  IonCheckbox,
+  IonDatetime
 } from '@ionic/react';
 import { useState, useEffect } from 'react';
 import { useHistory } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { DatetimeChangeEventDetail, IonDatetimeCustomEvent } from "@ionic/core";
 import './TaskList.css';
-
 import { TaskListItem } from '../interfaces/TaskListItemInterface';
 
-// const initialTasks = [
-//   { id: 'Ebj1j5kdNkrcqPwYMpBx', title: "Finish CSE210 homework", duration: "5h", dueDate: "Feb 15", category: "study", color: "red" },
-//   { id: 'AqEq8KnXVGc8F98Hy4LL', title: "Prepare a presentation", duration: "2h", dueDate: "Feb 16", category: "study", color: "yellow" },
-//   { id: '7mRIqexhfoOBbxSts6aa', title: "Go to the Gym", duration: "1h", dueDate: "Feb 17", category: "personal", color: "green" },
-//   { id: '3T8cAvTXcbQMerDZNFnF', title: "Plan your meal", duration: "20mins", dueDate: "Feb 18", category: "personal", color: "green" },
-//   { id: '1ah9j2KOEXvnrXo570o9', title: "Review daily goals before sleeping.", duration: "5mins", dueDate: "Feb 19", category: "personal", color: "green" }
-// ];
+
+function formatDueDate(dueDatetime: string): string {
+  const date = new Date(dueDatetime); 
+  const year = date.getFullYear(); 
+  const month = String(date.getMonth() + 1).padStart(2, "0"); 
+  const day = String(date.getDate()).padStart(2, "0"); 
+
+  return `${year}-${month}-${day}`;
+}
 
 const TaskList: React.FC = () => {
   const [tasks, setTasks] = useState<TaskListItem[]>([])
-  // const [tasks, setTasks] = useState<{id: string, name: string, total_time_estimate: number, priority: number, completed: boolean, due_datetime: string, time_spent: number } | null>(null); 
   const history = useHistory();
   const { logout } = useAuth();
   const { uid } = useAuth();
+
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const now = new Date();
+    return now.toISOString().split('T')[0]; // e.g. "2025-02-23"
+  });
 
   // TODO: associate priority with color.
   // this is here since priority hasn't been implemented yet,
@@ -45,10 +52,10 @@ const TaskList: React.FC = () => {
 
   // TODO: Connect to backend
   // + possibly move to bottom (checked) instead of making it disappear from list
-  const removeTask = (taskId: string) => {
-    const updatedTasks = tasks.filter(task => task.id !== taskId); // Filter out the selected task
-    setTasks(updatedTasks); // Update the state to remove the task
-  };
+  // const removeTask = (taskId: string) => {
+  //   const updatedTasks = tasks.filter(task => task.id !== taskId); // Filter out the selected task
+  //   setTasks(updatedTasks); // Update the state to remove the task
+  // };
 
   const handleLogout = () => {
     logout();
@@ -81,11 +88,46 @@ const TaskList: React.FC = () => {
     }
   }
 
+  const removeTask = async (taskId: string) => {
+    try {
+      const response = await fetch(`http://localhost:5050/api/viewTask/closeTask/${taskId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch task");
+      }
+  
+      const data = await response.json();
+      console.log("Response Data:", data);
+      setTasks(prevTasks => 
+        prevTasks.map(task => 
+          task.id === taskId ? { ...task, completed: true } : task
+        )
+      );
+    } catch (error) {
+      console.error("Error closing task:", error);
+    }
+  };
+
   // gets tasks once on page load
   // TODO: figure out why this is getting called 4 times
   useEffect(() => {
     getAllTasks();
   }, []);
+
+  const handleDateChange = (e: IonDatetimeCustomEvent<DatetimeChangeEventDetail>) => {
+    const value = e.detail.value;
+    if (typeof value === "string") {
+      const dateOnly = value.split('T')[0]; // "YYYY-MM-DD"
+      setSelectedDate(dateOnly);
+      console.log("Selected date: ", dateOnly);
+    }
+  };
+
+  const unfinishedTasks = tasks.filter(task => !task.completed && formatDueDate(task.due_datetime.toLocaleString()) === selectedDate);
+  const finishedTasks = tasks.filter(task => task.completed && formatDueDate(task.due_datetime.toLocaleString()) === selectedDate);
 
   return (
     <IonPage>
@@ -97,26 +139,77 @@ const TaskList: React.FC = () => {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
+
       <IonContent fullscreen>
-        <IonList>
-          {tasks.map((task) => (
-            <IonItem key={task.id} className={`task-item ${defaultColor}`} onClick={() => selectTask(task.id)}>
-              <IonCheckbox
-                slot="start"
-                onClick={(e) => e.stopPropagation()} 
-                onIonChange={() => removeTask(task.id)}
-              />
-              <IonLabel>
-                <h2>{task.name}</h2>
-                <p className="due-date">Due: {task.due_datetime.toLocaleString()}</p>
-              </IonLabel>
-              <span className="duration">{task.total_time_estimate}</span>
-            </IonItem>
-          ))}
-        </IonList>
+
+        <IonItem lines="none" className="centered-datetime-item">
+          <IonDatetime
+            presentation="date"
+            preferWheel={true}
+            mode="ios"
+            value={selectedDate}
+            onIonChange={handleDateChange}
+            className="my-datetime"
+          />
+        </IonItem>
+
+        {/* Unfinished Tasks */}
+        {unfinishedTasks.length > 0 && (
+          <>
+            <h2 className="section-title">Unfinished</h2>
+            <IonList>
+              {unfinishedTasks.map((task) => (
+                <IonItem
+                  key={task.id}
+                  className={`task-item ${defaultColor}`}
+                  onClick={() => selectTask(task.id)}
+                >
+                  <IonCheckbox
+                    slot="start"
+                    onClick={(e) => e.stopPropagation()}
+                    onIonChange={() => removeTask(task.id)}
+                  />
+                  <IonLabel>
+                    <h2>{task.name}</h2>
+                    <p className="due-date">Due: {formatDueDate(task.due_datetime.toLocaleString())}</p>
+                  </IonLabel>
+                  <span className="duration">{task.total_time_estimate}</span>
+                </IonItem>
+              ))}
+            </IonList>
+          </>
+        )}
+
+        {/* Finished Tasks */}
+        {finishedTasks.length > 0 && (
+          <>
+            <h2 className="section-title">Finished</h2>
+            <IonList>
+              {finishedTasks.map((task) => (
+                <IonItem
+                  key={task.id}
+                  className={`task-item ${defaultColor}`}
+                >
+                  <IonCheckbox
+                    slot="start"
+                    checked={true}
+                    disabled={true} // Prevent users from unchecking it
+                  />
+                  <IonLabel>
+                    <h2>{task.name}</h2>
+                    <p className="due-date">Due: {formatDueDate(task.due_datetime.toLocaleString())}</p>
+                  </IonLabel>
+                  <span className="duration">{task.total_time_estimate}</span>
+                </IonItem>
+              ))}
+            </IonList>
+          </>
+        )}
+
       </IonContent>
     </IonPage>
   );
 };
 
 export default TaskList;
+

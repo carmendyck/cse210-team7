@@ -33,7 +33,7 @@ import { NewTask } from '../interfaces/TaskInterface';
 import { Course } from '../interfaces/CourseInterface';
 import { Tag } from '../interfaces/TagInterface';
 
-import { getTomorrowBeforeMidnight, formatLocalDateForIonDatetime }  from '../components/HandleDatetime';
+import { getTomorrowBeforeMidnight, getInTwoYears, formatLocalDateForIonDatetime }  from '../utils/HandleDatetime';
 
 const CreateTask: React.FC = () => {
   const { uid } = useAuth();
@@ -44,9 +44,9 @@ const CreateTask: React.FC = () => {
     // Basic info
     user_id: uid,
 
-    name: null,
-    notes: null,
-    location: null,  // (optional)
+    name: '',
+    notes: '',
+    location: '',  // (optional)
     due_datetime: getTomorrowBeforeMidnight(),
 
     // To filter data
@@ -67,10 +67,30 @@ const CreateTask: React.FC = () => {
 
   const [ invalidTaskMessage, setInvalidTaskMessage ] = useState<string>();
 
-  // Handling changes to inputs-- updating states
-  const handleInputChange = (e: IonInputCustomEvent<InputChangeEventDetail>, field: keyof NewTask) => {
-    console.log("Field [", field, "] set to [", e.target.value, "]");
-    setTaskData({ ...taskData, [field]: e.target.value, });
+  const handleInputChange = (e: IonInputCustomEvent<InputChangeEventDetail>,
+                             field: keyof NewTask, maxLength: number) => {
+    const stringInputFields: (keyof NewTask)[] = ["name", "notes", "location"];
+    const numberInputFields: (keyof NewTask)[] = ["total_time_estimate"];
+
+    let newValue: any = String(e.target.value) || '';
+    console.log('Input value [', newValue, '] with type [', typeof newValue, ']');
+
+    // String input fields must be under max character limit
+    if (stringInputFields.includes(field)) {
+      if (newValue.length > maxLength) {
+        console.warn(`Input length ${newValue.length} must be less than ${maxLength}!`);
+        newValue = newValue.slice(0, maxLength);
+      }
+    // Total time estimate must be non-negative
+    } else if (numberInputFields.includes(field)) {
+      newValue = Number(newValue);
+      if (newValue < 0) {
+        console.warn(`Input value ${newValue} must be greater than or equal to ${0}!`);
+        newValue = 0;
+      }
+    }
+    setTaskData({ ...taskData, [field]: newValue, });
+    console.log("Field [", field, "] set to [", newValue, "]");
   };
 
   const handleDueDateChange = (e: IonDatetimeCustomEvent<DatetimeChangeEventDetail>) => {
@@ -105,7 +125,8 @@ const CreateTask: React.FC = () => {
   const isTaskValid = () => {
     // [Required fields]: name, course (other fields have valid defaults)
     const required: (keyof NewTask)[] = ['name'];
-    const missing: string[] = required.filter(field => !taskData[field]);
+    const missing: string[] = required.filter(field => !taskData[field] ||
+      (typeof taskData[field] === 'string' && taskData[field].trim() === ''));
 
     if (missing.length > 0) {
       let message = missing.map(field => `<${field[0].toUpperCase() + field.slice(1)}>`).join(' and ');
@@ -116,6 +137,8 @@ const CreateTask: React.FC = () => {
     } else {
       return true;
     }
+
+    // TODO: if date is too far into future, give popup
   };
 
   const handleCreate = async () => {
@@ -163,19 +186,19 @@ const CreateTask: React.FC = () => {
       <IonContent className="ion-flex ion-justify-content-center ion-align-items-center ion-padding">
         {/* Basic task information */}
         <IonInput
-          value={taskData.name} onIonChange={(e) => handleInputChange(e, 'name')}
+          value={taskData.name} onIonInput={(e) => handleInputChange(e, 'name', 50)}
           aria-label="Name" labelPlacement="fixed" placeholder="Add task name"
           counter={true} maxlength={50}>
         </IonInput>
         {/* TODO: add Notes icon */}
         <IonInput
-          value={taskData.notes} onIonChange={(e) => handleInputChange(e, 'notes')}
+          value={taskData.notes} onIonInput={(e) => handleInputChange(e, 'notes', 500)}
           aria-label="Notes" labelPlacement="fixed" placeholder="Add notes (optional)"
           counter={true} maxlength={500}>
         </IonInput>
         {/* TODO: add location icon */}
         <IonInput
-          value={taskData.location} onIonChange={(e) => handleInputChange(e, 'location')}
+          value={taskData.location} onIonInput={(e) => handleInputChange(e, 'location', 50)}
           aria-label="Location" labelPlacement="fixed" placeholder="Add location (optional)"
           counter={true} maxlength={50}>
         </IonInput>
@@ -184,6 +207,8 @@ const CreateTask: React.FC = () => {
         <IonItem>
           <IonDatetime
             value={formatLocalDateForIonDatetime(taskData.due_datetime)}
+            min={formatLocalDateForIonDatetime(new Date())}
+            max={formatLocalDateForIonDatetime(getInTwoYears())}
             onIonChange={(e) => handleDueDateChange(e)}>
             <span slot="title">Due date/time</span>
           </IonDatetime>
@@ -215,6 +240,7 @@ const CreateTask: React.FC = () => {
             <IonSelectOption value="Quiz">Quiz</IonSelectOption>
             <IonSelectOption value="Exam">Exam</IonSelectOption>
             <IonSelectOption value="Reading">Reading</IonSelectOption>
+            <IonSelectOption value="Paper">Paper</IonSelectOption>
             {/* TODO: add option to add new tag? */}
           </IonSelect>
         </IonItem>
@@ -222,7 +248,7 @@ const CreateTask: React.FC = () => {
         {/* Scheduling and time */}
         <IonItem>
           <IonInput value={taskData.total_time_estimate}
-            onIonChange={(e) => handleInputChange(e, 'total_time_estimate')}
+            onIonInput={(e) => handleInputChange(e, 'total_time_estimate', Infinity)}
             type="number" label="Time Estimate (hours)" placeholder="1" min="0"></IonInput>
         </IonItem>
 
@@ -236,13 +262,13 @@ const CreateTask: React.FC = () => {
 
         <IonToolbar>
           {invalidTaskMessage && (
-            <IonText color="danger">
+            <IonText color="danger" className="invalid-task-message">
               <p>{invalidTaskMessage}</p>
             </IonText>
           )}
 
           <IonButtons slot="primary">
-            <IonButton shape="round" onClick={handleCreate}>Create</IonButton>
+            <IonButton shape="round" className="create-task-button" onClick={handleCreate}>Create</IonButton>
           </IonButtons>
         </IonToolbar>
       </IonContent>
