@@ -129,22 +129,25 @@ const Breaks: React.FC = () => {
               <IonLabel>What types of breaks do you want suggestions for?</IonLabel>
             </IonItem>
             <IonList>
-              {Object.keys(selectedBreaks).map((breakType) => (
-                <IonItem key={breakType}>
-                  <IonLabel>{breakType}</IonLabel>
-                  <IonCheckbox
-                    slot="end"
-                    checked={selectedBreaks[breakType]}
-                    onIonChange={(e) =>
-                      setSelectedBreaks((prev) => ({
-                        ...prev,
-                        [breakType]: e.detail.checked,
-                      }))
-                    }
-                  />
-                </IonItem>
-              ))}
+              {Object.keys(selectedBreaks)
+                .sort() // Ensures consistent order
+                .map((breakType) => (
+                  <IonItem key={breakType}>
+                    <IonLabel>{breakType}</IonLabel>
+                    <IonCheckbox
+                      slot="end"
+                      checked={selectedBreaks[breakType]}
+                      onIonChange={(e) =>
+                        setSelectedBreaks((prev) => ({
+                          ...prev,
+                          [breakType]: e.detail.checked,
+                        }))
+                      }
+                    />
+                  </IonItem>
+                ))}
             </IonList>
+
 
             <div className="ion-text-center ion-padding">
               <IonButton expand="block" shape="round" fill="solid" color="primary" onClick={handleSave}>
