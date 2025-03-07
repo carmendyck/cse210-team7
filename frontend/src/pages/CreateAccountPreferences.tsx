@@ -113,7 +113,8 @@ const CreateAccountPreferences: React.FC = () => {
               <IonInput
                 aria-label="Course Name"
                 placeholder="Course Name"
-                value={course.course_name}
+                // value={course.course_name}
+                value={course.course_name !== "NULL" ? course.course_name : ""}
                 onIonInput={(e) => handleInputChange(e, index, "course_name")}
               />
             </IonItem>
@@ -121,7 +122,9 @@ const CreateAccountPreferences: React.FC = () => {
               <IonInput
                 aria-label="Homework"
                 placeholder="Average Homework Time (hours)"
-                value={course.avg_time_homework}
+
+                // value={course.avg_time_homework}
+                value={course.course_name !== "NULL" ? course.avg_time_homework : ""}
                 onIonInput={(e) => handleInputChange(e, index, "avg_time_homework")}
               />
             </IonItem>
@@ -129,7 +132,8 @@ const CreateAccountPreferences: React.FC = () => {
               <IonInput
                 aria-label="Project"
                 placeholder="Average Project Time (hours)"
-                value={course.avg_time_project}
+                // value={course.avg_time_project}
+                value={course.course_name !== "NULL" ? course.avg_time_project : ""}
                 onIonInput={(e) => handleInputChange(e, index, "avg_time_project")}
               />
             </IonItem>
@@ -137,7 +141,8 @@ const CreateAccountPreferences: React.FC = () => {
               <IonInput
                 aria-label="Quiz"
                 placeholder="Average Quiz Time (hours)"
-                value={course.avg_time_quiz}
+                // value={course.avg_time_quiz}
+                value={course.course_name !== "NULL" ? course.avg_time_quiz : ""}
                 onIonInput={(e) => handleInputChange(e, index, "avg_time_quiz")}
               />
             </IonItem>
@@ -145,7 +150,8 @@ const CreateAccountPreferences: React.FC = () => {
               <IonInput
                 aria-label="Reading"
                 placeholder="Average Reading Time (hours)"
-                value={course.avg_time_reading}
+                // value={course.avg_time_reading}
+                value={course.course_name !== "NULL" ? course.avg_time_reading : ""}
                 onIonInput={(e) => handleInputChange(e, index, "avg_time_reading")}
               />
             </IonItem>
@@ -153,7 +159,8 @@ const CreateAccountPreferences: React.FC = () => {
               <IonInput
                 aria-label="Test"
                 placeholder="Average Test Time (hours)"
-                value={course.avg_time_test}
+                // value={course.avg_time_test}
+                value={course.course_name !== "NULL" ? course.avg_time_test : ""}
                 onIonInput={(e) => handleInputChange(e, index, "avg_time_test")}
               />
             </IonItem>
