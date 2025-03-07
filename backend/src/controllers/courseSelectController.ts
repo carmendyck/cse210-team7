@@ -25,11 +25,12 @@ export const addCourseSelection = async (req: Request, res: Response) => {
     avg_time_quiz,
     avg_time_reading,
     avg_time_test,
+    user_id,
   };
 
   try {
     await db.collection("course").doc(courseDocId).set(preferences, { merge: true });
-
+    // await db.collection("course").set(preferences, { merge: true });
     res.status(201).json({ 
       message: `Course ${course_index + 1} updated successfully!`,
       course_index,

@@ -110,60 +110,54 @@ const CreateAccountPreferences: React.FC = () => {
           <div key={index} style={{ marginBottom: "2rem" }}>
             <h2 className="course-title">Course {index + 1}</h2>
             <IonItem>
-              <IonInput
-                aria-label="Course Name"
-                placeholder="Course Name"
-                // value={course.course_name}
-                value={course.course_name !== "NULL" ? course.course_name : ""}
-                onIonInput={(e) => handleInputChange(e, index, "course_name")}
-              />
+      <IonInput
+        label="Course Name"
+        labelPlacement="floating"
+        value={course.course_name !== "NULL" ? course.course_name : ""}
+        onIonInput={(e) => handleInputChange(e, index, "course_name")}
+      />
             </IonItem>
             <IonItem>
               <IonInput
-                aria-label="Homework"
-                placeholder="Average Homework Time (hours)"
-
-                // value={course.avg_time_homework}
+                label="Average Homework Time (hours)"
+                labelPlacement="floating"
                 value={course.course_name !== "NULL" ? course.avg_time_homework : ""}
                 onIonInput={(e) => handleInputChange(e, index, "avg_time_homework")}
               />
             </IonItem>
             <IonItem>
               <IonInput
-                aria-label="Project"
-                placeholder="Average Project Time (hours)"
-                // value={course.avg_time_project}
+                label="Average Project Time (hours)"
+                labelPlacement="floating"
                 value={course.course_name !== "NULL" ? course.avg_time_project : ""}
                 onIonInput={(e) => handleInputChange(e, index, "avg_time_project")}
               />
             </IonItem>
             <IonItem>
               <IonInput
-                aria-label="Quiz"
-                placeholder="Average Quiz Time (hours)"
-                // value={course.avg_time_quiz}
+                label="Average Quiz Time (hours)"
+                labelPlacement="floating"
                 value={course.course_name !== "NULL" ? course.avg_time_quiz : ""}
                 onIonInput={(e) => handleInputChange(e, index, "avg_time_quiz")}
               />
             </IonItem>
             <IonItem>
               <IonInput
-                aria-label="Reading"
-                placeholder="Average Reading Time (hours)"
-                // value={course.avg_time_reading}
+                label="Average Reading Time (hours)"
+                labelPlacement="floating"
                 value={course.course_name !== "NULL" ? course.avg_time_reading : ""}
                 onIonInput={(e) => handleInputChange(e, index, "avg_time_reading")}
               />
             </IonItem>
             <IonItem>
               <IonInput
-                aria-label="Test"
-                placeholder="Average Test Time (hours)"
-                // value={course.avg_time_test}
+                label="Average Test Time (hours)"
+                labelPlacement="floating"
                 value={course.course_name !== "NULL" ? course.avg_time_test : ""}
                 onIonInput={(e) => handleInputChange(e, index, "avg_time_test")}
               />
             </IonItem>
+
             <IonItem>
               <IonButton 
                 color="danger" 
