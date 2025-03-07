@@ -2,14 +2,13 @@
 http://ionicframework.com/docs/theming/ */
 
 
-/* filepath: /Users/lexiestucki/Desktop/cse210/project/cse210-team7/frontend/src/styles/variables.css */
-
 /* Define color variables */
 :root {
     /* Basic colors */
+    /* From https://brand.ucsd.edu/visual-brand/color/index.html */
     --ion-color-primary:  #182B49;  /* Primary color (affects buttons, headers, etc.) */
     --ion-color-secondary: #00629B; /* Secondary color */
-    --ion-color-tertiary: #FFCD00;  /* Tertiary color */
+    --ion-color-tertiary: #00C6D7;  /* Tertiary color */
     --ion-color-success: #6E963B;   /* Success color */
     --ion-color-warning: #FC8900;   /* Warning color */
     --ion-color-danger: #D462AD;    /* Danger color */
