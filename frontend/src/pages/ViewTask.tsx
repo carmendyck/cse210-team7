@@ -139,7 +139,10 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
   };
 
   const handleEdit = () => {
-    history.push(`/edittask/${params.id}`);
+    history.push({
+      pathname: `/edittask/${params.id}`,
+      state: { task },
+    });
   };
 
   // Timer start/resume

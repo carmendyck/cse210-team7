@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
   InputChangeEventDetail,
@@ -32,7 +32,7 @@ import {
 } from "@ionic/react";
 import { closeOutline } from 'ionicons/icons';
 
-import { NewTask, CurrentTask } from '../interfaces/TaskInterface';
+import { NewTask, CurrentTask, FullQueriedTask } from '../interfaces/TaskInterface';
 import { Course } from '../interfaces/CourseInterface';
 import { Tag } from '../interfaces/TagInterface';
 
@@ -108,55 +108,34 @@ interface EditTaskProps {
   };
 }
 
+interface LocationState {
+  task: FullQueriedTask;
+}
+
 export const EditTask: React.FC <EditTaskProps>= ({ params }) => {
   const history = useHistory();
+  const location = useLocation<{ state: LocationState }>();
+
+  // @ts-ignore
+  const task = location.state?.task; // VSCode typing has incorrect error
   const [ taskData, setTaskData ] = useState<CurrentTask | null>(null);
-  const [ loading, setLoading ] = useState(true);
-  const [ error, setError ] = useState<string | null>(null);
-
-  const getTaskData = async () => {
-    console.log(`Fetching task with ID: ${params.id}`);
-    try {
-      const response = await fetch(`http://localhost:5050/api/viewTask/getTask/${params.id}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch task");
-      }
-
-      const data = await response.json();
-
-      const currentTask: CurrentTask = {
-        name: data.task.name,
-        notes: data.task.notes,
-        location: data.task.location,
-
-        due_datetime: new Date(data.task.due_datetime),
-        course_id: data.task.course_id,
-
-        tags: data.task.tags,
-
-        total_time_estimate: data.task.total_time_estimate,
-      };
-
-      console.log("Current Task:", currentTask);
-      setTaskData(currentTask);
-    } catch (error) {
-      console.error("Error fetching task:", error);
-      setError("Failed to load task");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    getTaskData();
-  }, [params.id]);
-
-  if (loading) return <p>Loading task...</p>;
-  if (error) return <p>{error}</p>;
+    console.log("Loading task data from View Task into Edit Task...")
+    if (task) {
+      const currentTask: CurrentTask = {
+        name: task.name,
+        notes: task.notes,
+        location: task.location,
+        due_datetime: new Date(task.due_datetime),
+        course_id: task.course_id,
+        tags: task.tags,
+        total_time_estimate: task.total_time_estimate,
+      };
+      console.log("Loaded in task data: ", currentTask);
+      setTaskData(currentTask);
+    }
+  }, [task]);
 
   if (!taskData) {
     return <p>Task data not found</p>;
