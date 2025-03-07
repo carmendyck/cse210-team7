@@ -1,10 +1,5 @@
-.nav-button-container {
-  position: relative;
-  width: 100%;
-}
-
 .back-button {
-    position: absolute;
+    /* position: absolute; */
     top: 10px;
     left: 10px;
     width: 30px;
@@ -20,15 +15,18 @@
 }
 
 .edit-button {
-  position: absolute;
+  /* position: absolute; */
   top: 10px;
   right: 10px;
-  padding: 5px 15px;
+  /* padding: 5px 15px; */
+  display: flex;
+  /* border-radius: 10%;
+  border: 1px solid; */
 }
 
-.content-wrapper {
-    padding-top: 55px; /* Adjust this value as needed to create space for the back button */
-}
+/* .content-wrapper {
+    padding-top: 1%; /* Adjust this value as needed to create space for the back button
+} */
 
 .task-name h1 {
     font-size: 1.5em;

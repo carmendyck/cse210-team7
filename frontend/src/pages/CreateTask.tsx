@@ -27,7 +27,10 @@ import {
   IonSelectOption,
   IonButtons,
   IonText,
+  IonBackButton,
+  IonIcon,
 } from "@ionic/react";
+import { closeOutline } from 'ionicons/icons';
 
 import { NewTask, CurrentTask } from '../interfaces/TaskInterface';
 import { Course } from '../interfaces/CourseInterface';
@@ -283,12 +286,11 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonButton
-            slot="start"
-            size="small"
-            style={{ paddingLeft: '10px', paddingRight: '10px' }}
-            onClick={handleBack}>X
-          </IonButton>
+          <IonButtons slot="start">
+            <IonButton slot="start" onClick={handleBack}>
+              <IonIcon icon={closeOutline} size="large"></IonIcon>
+            </IonButton>
+          </IonButtons>
           <IonTitle>{mode === "create" ? "Create" : "Edit"} Task</IonTitle>
         </IonToolbar>
       </IonHeader>

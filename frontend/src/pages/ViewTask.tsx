@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IonButton, IonContent, IonPage, IonTitle, IonToolbar, IonText, IonItemDivider, IonSpinner, IonModal, IonItem, IonLabel, IonInput } from "@ionic/react";
+import { IonButton, IonButtons, IonContent, IonPage, IonTitle, IonToolbar, IonText, IonItemDivider, IonSpinner, IonModal, IonItem, IonLabel, IonInput, IonHeader } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import './ViewTask.css'; // Import the CSS file
@@ -285,20 +285,23 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
 
   return (
     <IonPage key={forceUpdate}>
-      <IonToolbar>
-        <IonTitle>View Task</IonTitle>
-      </IonToolbar>
+      <IonHeader>
+        <IonToolbar>
+            {/* Back button always renders */}
+            <IonButtons slot="start">
+              <IonButton className="back-button" onClick={handleBack}>
+                  &#8592; {/* Unicode for left arrow */}
+              </IonButton>
+            </IonButtons>
+            <IonTitle>View Task</IonTitle>
+            <IonButtons slot="end">
+              <IonButton className="edit-button" onClick={handleEdit}>
+                Edit
+              </IonButton>
+            </IonButtons>
+        </IonToolbar>
+      </IonHeader>
       <IonContent className="ion-padding">
-        {/* Back button always renders */}
-        <div className="nav-button-container">
-          <IonButton className="back-button" onClick={handleBack}>
-            &#8592; {/* Unicode for left arrow */}
-          </IonButton>
-          <IonButton className="edit-button" onClick={handleEdit}>
-            Edit
-          </IonButton>
-        </div>
-
         {/* Show loading state */}
         {loading ? (
           <IonText>Loading task...</IonText>
