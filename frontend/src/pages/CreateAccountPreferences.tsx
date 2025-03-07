@@ -1,112 +1,179 @@
-import { IonButton, IonButtons, IonContent, IonDatetime, IonDatetimeButton, IonHeader, IonInput, IonItem, IonLabel, IonModal, IonPage, IonSegment, IonSegmentButton,IonTitle, IonToolbar } from "@ionic/react";
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonInput,
+  IonItem,
+  IonPage,
+  IonToolbar
+} from "@ionic/react";
 import { useHistory } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Course } from '../interfaces/CourseInterface';
-import React, { useState } from 'react';
-
-import {
-  InputChangeEventDetail,
-  IonInputCustomEvent,
-} from '@ionic/core';
-
+import { Course } from "../interfaces/CourseInterface";
+import React, { useState, useEffect } from "react";
+import { InputChangeEventDetail, IonInputCustomEvent } from "@ionic/core";
+import './CreateAccountPreferences.css';
 
 const CreateAccountPreferences: React.FC = () => {
   const history = useHistory();
   const { uid } = useAuth();
-  const handleNext = () => {
-    history.push("/create_acct_pref_pg2");
+
+  const initialCourseState: Course = {
+    course_name: "NULL", // The name is NULL means this course is not set
+    user_id: uid,
+    avg_time_homework: "3",
+    avg_time_project: "8",
+    avg_time_quiz: "2",
+    avg_time_reading: "2",
+    avg_time_test: "2",
+    course_index: 0, // Initialize course_index as 0
   };
 
-   const [ taskData, setTaskData ] = useState<Course>({
-      course_name: null,
-      academic_term: null,
-      notes: null,
-      user_id: uid,
+  // Initialize courses state with a dynamic array of 4 courses, each with an index
+  const [courses, setCourses] = useState<Course[]>(Array.from({ length: 4 }, (_, index) => ({
+    ...initialCourseState, 
+    course_index: index, // Set the correct course_index
+  })));
+
+  const handleInputChange = (
+    e: IonInputCustomEvent<InputChangeEventDetail>,
+    index: number,
+    field: keyof Course
+  ) => {
+    console.log(`Field [${field}] in Course [${index}] set to [${e.target.value}]`);
+
+    setCourses((prevCourses) => {
+      const updatedCourses = [...prevCourses];
+      updatedCourses[index] = { ...updatedCourses[index], [field]: e.target.value };
+      return updatedCourses;
     });
+  };
 
-    const handleInputChange = (e: IonInputCustomEvent<InputChangeEventDetail>, field: keyof Course) => {
-      console.log("Field [", field, "] set to [", e.target.value, "]");
-      setTaskData({ ...taskData, [field]: e.target.value, });
-    };
+  const handleRemoveCourse = (index: number) => {
+    setCourses(prevCourses => {
+      const updatedCourses = [...prevCourses];
+      updatedCourses[index] = { ...initialCourseState, course_index: index }; // Preserve the index
+      return updatedCourses;
+    });
+  };
 
-    const handleCreate = async () => {
-   
-      // TODO: Add storing of task
-      console.log("Storing task: ", taskData);
+  useEffect(() => {
+    console.log("Current Courses:", courses);
+  }, [courses]);
+
+  const handleAddTasks = async () => {
+    try {
+      const responses = await Promise.all(
+        courses.map((course) =>
+          fetch("http://localhost:5050/api/courseSelect/addCourseSelection", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...course,
+              user_id: uid, // Ensure user_id is passed
+            })
+          })
+        )
+      );
   
-      try {
-        const response = await fetch("http://localhost:5050/api/courseSelect/addCourseSelection", {
-          method: 'POST',
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify( taskData ),
-        });
+      const results = await Promise.all(responses.map(res => res.json()));
   
-        const data = await response.json();
-  
-        if (!response.ok) {
-          console.log("Error storing task, fetching from API: ", data.error || 'Unknown error');
+      results.forEach((data, index) => {
+        if (!responses[index].ok) {
+          console.error(`Error saving course ${index + 1}:`, data.error);
         } else {
-          console.log("Task successfully added:", data);
-          history.push("/tasklist");
+          console.log(`Course ${index + 1} saved successfully:`, data);
         }
-      } catch (error) {
-        console.error("Error connecting to the API: ", error);
-      }
-    };
-
-  // == Set-Up - Courses ==
-
-  // [Quarter System / Semester System] - ion-segment
-  // -- Courses --
-  // [Course 1 - Days of Week - Time - Description] [Remove Course] - ion-input, ion-datetime
-  // ...
-  // [ Add Course ] - ion-button
-  // [ Next ] - ion-button
-
-  // * Date multi-select (i.e. M T W T F) - should implement, but haven't figured out how yet
-  // * besides checkboxes which would look kind of lame tbh
+      });
+  
+    } catch (error) {
+      console.error("Error saving courses:", error);
+    }
+  };
+  
+  
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="end">
-            <IonButton onClick={handleNext}>Next</IonButton>
+            <IonButton onClick={() => history.push("/create_acct_pref_pg2")}>
+              Next
+            </IonButton>
           </IonButtons>
-          <IonTitle>Set-Up - Courses</IonTitle>
         </IonToolbar>
       </IonHeader>
-
       <IonContent fullscreen>
-        <IonItem>
-          <IonSegment value="default">
-            <IonSegmentButton value="default">
-              <IonLabel>Quarter System</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="segment">
-              <IonLabel>Semester System</IonLabel>
-            </IonSegmentButton>
-          </IonSegment>
-        </IonItem>
+        {courses.map((course, index) => (
+          <div key={index} style={{ marginBottom: "2rem" }}>
+            <h2 className="course-title">Course {index + 1}</h2>
+            <IonItem>
+              <IonInput
+                aria-label="Course Name"
+                placeholder="Course Name"
+                value={course.course_name}
+                onIonInput={(e) => handleInputChange(e, index, "course_name")}
+              />
+            </IonItem>
+            <IonItem>
+              <IonInput
+                aria-label="Homework"
+                placeholder="Average Homework Time (hours)"
+                value={course.avg_time_homework}
+                onIonInput={(e) => handleInputChange(e, index, "avg_time_homework")}
+              />
+            </IonItem>
+            <IonItem>
+              <IonInput
+                aria-label="Project"
+                placeholder="Average Project Time (hours)"
+                value={course.avg_time_project}
+                onIonInput={(e) => handleInputChange(e, index, "avg_time_project")}
+              />
+            </IonItem>
+            <IonItem>
+              <IonInput
+                aria-label="Quiz"
+                placeholder="Average Quiz Time (hours)"
+                value={course.avg_time_quiz}
+                onIonInput={(e) => handleInputChange(e, index, "avg_time_quiz")}
+              />
+            </IonItem>
+            <IonItem>
+              <IonInput
+                aria-label="Reading"
+                placeholder="Average Reading Time (hours)"
+                value={course.avg_time_reading}
+                onIonInput={(e) => handleInputChange(e, index, "avg_time_reading")}
+              />
+            </IonItem>
+            <IonItem>
+              <IonInput
+                aria-label="Test"
+                placeholder="Average Test Time (hours)"
+                value={course.avg_time_test}
+                onIonInput={(e) => handleInputChange(e, index, "avg_time_test")}
+              />
+            </IonItem>
+            <IonItem>
+              <IonButton 
+                color="danger" 
+                onClick={() => handleRemoveCourse(index)}
+              >
+                Remove Course {index + 1}
+              </IonButton>
+            </IonItem>
+          </div>
+        ))}
 
-        <IonItem><IonLabel>Courses</IonLabel></IonItem>
-        <IonItem>
-          <IonInput aria-label="Course Name" placeholder="Course Name"></IonInput>
-          <IonInput aria-label="Description" placeholder="Description"></IonInput>
-          <IonDatetimeButton datetime="datetime"></IonDatetimeButton>
-          <IonModal keepContentsMounted={true}>
-            <IonDatetime presentation="time" id="datetime"></IonDatetime>
-          </IonModal>
-          <IonButton>Remove</IonButton> {/* Doesn't do anything yet */}
-        </IonItem>
-        <IonItem>
-          <IonButton>Add Course</IonButton> {/* Doesn't do anything yet */}
-        </IonItem>
-
+        <div style={{ padding: "16px", textAlign: "center" }}>
+          <IonButton expand="block" onClick={handleAddTasks}>
+            Add All Courses
+          </IonButton>
+        </div>
       </IonContent>
-      {/* <IonContent className="ion-flex ion-justify-content-center ion-align-items-center ion-padding">
-        <IonButton expand="full" onClick={handleBack}>Done</IonButton>
-      </IonContent> */}
     </IonPage>
   );
 };

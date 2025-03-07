@@ -4,30 +4,40 @@ import { db } from "../config/firebase";
 export const addCourseSelection = async (req: Request, res: Response) => {
   const {
     course_name,
-    academic_term,
-    notes,
+    avg_time_homework,
+    avg_time_project,
+    avg_time_quiz,
+    avg_time_reading,
+    avg_time_test,
     user_id,
+    course_index, 
   } = req.body;
 
-//   if (!user_id || !name || !breakDuration || !selectedBreaks ||
-//       mostProductiveTime === null || flexibility === null // think this is needed bc these can be 0
-//   ) {
-//     return res.status(400).json({ error: "A required field is missing." });
-//   }
+  if (!user_id || !course_name.trim() || course_index === undefined) {
+    return res.status(400).json({ error: "User ID, Course Name, and Course Index are required." });
+  }
 
+  const courseDocId = `${user_id}_${course_index}`; 
   const preferences = {
-    course_name: course_name,
-    academic_term: academic_term,
-    notes: notes,
-    user_id: user_id,
+    course_name,
+    avg_time_homework,
+    avg_time_project,
+    avg_time_quiz,
+    avg_time_reading,
+    avg_time_test,
   };
 
   try {
-    const prefRef = await db.collection("course").doc(user_id).set(preferences, { merge: true });
-    res.status(201).json({ message: "Preferences saved successfully!", 
-    preferences: preferences});
+    await db.collection("course").doc(courseDocId).set(preferences, { merge: true });
+
+    res.status(201).json({ 
+      message: `Course ${course_index + 1} updated successfully!`,
+      course_index,
+      preferences
+    });
+
   } catch (error) {
-    console.log(error);
+    console.error("Error updating course:", error);
     res.status(500).json({ error: (error as Error).message });
   }
 };
