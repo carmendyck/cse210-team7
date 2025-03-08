@@ -173,6 +173,7 @@ const Breaks: React.FC = () => {
                 slot="end"
                 checked={selectedBreaks[breakType]}
                 onIonChange={(e) => handleCheckboxChange(breakType, e)}
+                color="secondary"
               />
             </IonItem>
           ))}

@@ -107,6 +107,7 @@ max-height: 150px;
 width: 100%;
 text-align: center; 
 margin: 0 auto;
+--background: var(--ion-color-light)
 }
 
 .section-title {
