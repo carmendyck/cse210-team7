@@ -427,7 +427,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
                 }} 
               />
             </IonItem>
-            <IonButton expand="block" onClick={handleManualTimeSubmit}>Submit</IonButton>
+            <IonButton expand="block" color="secondary" onClick={handleManualTimeSubmit}>Submit</IonButton>
             <IonButton expand="block" color="light" onClick={handleModalCancel}>Cancel</IonButton>
           </IonContent>
         </IonModal>
