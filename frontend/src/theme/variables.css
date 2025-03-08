@@ -29,7 +29,7 @@ http://ionicframework.com/docs/theming/ */
     --ion-button-disabled-text-color: #a0a0a0;         /* Disabled button text color */
 
     /* Font styles */
-    --ion-font-family: 'Arial', sans-serif;         /* Global font family */
+    --ion-font-family: 'Tahoma', sans-serif;         /* Global font family */
     --ion-font-size-base: 16px;                      /* Base font size */
     --ion-font-size-small: 14px;                     /* Small font size */
     --ion-font-size-large: 18px;                     /* Large font size */
