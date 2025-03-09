@@ -31,10 +31,10 @@ class TaskPrioritizer:
     def assign_task_priority(self):
         
         # initial - values needed:
-        # - task time estimate
-        # - task deadline
-        # - priority history (?)
-        # - keywords
+        # - task time estimate (DB)
+        # - task deadline (DB)
+        ## - priority history (?)
+        # - keywords (DB)
 
         # dynamic - values needed: <-- maybe split into separate "update" function?
         # - past student productivity (?)
