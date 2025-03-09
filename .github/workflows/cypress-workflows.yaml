@@ -73,6 +73,6 @@ jobs:
         run: npx cypress run --spec "cypress/e2e/{login,signup}.cy.ts" --config video=false
         working-directory: frontend
 
-      - name: Run Cypress Tests for CreateTask
-        run: npx cypress run --spec "cypress/e2e/createTask.cy.ts" --config video=false
+      - name: Run Cypress Tests for Task Creation and Editing
+        run: npx cypress run --spec "cypress/e2e/{createTask,editTask}.cy.ts" --config video=false
         working-directory: frontend

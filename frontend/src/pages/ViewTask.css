@@ -1,5 +1,5 @@
 .back-button {
-    position: absolute;
+    /* position: absolute; */
     top: 10px;
     left: 10px;
     width: 30px;
@@ -16,9 +16,19 @@
     --background: transparent;
 }
 
-.content-wrapper {
-    padding-top: 40px; /* Adjust this value as needed to create space for the back button */
+.edit-button {
+  /* position: absolute; */
+  top: 10px;
+  right: 10px;
+  /* padding: 5px 15px; */
+  display: flex;
+  /* border-radius: 10%;
+  border: 1px solid; */
 }
+
+/* .content-wrapper {
+    padding-top: 1%; /* Adjust this value as needed to create space for the back button
+} */
 
 .task-name h1 {
     font-size: 1.5em;
@@ -30,7 +40,7 @@
     align-items: center;
     justify-content: space-between;
 }
-  
+
 .details p {
     font-size: 1em;
     margin: 10px 0;
@@ -43,7 +53,7 @@
     font-size: 1.5em;
     --background: var(--ion-color-light);
 }
-  
+
 .description p {
     font-size: 1em;
     margin: 10px 0;
@@ -60,7 +70,7 @@
 .timer-display h2 {
     font-size: 2em;
     margin-bottom: 15px;
-}   
+}
 
 .disabled-timer {
     --color: var(--ion-color-light);
@@ -78,10 +88,10 @@
 }
 
 .timer-button {
-    width: 80px; 
-    height: 50px; 
-    margin: 10px; 
-    font-size: 16px; 
+    width: 80px;
+    height: 50px;
+    margin: 10px;
+    font-size: 16px;
     line-height: 3;
 }
 
@@ -92,8 +102,8 @@
     margin-top: 10px;
     display: flex;
     align-items: center;
-    justify-content: center; 
-    margin: 20px auto; 
+    justify-content: center;
+    margin: 20px auto;
     margin-bottom: 0px;
     --background: var(--ion-color-secondary)
 }
