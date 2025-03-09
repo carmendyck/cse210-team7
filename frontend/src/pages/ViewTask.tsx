@@ -331,14 +331,14 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
                 <div className="priority-box">P{task.priority}</div>
               )}
             </div>
-            <IonItemDivider />
+            <IonItemDivider className="ion-item-divider"/>
             <IonText className="description">
               <p><strong>Description:</strong></p>
               <p>
                 {task.notes}
               </p>
             </IonText>
-            <IonItemDivider />
+            <IonItemDivider className="ion-item-divider"/>
             <div className="timer-container">
               {/* Loading Overlay */}
               {loadingTimeSpent && (
@@ -374,11 +374,10 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
               </div>
             </div>
             {/* Manual time entry */}
-            <IonItemDivider />
+            <IonItemDivider className="ion-item-divider"/>
             <div title={anotherTaskRunning ? "Please stop the other task to enter time." : ""}>
-              <IonButton
-                className="manual-time"
-                color="medium"
+              <IonButton 
+                className="manual-time" 
                 onClick={() => setShowModal(true)}
                 disabled={anotherTaskRunning}
               >
@@ -386,7 +385,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
               </IonButton>
             </div>
             {/* "Completed" checkbox */}
-            <IonItemDivider />
+            <IonItemDivider className="ion-item-divider"/>
             <div className="completed-container">
               <IonText className="completed-label">
                 <p><strong>Task Completed:</strong></p>
@@ -443,7 +442,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
                 }}
               />
             </IonItem>
-            <IonButton expand="block" onClick={handleManualTimeSubmit}>Submit</IonButton>
+            <IonButton expand="block" color="secondary" onClick={handleManualTimeSubmit}>Submit</IonButton>
             <IonButton expand="block" color="light" onClick={handleModalCancel}>Cancel</IonButton>
           </IonContent>
         </IonModal>
