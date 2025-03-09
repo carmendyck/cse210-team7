@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "$FIREBASE_SERVICE_ACCOUNT" > backend/serviceAccountKey.json
           ls -la backend/
-          cat backend/serviceAccountKey.json 
+          cat backend/serviceAccountKey.json
         shell: bash
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
@@ -71,4 +71,8 @@ jobs:
 
       - name: Run Cypress Tests in Authentication Folder
         run: npx cypress run --spec "cypress/e2e/{login,signup}.cy.ts" --config video=false
+        working-directory: frontend
+
+      - name: Run Cypress Tests for Task Creation and Editing
+        run: npx cypress run --spec "cypress/e2e/{createTask,editTask}.cy.ts" --config video=false
         working-directory: frontend

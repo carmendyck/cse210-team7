@@ -5,6 +5,12 @@ export const getTomorrowBeforeMidnight = (): Date => {
   return dueDateTime;
 };
 
+export const getInTwoYears = (): Date => {
+  const maxTime = new Date();
+  maxTime.setFullYear(maxTime.getFullYear() + 200);
+  return maxTime;
+}
+
 export const formatLocalDateForIonDatetime = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0'); // months are 0-based
