@@ -28,9 +28,6 @@ describe("Task List Page", () => {
         cy.get("ion-title").first().should("have.text", "Task List");
     });
       
-  
-
-
     it("should render the date selection component correctly", () => {
         cy.get("ion-datetime").should("exist").and("be.visible");
         cy.get("ion-datetime")
@@ -38,40 +35,5 @@ describe("Task List Page", () => {
           .should("match", /^\d{4}-\d{2}-\d{2}$/);
       });
 
-    // it("should render the date selection component correctly", () => {
-    //     cy.get("h2.section-title").contains("Unfinished").should("exist").and("be.visible");
-    // });
-    
-    //   it("should display only incomplete tasks", () => {
-    //     cy.contains("Example Task").should("be.visible");
-    //     cy.contains("Example Task 2").should("not.exist");
-    //   });
-    // it("should mark a task as completed and remove it from the list", () => {
-    //   cy.intercept("PATCH", "http://localhost:5050/api/viewTask/closeTask/1", {
-    //     fixture: "closeTask.json"
-    //   }).as("closeTask");
-  
-    //   cy.contains("Example Task 1")
-    //     .parents('ion-item')
-    //     .find('ion-checkbox')
-    //     .click({ force: true });
-      
-    //   cy.wait("@closeTask");
-  
-    //   cy.contains("Example Task").should("not.exist");
-    // });
-  
-    // it("should filter tasks based on the selected date", () => {
-    //   cy.get('ion-datetime')
-    //     .invoke('attr', 'value', '2025-02-23')
-    //     .trigger('ionChange');
-  
-    //   cy.contains("Example Task 3").should("be.visible");
-    // });
-  
-    // it("should navigate to the login page after clicking Logout", () => {
-    //   cy.contains("Logout").click();
-    //   cy.url().should("include", "/login");
-    // });
   });
   

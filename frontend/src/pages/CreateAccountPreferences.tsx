@@ -6,7 +6,8 @@ import {
   IonInput,
   IonItem,
   IonPage,
-  IonToolbar
+  IonToolbar,
+  IonLabel
 } from "@ionic/react";
 import { useHistory } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -20,21 +21,22 @@ const CreateAccountPreferences: React.FC = () => {
   const { uid } = useAuth();
 
   const initialCourseState: Course = {
-    course_name: "NULL", // The name is NULL means this course is not set
+    course_name: "NULL",
     user_id: uid,
     avg_time_homework: "3",
     avg_time_project: "8",
     avg_time_quiz: "2",
     avg_time_reading: "2",
     avg_time_test: "2",
-    course_index: 0, // Initialize course_index as 0
+    course_index: 0,
   };
 
-  // Initialize courses state with a dynamic array of 4 courses, each with an index
   const [courses, setCourses] = useState<Course[]>(Array.from({ length: 4 }, (_, index) => ({
-    ...initialCourseState, 
-    course_index: index, // Set the correct course_index
+    ...initialCourseState,
+    course_index: index,
   })));
+
+  const [clearedCourses, setClearedCourses] = useState<boolean[]>(Array(4).fill(false));
 
   const handleInputChange = (
     e: IonInputCustomEvent<InputChangeEventDetail>,
@@ -42,19 +44,29 @@ const CreateAccountPreferences: React.FC = () => {
     field: keyof Course
   ) => {
     console.log(`Field [${field}] in Course [${index}] set to [${e.target.value}]`);
-
     setCourses((prevCourses) => {
       const updatedCourses = [...prevCourses];
       updatedCourses[index] = { ...updatedCourses[index], [field]: e.target.value };
       return updatedCourses;
     });
+    setClearedCourses((prev) => {
+      const updatedCleared = [...prev];
+      updatedCleared[index] = false; // Reset the cleared message if input is updated
+      return updatedCleared;
+    });
   };
 
   const handleRemoveCourse = (index: number) => {
-    setCourses(prevCourses => {
+    setCourses((prevCourses) => {
       const updatedCourses = [...prevCourses];
-      updatedCourses[index] = { ...initialCourseState, course_index: index }; // Preserve the index
+      updatedCourses[index] = { ...initialCourseState, course_index: index };
       return updatedCourses;
+    });
+
+    setClearedCourses((prev) => {
+      const updatedCleared = [...prev];
+      updatedCleared[index] = true; // Show message after clearing the course
+      return updatedCleared;
     });
   };
 
@@ -69,16 +81,13 @@ const CreateAccountPreferences: React.FC = () => {
           fetch("http://localhost:5050/api/courseSelect/addCourseSelection", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              ...course,
-              user_id: uid, // Ensure user_id is passed
-            })
+            body: JSON.stringify({ ...course, user_id: uid }),
           })
         )
       );
-  
+
       const results = await Promise.all(responses.map(res => res.json()));
-  
+
       results.forEach((data, index) => {
         if (!responses[index].ok) {
           console.error(`Error saving course ${index + 1}:`, data.error);
@@ -86,22 +95,23 @@ const CreateAccountPreferences: React.FC = () => {
           console.log(`Course ${index + 1} saved successfully:`, data);
         }
       });
-  
+
     } catch (error) {
       console.error("Error saving courses:", error);
     }
   };
-  
-  
+
+  const handleNext = async () => {
+    await handleAddTasks(); // Save before navigating
+    history.push("/create_acct_pref_pg2");
+  };
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="end">
-            <IonButton onClick={() => history.push("/create_acct_pref_pg2")}>
-              Next
-            </IonButton>
+            <IonButton onClick={handleNext}>Next</IonButton>
           </IonButtons>
         </IonToolbar>
       </IonHeader>
@@ -110,12 +120,12 @@ const CreateAccountPreferences: React.FC = () => {
           <div key={index} style={{ marginBottom: "2rem" }}>
             <h2 className="course-title">Course {index + 1}</h2>
             <IonItem>
-      <IonInput
-        label="Course Name"
-        labelPlacement="floating"
-        value={course.course_name !== "NULL" ? course.course_name : ""}
-        onIonInput={(e) => handleInputChange(e, index, "course_name")}
-      />
+              <IonInput
+                label="Course Name"
+                labelPlacement="floating"
+                value={course.course_name !== "NULL" ? course.course_name : ""}
+                onIonInput={(e) => handleInputChange(e, index, "course_name")}
+              />
             </IonItem>
             <IonItem>
               <IonInput
@@ -159,13 +169,15 @@ const CreateAccountPreferences: React.FC = () => {
             </IonItem>
 
             <IonItem>
-              <IonButton 
-                color="danger" 
-                onClick={() => handleRemoveCourse(index)}
-              >
+              <IonButton color="danger" onClick={() => handleRemoveCourse(index)}>
                 Remove Course {index + 1}
               </IonButton>
             </IonItem>
+            {clearedCourses[index] && (
+              <IonLabel color="danger" style={{ marginLeft: "1rem" }}>
+                This course information is cleared, you may enter again
+              </IonLabel>
+            )}
           </div>
         ))}
 
