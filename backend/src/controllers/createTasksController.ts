@@ -2,19 +2,8 @@ import { Request, Response } from "express";
 import { db } from "../config/firebase";
 
 export const addNewTask = async (req: Request, res: Response) => {
-  const {
-    user_id,
-    name,
-    notes,
-    location,
-    due_datetime,
-    course_id,
-    tags,
-    next_start_time,
-    next_end_time,
-    time_spent,
-    total_time_estimate,
-    completed,
+  const { user_id, name, notes, location, due_datetime, course_id, tags,
+    next_start_time, next_end_time, time_spent, total_time_estimate, completed,
   } = req.body;
 
   if (!name || !due_datetime) {
@@ -37,10 +26,6 @@ export const addNewTask = async (req: Request, res: Response) => {
 
     completed: completed,
   };
-
-  // if (!(next_start_time instanceof Date) || !(next_end_time instanceof Date)) {
-  //   return res.status(400).json({ error: "Invalid next_start_time or next_end_time" });
-  // }
 
   const nextWorktime = {
     start_time: next_start_time,
@@ -76,6 +61,42 @@ export const addNewTask = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log(error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+};
+
+
+export const updateTask = async (req: Request, res: Response) => {
+  const { taskid } = req.params;
+  const { name, notes, location, due_datetime, course_id, tags, total_time_estimate } = req.body;
+
+  try {
+    const taskRef = await db.collection("tasks").doc(taskid).get();
+
+    if (!taskRef.exists) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    // Update fields, TODO: only update changed fields
+    await db.collection("tasks").doc(taskid).update({
+      name: name,
+      notes: notes,
+      location: location,
+      due_datetime: due_datetime,
+      course_id: course_id,
+      tags: tags,
+      total_time_estimate: total_time_estimate,
+    });
+
+    // Return success response
+    res.status(200).json({
+      message: "Task updated successfully!",
+      taskId: taskid,
+      task: req.body
+    });
+
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: (error as Error).message });
   }
 };

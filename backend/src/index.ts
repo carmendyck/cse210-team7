@@ -7,6 +7,8 @@ import prefSettingsRoutes from "./routes/prefSettingsRoutes"
 import taskListRoutes from "./routes/taskListRoutes";
 import onboardPrefRoutes from "./routes/onboardPrefRoutes";
 import courseSelectRoutes from "./routes/courseSelectRoutes";
+import notificationRoutes from "./routes/notificationsRoutes";
+
 
 import dotenv from "dotenv";
 
@@ -23,6 +25,7 @@ app.use("/api/viewTask", viewTaskRoutes)
 app.use("/api/breaks", prefSettingsRoutes)
 app.use("/api/onboardPref", onboardPrefRoutes)
 app.use("/api/courseSelect", courseSelectRoutes)
+app.use("/api/notifications", notificationRoutes)
 
 const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => {

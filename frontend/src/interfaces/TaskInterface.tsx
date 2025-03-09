@@ -20,3 +20,30 @@ export interface NewTask {
 
   completed: boolean;
 }
+
+export interface CurrentTask {
+  name: string;
+  notes: string;
+  location: string;
+
+  due_datetime: Date;
+  course_id: String | null;
+
+  tags: Array<Tag>;
+
+  total_time_estimate: number;
+}
+
+export interface FullQueriedTask {
+  completed: boolean;
+  course_id: string | null;
+  due_datetime: string;
+  id: string;
+  location: string;
+  name: string;
+  notes: string;
+  tags: Array<Tag>;
+  time_spent: number;
+  total_time_estimate: number;
+  user_id: string;
+};
