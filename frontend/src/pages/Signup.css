@@ -111,18 +111,6 @@ ion-button.button-block.button-solid.ion-activatable.ion-focusable {
     opacity: 0;
     animation: drawCheck 0.4s ease-in 0.4s forwards;
 }
-
-@keyframes drawCheck {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -70%) rotate(45deg) scale(0.8);
-    }
-
-    to {
-        opacity: 1;
-        transform: translate(-50%, -70%) rotate(45deg) scale(1);
-    }
-}
 .success-text {
     color: #34c759;
     font-size: 24px;
