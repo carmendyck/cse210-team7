@@ -15,7 +15,7 @@ const Preferences: React.FC = () => {
       </IonHeader>
       <IonContent fullscreen>
         <IonList>
-          <IonItem button onClick={() => history.push('/time-preferences')}>
+          {/* <IonItem button onClick={() => history.push('/time-preferences')}>
             <IonIcon slot="start" icon={timeOutline} />
             <IonLabel>Time Preferences</IonLabel>
             <IonIcon slot="end" icon={settingsOutline} />
@@ -24,7 +24,7 @@ const Preferences: React.FC = () => {
             <IonIcon slot="start" icon={calendarOutline} />
             <IonLabel>Calendar Viewing</IonLabel>
             <IonIcon slot="end" icon={settingsOutline} />
-          </IonItem>
+          </IonItem> */}
           <IonItem button onClick={() => history.push('/notifications')}>
             <IonIcon slot="start" icon={notificationsOutline} />
             <IonLabel>Notifications</IonLabel>

@@ -14,6 +14,22 @@
     "total_time_estimate": 3,
 
     "completed": false
-    }
+    },
+  "updatedTask": {
+    "user_id": "yq8aiGeS8VmMGzjjDuugSBXy2",
+
+    "name": "This is a NEW task name, I've updated it!",
+    "notes": "",
+    "location": "",
+    "due_datetime": "2025-02-21T07:59:00.000Z",
+
+    "course_id": null,
+    "tags": [],
+
+    "time_spent": 0,
+    "total_time_estimate": 3,
+
+    "completed": false
+  }
 }
 
