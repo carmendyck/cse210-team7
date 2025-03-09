@@ -35,9 +35,7 @@ class TaskPrioritizer:
         # - task deadline (DB)
         # - keywords (DB)
 
-        # heuristics (weighted priority + greedy scheduling)
-
-        # idea: calculate raw score, then assign priority based on what range it falls into
+        # main idea: calculate raw score, then assign priority based on what range it falls into
 
         # task_type = number based on task type (test = lower value)
         # task time estimate (higher number = need more time to finish)
@@ -62,19 +60,16 @@ class TaskPrioritizer:
         # not sure if instead of the arbitrary type values, we should use
         # the avg time_estimate; but then that and time_estimate is basically the same,
         # assuming TaskEstimator was already run
+
         task_type_avg = sum([task_type_map[k] for k in self.keywords]) / len(self.keywords)
-
         time_estimate = self.task.time_estimate
-
         # *********[[[[TODO]]]]************
         deadline = 5
         current_day = 2
-
         days_left = deadline - current_day
 
         # LOWER RAW SCORE => HIGHER PRIORITY (0)
         # HIGHER RAW SCORE => LOWER PRIORITY (1 or 2)
-
         raw_score =  (task_type_avg / time_estimate) ^ (days_left * c)
         # ** days left will shrink over time, making the raw score smaller
         # ** ** c = multiplier on days left for adjustments
@@ -85,9 +80,6 @@ class TaskPrioritizer:
         # ** ** ENSURE THAT TIME_ESTIMATE IS NOT ZERO
 
         # update priority variable and return (should be 0-2)
-
-
-
         prio = 2
         if (raw_score < prio0_thresh):
             prio = 0
