@@ -107,6 +107,13 @@ class TaskPrioritizer:
 def priority_formula(task_type_avg, time_estimate, days_left):
     # LOWER RAW SCORE => HIGHER PRIORITY (0)
     # HIGHER RAW SCORE => LOWER PRIORITY (1 or 2)
+    
+    # dirty fix lol
+    if task_type_avg <= 0:
+        task_type_avg = 1
+    if time_estimate <= 0:
+        time_estimate = 1
+
     raw_score =  (task_type_avg / time_estimate) * (days_left * c)
     # ** days left will shrink over time, making the raw score smaller
     # ** ** previously was exponent, but changed to just proportional multiplier (see note above)
