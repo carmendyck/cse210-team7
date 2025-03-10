@@ -28,8 +28,9 @@
 
 // export default CalendarView;
 
-import React from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardContent, IonProgressBar } from '@ionic/react';
+import React, { useState, useEffect } from 'react';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardContent, IonProgressBar, IonModal, IonButton } from '@ionic/react';
+import './CalendarView.css'
 
 const Dashboard: React.FC = () => {
   const totalTimeWorked = "6 hr 18 min";
@@ -48,6 +49,42 @@ const Dashboard: React.FC = () => {
   const ucsdGold = '#FFCD00';
   const ucsdLightBlue = '#ADD8E6';
   const ucsdGray = '#D3D3D3';
+
+  const [showModal, setShowModal] = useState(false);
+  const [countdown, setCountdown] = useState(300);
+
+  useEffect(() => {
+    // Automatically show the modal after 10 seconds (for testing)
+    const timer = setTimeout(() => {
+      setShowModal(true);
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (showModal) {
+      interval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            setShowModal(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => clearInterval(interval);
+  }, [showModal]);
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+  };
 
   return (
     <IonPage>
@@ -100,6 +137,16 @@ const Dashboard: React.FC = () => {
             ))}
           </IonCardContent>
         </IonCard>
+
+        <IonModal isOpen={showModal} backdropDismiss={false}>
+          <div style={{ padding: '20px', textAlign: 'center' }}>
+            <h2>🍎 It's time for a snack break! 🍌</h2>
+            <p>Take a short break and grab a healthy snack.</p>
+            <h3 style={{ fontSize: '2rem', color: ucsdNavy }}>{formatTime(countdown)}</h3>
+            <IonButton onClick={() => setShowModal(false)} color="warning">Dismiss</IonButton>
+          </div>
+        </IonModal>
+
       </IonContent>
     </IonPage>
   );
