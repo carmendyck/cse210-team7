@@ -208,10 +208,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
     }
   }
 
-  // const handleAcceptEstimateButtonClick = async () => {
-  //   await getTaskEstimate();
-  // }
-
   const handleInputChange = (e: IonInputCustomEvent<InputChangeEventDetail>,
                              field: keyof CurrentTask, maxLength: number) => {
     const stringInputFields: (keyof CurrentTask)[] = ["name", "notes", "location"];
@@ -283,41 +279,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
     return true;
 
     // TODO: if date is too far into future, give popup
-  };
-
-  const handleCreate = async () => {
-    if (!isTaskValid()) {
-      return;
-    }
-
-    // TODO: Add storing of task
-    console.log("Storing task: ", taskData);
-
-    try {
-      const response = await fetch("http://localhost:5050/api/createTasks/addnewtask", {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify( taskData ),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.log("Error storing task, fetching from API: ", data.error || 'Unknown error');
-      } else if (!autoSchedule) {
-        console.log(`autoschedule:${autoSchedule}`)
-        console.log("Not autoschedule: Task successfully added:", data);
-        history.push("/tasklist");
-      } else {
-        console.log("Task successfully added:", data);
-        console.log("Getting the automatic schedule...")
-        setTaskId(data["taskId"])
-        await getTaskEstimate(data["taskId"]);
-        setGivingAutoSchedule(true)
-      }
-    } catch (error) {
-      console.error("Error connecting to the API: ", error);
-    }
   };
 
   const handleSubmit = async () => {
