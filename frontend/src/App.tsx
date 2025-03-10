@@ -102,7 +102,7 @@ const App: React.FC = () => {
               <IonTabBar slot="bottom">
                 <IonTabButton tab="calendar" href="/calendar">
                   <IonIcon icon={calendarOutline} />
-                  <IonLabel>Calendar</IonLabel>
+                  <IonLabel>Dashboard</IonLabel>
                 </IonTabButton>
                 <IonTabButton tab="tasklist" href="/tasklist">
                   <IonIcon icon={listOutline} />
