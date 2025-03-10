@@ -21,42 +21,12 @@ class Task:
         self.keywords = []
         self.id_token = id_token
         self.db = db
+        self.task_id = task_data["id"]
 
-        # TODO: Replace with API once it's written
-        url = f"https://firestore.googleapis.com/v1/projects/tritoncal/databases/(default)/documents/course/{self.course_id}"
-        headers = {
-            "Authorization": f"Bearer {self.id_token}"
-        }
-        response = requests.get(url, headers=headers)
-        print(response.json())
-        course_data = response.json()["fields"]
-        print(f"COURSE RESPONSE: {course_data}")
-
+    def add_course_info(self, course_data):
         self.course_time_estimates = {}
         for keyword in Task.keyword_bank:
             self.course_time_estimates[keyword] = course_data[f"avg_time_{keyword}"]
-
-# TODO: For testing -- remove once connected to frontend
-def authenticate():
-    # Load environment variables from the .env file
-    load_dotenv(dotenv_path="../../backend/.env")
-    # Get the API key
-    api_key = os.getenv("FIREBASE_API_KEY")
-    if not api_key:
-        raise ValueError("Firebase API key not found. Check your .env file.")
-    # Load service account key
-    cred = credentials.Certificate("../../backend/serviceAccountKey.json")
-    # Initialize app
-    firebase_admin.initialize_app(cred)
-    # Authentication
-    custom_token = auth.create_custom_token("aNlyq8aiGeS8VmMGzjjDuugSBXy2").decode("utf-8")
-    url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key={api_key}"
-    data = {"token": custom_token, "returnSecureToken": True}
-    response = requests.post(url, json=data)
-    id_token = response.json().get("idToken")
-    # Get Firestore client
-    db = firestore.client()
-    return id_token, db
 
 def get_task_keywords(name, description, task=None):
     if name is None:

@@ -11,7 +11,9 @@ class TaskEstimator:
             return 2
         avg_time = 0
         for keyword in self.keywords:
-            avg_time += self.task.course_time_estimates[keyword]['doubleValue']
+            print(self.task.course_time_estimates)
+            print(self.task.course_time_estimates[keyword])
+            avg_time += int(self.task.course_time_estimates[keyword])
         est = avg_time / len(self.keywords)
         task_ref = self.task.db.collection('tasks').document(self.task.task_id)
         task_ref.update({

@@ -48,6 +48,18 @@ async def get_task_estimate(task_id: str, authorization: str = Header(None)):
     print(response.json())
     task_data = response.json()["task"]
     print(f"TASK RESPONSE: {task_data}")
-    est = TaskEstimator(Task(task_data, id_token, db))
+    task = Task(task_data, id_token, db)
+
+    url = f"http://localhost:5050/api/courseSelect/getCourse/{task.course_id}"
+    headers = {
+        "Authorization": f"Bearer {id_token}"
+    }
+    response = requests.get(url, headers=headers)
+    print("printing response: ")
+    print(response)
+    print(response.json())
+    task.add_course_info(response.json()["course"])
+
+    est = TaskEstimator(task)
     print(est.estimate_time())
     return JSONResponse(content=task_data)
