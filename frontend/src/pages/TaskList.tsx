@@ -1,9 +1,9 @@
-import { 
-  IonButton, 
-  IonContent, 
-  IonHeader, 
-  IonPage, 
-  IonTitle, 
+import {
+  IonButton,
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
   IonToolbar,
   IonButtons,
   IonList,
@@ -17,20 +17,21 @@ import { useHistory } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { DatetimeChangeEventDetail, IonDatetimeCustomEvent } from "@ionic/core";
 import './TaskList.css';
-import { TaskListItem } from '../interfaces/TaskListItemInterface';
+import { TaskListItem, WorktimeItem } from '../interfaces/TaskListItemInterface';
 
 
 function formatDueDate(dueDatetime: string): string {
-  const date = new Date(dueDatetime); 
-  const year = date.getFullYear(); 
-  const month = String(date.getMonth() + 1).padStart(2, "0"); 
-  const day = String(date.getDate()).padStart(2, "0"); 
+  const date = new Date(dueDatetime);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
 }
 
 const TaskList: React.FC = () => {
   const [tasks, setTasks] = useState<TaskListItem[]>([])
+  const [worktimes, setWorktimes] = useState<WorktimeItem[]>([])
   const history = useHistory();
   const { logout } = useAuth();
   const { uid } = useAuth();
@@ -43,7 +44,7 @@ const TaskList: React.FC = () => {
   // TODO: associate priority with color.
   // this is here since priority hasn't been implemented yet,
   // and database has no color field
-  const defaultColor = "green"; 
+  const defaultColor = "green";
 
   const selectTask = (taskId: string) => {
     console.log("Moved to viewtask");
@@ -71,7 +72,7 @@ const TaskList: React.FC = () => {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         console.log("Error fetching tasks: ", data.error || 'Unknown error');
         throw new Error("Failed to fetch task");
@@ -94,15 +95,15 @@ const TaskList: React.FC = () => {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to fetch task");
       }
-  
+
       const data = await response.json();
       console.log("Response Data:", data);
-      setTasks(prevTasks => 
-        prevTasks.map(task => 
+      setTasks(prevTasks =>
+        prevTasks.map(task =>
           task.id === taskId ? { ...task, completed: true } : task
         )
       );
@@ -117,6 +118,36 @@ const TaskList: React.FC = () => {
     getAllTasks();
   }, []);
 
+  const getWorktimes = async () => {
+    try {
+      console.log("fetching worktimes for uid ", uid);
+      const response = await fetch(`http://localhost:5050/api/worktimes/getworktimes/${uid}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.log("Error fetching worktimes: ", data.error || 'Unknown error');
+        throw new Error("Failed to fetch worktimes");
+      }
+
+      console.log(data.message);
+
+      const worktimeList : WorktimeItem[] = data.worktimes;
+      setWorktimes(worktimeList);
+      console.log("Worktimes List:", worktimeList);
+
+    } catch (error) {
+      console.error("Error fetching worktimes:", error);
+    }
+  }
+
+  useEffect(() => {
+    getWorktimes();
+  }, []);
+
   const handleDateChange = (e: IonDatetimeCustomEvent<DatetimeChangeEventDetail>) => {
     const value = e.detail.value;
     if (typeof value === "string") {
@@ -125,6 +156,9 @@ const TaskList: React.FC = () => {
       console.log("Selected date: ", dateOnly);
     }
   };
+
+  const worktimesOnDay = worktimes.filter(worktime => worktime.date === selectedDate)
+  console.log("Worktimes on " + selectedDate + ": " + worktimesOnDay);
 
   const unfinishedTasks = tasks.filter(task => !task.completed && formatDueDate(task.due_datetime.toLocaleString()) === selectedDate);
   const finishedTasks = tasks.filter(task => task.completed && formatDueDate(task.due_datetime.toLocaleString()) === selectedDate);
@@ -174,6 +208,25 @@ const TaskList: React.FC = () => {
                     <p className="due-date">Due: {formatDueDate(task.due_datetime.toLocaleString())}</p>
                   </IonLabel>
                   <span className="duration">{task.total_time_estimate}</span>
+                </IonItem>
+              ))}
+
+              {worktimesOnDay.map((worktime) => (
+                <IonItem
+                  key={worktime.task_id}
+                  className={`task-item ${defaultColor}`}
+                  onClick={() => selectTask(worktime.task_id._path.segments[1])}
+                >
+                  {/* <IonCheckbox
+                    slot="start"
+                    onClick={(e) => e.stopPropagation()}
+                    onIonChange={() => removeTask(task.id)}
+                  /> */}
+                  <IonLabel>
+                    <h2>Work on {worktime.task_name}</h2>
+                    <p className="due-date">Due: {worktime.task_due_date}</p>
+                  </IonLabel>
+                  <span className="duration">{worktime.hours}</span>
                 </IonItem>
               ))}
             </IonList>
