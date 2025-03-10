@@ -31,18 +31,18 @@ class Task:
         self.course_id = task_data["course_id"].split("/")[2]
         self.keywords = []
 
-        # TODO: Replace with API once it's written
-        url = f"https://firestore.googleapis.com/v1/projects/tritoncal/databases/(default)/documents/course/{self.course_id}"
-        headers = {
-            "Authorization": f"Bearer {self.id_token}"
-        }
-        response = requests.get(url, headers=headers)
-        course_data = response.json()["fields"]
-        print(f"COURSE RESPONSE: {course_data}")
+        # # TODO: Replace with API once it's written
+        # url = f"https://firestore.googleapis.com/v1/projects/tritoncal/databases/(default)/documents/course/{self.course_id}"
+        # headers = {
+        #     "Authorization": f"Bearer {self.id_token}"
+        # }
+        # response = requests.get(url, headers=headers)
+        # course_data = response.json()["fields"]
+        # print(f"COURSE RESPONSE: {course_data}")
 
-        self.course_time_estimates = {}
-        for keyword in Task.keyword_bank:
-            self.course_time_estimates[keyword] = course_data[f"avg_time_{keyword}"]
+        # self.course_time_estimates = {}
+        # for keyword in Task.keyword_bank:
+        #     self.course_time_estimates[keyword] = course_data[f"avg_time_{keyword}"]
 
 # TODO: For testing -- remove once connected to frontend
 def authenticate():

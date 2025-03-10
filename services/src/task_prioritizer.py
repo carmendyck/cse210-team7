@@ -58,6 +58,14 @@ class TaskPrioritizer:
         prio0_thresh = 15
         prio1_thresh = 30
 
+        print()
+        print(f"constants:")
+        print(f"task_type_map: {task_type_map}")
+        print(f"c: {c}")
+        print(f"prio0_thresh: {prio0_thresh}")
+        print(f"prio1_thresh: {prio1_thresh}")
+        
+
         # not sure if instead of the arbitrary type values, we should use
         # the avg time_estimate; but then that and time_estimate is basically the same,
         # assuming TaskEstimator was already run
@@ -67,6 +75,11 @@ class TaskPrioritizer:
             task_type_avg = 4 # in case there's nothing in keywords, just give it the same val as a hw
         time_estimate = self.task.time_estimate
 
+        print()
+        print(f"keywords: {self.keywords}")
+        print(f"task_type_avg: {task_type_avg}")
+        print(f"time_estimate: {time_estimate}")
+
         # reference string: "2025-03-15T07:59:00.000Z"
         due_datetime_string = self.task.due_datetime
         due_date_string = due_datetime_string.split('T')[0] #gets the date part of string
@@ -74,13 +87,21 @@ class TaskPrioritizer:
         current_day = date.today()
         delta = deadline - current_day
         days_left = delta.days
+
+        print(f"current_day: {current_day}")
+        print(f"deadline: {deadline}")
+        print(f"days_left: {days_left}")
         # *should* be ok if it goes into negatives? i.e. if a thing is past due,
         # the exponent will be negative, making the raw_score extremely small and make the priority
         # high (0)
 
+        # i forgot that an exponent would make fractions smaller, so a
+        # test with a high time estimate but is many days away will actually return a very
+        # high priority when it should really be not that high
+
         # LOWER RAW SCORE => HIGHER PRIORITY (0)
         # HIGHER RAW SCORE => LOWER PRIORITY (1 or 2)
-        raw_score =  (task_type_avg / time_estimate) ^ (days_left * c)
+        raw_score =  (task_type_avg / time_estimate) ** (days_left * c)
         # ** days left will shrink over time, making the raw score smaller
         # ** ** c = multiplier on days left for adjustments
         # ** task type value directly proportional to raw score
@@ -88,6 +109,11 @@ class TaskPrioritizer:
         # ** time_estimate inversely proportional to raw score
         # ** ** (more time needed for assignment -> lowers raw score)
         # ** ** ENSURE THAT TIME_ESTIMATE IS NOT ZERO
+
+        print()
+        print(f"raw_score: (task_type_avg / time_estimate) ** (days_left * c)")
+        print(f"raw_score: ({task_type_avg} / {time_estimate}) ** ({days_left} * {c})")
+        print(f"raw_score: {raw_score}")
 
         # update priority variable and return (should be 0-2)
         prio = 2
@@ -97,7 +123,9 @@ class TaskPrioritizer:
             prio = 1
         # else prio = 2 (default)
 
-        return prio
+        print(f"priority: {prio}")
+
+        self.priority = prio
 
 
     # maybe not necessary if assign_priority is just recalled - pretty much the
@@ -118,4 +146,4 @@ if __name__ == "__main__":
     myTask = Task("8NxF97r7XBMJDeNIOXgl")
     prioritizer = TaskPrioritizer(myTask)
     prio = prioritizer.get_task_priority()
-    print(prio)
+    
