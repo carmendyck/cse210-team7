@@ -50,15 +50,22 @@ async def get_task_estimate(task_id: str, authorization: str = Header(None)):
     print(f"TASK RESPONSE: {task_data}")
     task = Task(task_data, id_token, db)
 
-    url = f"http://localhost:5050/api/courseSelect/getCourse/{task.course_id}"
-    headers = {
-        "Authorization": f"Bearer {id_token}"
-    }
-    response = requests.get(url, headers=headers)
-    print("printing response: ")
-    print(response)
-    print(response.json())
-    task.add_course_info(response.json()["course"])
+    try:
+        url = f"http://localhost:5050/api/courseSelect/getCourse/{task.course_id}"
+        headers = {
+            "Authorization": f"Bearer {id_token}"
+        }
+        response = requests.get(url, headers=headers)
+        print("printing response: ")
+        print(response)
+        print(response.json())
+        task.add_course_info(response.json()["course"])
+    except:
+        print("No course information available...")
+        print("Prepopulating...")
+        task.course_time_estimates = {}
+        for keyword in Task.keyword_bank:
+            task.course_time_estimates[keyword] = 2
 
     est = TaskEstimator(task)
     print(est.estimate_time())

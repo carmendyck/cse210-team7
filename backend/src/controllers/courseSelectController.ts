@@ -63,3 +63,36 @@ export const getCourse = async (req: Request, res: Response) => {
     res.status(500).json({ error: (error as Error).message });
   }
 };
+
+export const getAllCourses = async (req: Request, res: Response) => {
+  try {
+    // const user_id = req.params.uid; // Get user ID from request params
+    const { uid } = req.params;
+    if (!uid) {
+      console.log("No UID")
+      return res.status(400).json({ error: "User ID is required"});
+    }
+    
+    const coursesRef = db.collection("course");
+    const querySnapshot = await coursesRef.where("user_id", "==", uid).get();
+
+    if (querySnapshot.empty) {
+      console.log("Empty courselist")
+      return res.status(404).json({ error: "No courses found for this user" });
+    }
+
+    const courses = querySnapshot.docs.map((doc:any) => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    res.status(200).json({
+      message: "Courses retrieved successfully!",
+      courses: courses
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+};

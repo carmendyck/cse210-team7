@@ -17,7 +17,7 @@ class Task:
         self.description = task_data["notes"]
         self.time_estimate = task_data["total_time_estimate"]
         self.course = task_data["course_id"]
-        self.course_id = task_data["course_id"].split("/")[2]
+        self.course_id = task_data["course_id"].split("/")[1]
         self.keywords = []
         self.id_token = id_token
         self.db = db

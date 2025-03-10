@@ -56,7 +56,7 @@ export const CreateTask: React.FC = () => {
     due_datetime: getTomorrowBeforeMidnight(),
     total_time_estimate: 1,
 
-    course_id: "/course/9s6jfTgFP323GCOjTdXy",
+    course_id: "",
     tags: [],
   };
 
@@ -179,6 +179,7 @@ interface TaskFormProps {
 
 const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => {
   const [ taskData, setTaskData ] = useState<CurrentTask>(prevTaskData);
+  const [ courseOptions, setCourseOptions ] = useState<Course[]>([]);
 
   const [ invalidTaskMessage, setInvalidTaskMessage ] = useState<string>();
   const [ taskId, setTaskId ] = useState<string>();
@@ -207,6 +208,23 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
       console.error("Error fetching task estimate:", error);
     }
   }
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch(`http://localhost:5050/api/courseSelect/getAllCourses/${uid}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch courses");
+        }
+        const data = await response.json();
+        setCourseOptions(data.courses); // Assuming API returns { courses: [{ id, name }, ...] }
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
+
+    fetchCourses();
+  }, []);
 
   const handleInputChange = (e: IonInputCustomEvent<InputChangeEventDetail>,
                              field: keyof CurrentTask, maxLength: number) => {
@@ -265,7 +283,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
 
   const isTaskValid = () => {
     // [Required fields]: name, course (other fields have valid defaults)
-    const required: (keyof CurrentTask)[] = ['name'];
+    const required: (keyof CurrentTask)[] = ['name', 'course_id'];
     const missing: string[] = required.filter(field => !taskData[field] ||
       (typeof taskData[field] === 'string' && taskData[field].trim() === ''));
 
@@ -380,6 +398,16 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
             {/* TODO: add option to add new tag? */}
           </IonSelect>
         </IonItem>
+
+      <IonItem>
+      <IonSelect value={taskData.course_id} onIonChange={(e) => handleSelectionChange(e, 'course_id')} placeholder="Course">
+        {courseOptions.map((course) => (
+          <IonSelectOption key={course.id} value={`courses/${course.id}`}>
+            {course.course_name}
+          </IonSelectOption>
+        ))}
+      </IonSelect>
+    </IonItem>
 
         {/* Scheduling and time */}
         <IonItem>
