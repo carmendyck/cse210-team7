@@ -9,8 +9,11 @@ const CreateTaskButton: React.FC = () => {
   const location = useLocation();
   const history = useHistory();
 
-  // Hide the button on the login page
-  if (excludedPages.includes(location.pathname)) {
+  // Hide the button on various app pages
+  const isExcluded = excludedPages.includes(location.pathname) ||
+    /^\/(edittask|viewtask)\/.+/.test(location.pathname);
+
+  if (isExcluded) {
     return null;
   }
 

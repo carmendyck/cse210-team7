@@ -1,5 +1,5 @@
 .back-button {
-    position: absolute;
+    /* position: absolute; */
     top: 10px;
     left: 10px;
     width: 30px;
@@ -9,14 +9,26 @@
     justify-content: center;
     align-items: center;
     font-size: 15px;
-    color: white;
-    background-color: purple;
     border-radius: 50%;
 }
 
-.content-wrapper {
-    padding-top: 40px; /* Adjust this value as needed to create space for the back button */
+.ion-item-divider {
+    --background: transparent;
 }
+
+.edit-button {
+  /* position: absolute; */
+  top: 10px;
+  right: 10px;
+  /* padding: 5px 15px; */
+  display: flex;
+  /* border-radius: 10%;
+  border: 1px solid; */
+}
+
+/* .content-wrapper {
+    padding-top: 1%; /* Adjust this value as needed to create space for the back button
+} */
 
 .task-name h1 {
     font-size: 1.5em;
@@ -28,7 +40,7 @@
     align-items: center;
     justify-content: space-between;
 }
-  
+
 .details p {
     font-size: 1em;
     margin: 10px 0;
@@ -37,11 +49,11 @@
 .priority-box {
     margin-left: 10px;
     padding: 15px 18px;
-    background-color: #ccc;
     border-radius: 4px;
     font-size: 1.5em;
+    --background: var(--ion-color-light);
 }
-  
+
 .description p {
     font-size: 1em;
     margin: 10px 0;
@@ -58,16 +70,16 @@
 .timer-display h2 {
     font-size: 2em;
     margin-bottom: 15px;
-}   
+}
 
 .disabled-timer {
-    color: lightgray;
+    --color: var(--ion-color-light);
 }
 
 .another-task-message {
-  color: lightcoral;
-  text-align: center;
-  margin-top: 10px;
+    text-align: center;
+    margin-top: 10px;
+    color: var(--ion-color-warning);
 }
 
 .timer-buttons {
@@ -76,10 +88,10 @@
 }
 
 .timer-button {
-    width: 80px; 
-    height: 50px; 
-    margin: 10px; 
-    font-size: 16px; 
+    width: 80px;
+    height: 50px;
+    margin: 10px;
+    font-size: 16px;
     line-height: 3;
 }
 
@@ -90,16 +102,16 @@
     margin-top: 10px;
     display: flex;
     align-items: center;
-    justify-content: center; 
-    margin: 20px auto; 
+    justify-content: center;
+    margin: 20px auto;
     margin-bottom: 0px;
+    --background: var(--ion-color-secondary)
 }
 
 .manual-time-modal {
     --width: 300px;
     --height: 350px;
     --border-radius: 10px;
-    --background: white;
     --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     --padding: 20px;
     --margin: auto;
@@ -134,8 +146,8 @@
 }
 
 .completed-checkbox:checked {
-    background-color: #4caf50; /* Background color when checked */
-    border-color: #4caf50; /* Border color when checked */
+    background-color: var(--ion-color-success); /* Background color when checked */
+    border-color: var(--ion-color-success); /* Border color when checked */
 }
 
 .completed-checkbox:checked::after {
