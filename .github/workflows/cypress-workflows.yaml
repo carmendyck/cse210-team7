@@ -76,3 +76,7 @@ jobs:
       - name: Run Cypress Tests for Task Creation and Editing
         run: npx cypress run --spec "cypress/e2e/{createTask,editTask}.cy.ts" --config video=false
         working-directory: frontend
+
+      - name: Run Cypress Tests for View Task
+        run: npx cypress run --spec "cypress/e2e/taskView.cy.ts" --config video=false
+        working-directory: frontend
