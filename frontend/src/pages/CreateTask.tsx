@@ -187,6 +187,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
 
   const { uid } = useAuth();
   const { user } = useAuth();
+  const history = useHistory();
 
   const getTaskEstimate = async (task_id : string) => {
     if (!uid) {
@@ -263,7 +264,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
   };
 
   const handleBack = () => {
-    history.back();
+    history.push("/tasklist");
   };
 
   const isTaskValid = () => {
@@ -318,6 +319,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
       console.error("Error connecting to the API: ", error);
     }
   };
+
   const handleSubmit = async () => {
     if (isTaskValid()) {
       console.log("Storing task: ", taskData);
@@ -332,6 +334,14 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
         await getTaskEstimate(task_id);
         setGivingAutoSchedule(true)
       }
+    }
+  };
+
+  const handleAcceptTimeEst = async () => {
+    if (isTaskValid()) {
+      console.log("Storing task: ", taskData);
+      const task_id = await onSubmit(taskData);
+      history.push("/tasklist");
     }
   };
 
@@ -463,7 +473,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
       </IonItem>
       <IonToolbar>
           <IonButtons slot="primary">
-            <IonButton shape="round">Accept</IonButton>
+            <IonButton shape="round" onClick={handleAcceptTimeEst}>Accept</IonButton>
           </IonButtons>
         </IonToolbar>
     </IonContent>}
