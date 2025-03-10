@@ -34,7 +34,7 @@ jobs:
         working-directory: backend
 
       - name: Install Python Dependencies
-        run: pip install -r fastapi uvicorn firebase-admin
+        run: pip install -r requirements.txt
         working-directory: services
 
       - name: Create Firebase Service Account Key
