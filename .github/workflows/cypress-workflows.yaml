@@ -66,8 +66,11 @@ jobs:
           uvicorn main:app --host 0.0.0.0 --port 8000 --reload > python_server.log 2>&1 &
         working-directory: services
 
-      - name: Wait for Backend & Python Server to Start
-        run: wait-on http://localhost:5050 http://localhost:8000 --timeout 30000
+      - name: Wait for Backend Server to Start
+        run: wait-on http://localhost:5050 --timeout 30000
+
+      - name: Wait for Python Server to Start
+        run: wait-on http://localhost:8000 --timeout 30000
 
       - name: Start Frontend Server
         run: ionic serve --no-open --no-interactive --port 8100 > frontend.log 2>&1 &
