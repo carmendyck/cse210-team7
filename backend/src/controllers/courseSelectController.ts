@@ -42,3 +42,24 @@ export const addCourseSelection = async (req: Request, res: Response) => {
     res.status(500).json({ error: (error as Error).message });
   }
 };
+
+export const getCourse = async (req: Request, res: Response) => {
+  const { courseid } = req.params; // Get task ID from request params
+  console.log("GET request sent to getCourse: courseId: ", courseid)
+  // return res.status(200)
+  try {
+    const courseDoc = await db.collection("course").doc(courseid).get();
+
+    if (!courseDoc.exists) {
+      return res.status(404).json({ error: "Course not found" });
+    }
+
+    res.status(200).json({
+      message: "Course retrieved successfully!",
+      course: { id: courseDoc.id, ...courseDoc.data() }, // Return course data
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+};

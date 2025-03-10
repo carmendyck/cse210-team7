@@ -159,7 +159,7 @@ export const EditTask: React.FC <EditTaskProps>= ({ params }) => {
       } else {
         console.log("Task successfully updated:", data);
         return data["taskId"] ?? undefined;
-        // history.push(`/viewtask/${params.id}`);
+        //history.push(`/viewtask/${params.id}`);
       }
     } catch (error) {
       console.error("Error updating task:", error);
