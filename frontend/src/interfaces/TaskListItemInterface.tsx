@@ -21,4 +21,6 @@ export interface TaskListItem {
   total_time_estimate: number;
 
   completed: boolean;
+  
+  priority?: number;
 }
