@@ -17,6 +17,7 @@ const SignUp: React.FC = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [passwordMatch, setPasswordMatch] = useState(false);
 
   useEffect(() => {
     setFormData({ fullName: "", email: "", password: "", confirmPassword: "" });
@@ -28,7 +29,14 @@ const SignUp: React.FC = () => {
   const handleChange = (field: string) => (event: CustomEvent) => {
     const value = event.detail.value || "";
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Reset error when user types
     if (error) setError("");
+
+    // Check if passwords match
+    if (field === "password" || field === "confirmPassword") {
+      setPasswordMatch(formData.password === value || formData.confirmPassword === value);
+    }
   };
 
   const validateForm = () => {
@@ -105,6 +113,7 @@ const SignUp: React.FC = () => {
             <IonInput type="email" value={formData.email} placeholder="Email" className={`custom-input ${error && error.includes("email") ? 'error-bg' : ''}`} onIonInput={handleChange("email")} autocomplete="off" autocapitalize="off" spellcheck={false} disabled={isLoading} />
             <IonInput type="password" value={formData.password} placeholder="Password" className={`custom-input ${error && error.includes("Password") ? 'error-bg' : ''}`} onIonInput={handleChange("password")} autocomplete="new-password" autocapitalize="off" spellcheck={false} disabled={isLoading} />
             <IonInput type="password" value={formData.confirmPassword} placeholder="Confirm Password" className={`custom-input ${error && error.includes("Passwords") ? 'error-bg' : ''}`} onIonInput={handleChange("confirmPassword")} autocomplete="new-password" autocapitalize="off" spellcheck={false} disabled={isLoading} />
+            {passwordMatch && formData.password && formData.confirmPassword && <p className="password-match">Passwords match</p>}
           </div>
           <IonButton expand="block" className="signup-button" onClick={handleSignUp} disabled={isLoading}>{isLoading ? "Creating Account..." : "Sign Up"}</IonButton>
           <div className="login-text" onClick={handleLogin}>Already have an account? Log in</div>
