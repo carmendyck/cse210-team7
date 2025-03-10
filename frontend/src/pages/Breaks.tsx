@@ -143,7 +143,8 @@ const Breaks: React.FC = () => {
                           [breakType]: e.detail.checked,
                         }))
                       }
-                    />
+                      color="secondary"
+              />
                   </IonItem>
                 ))}
             </IonList>
