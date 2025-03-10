@@ -6,66 +6,29 @@ from dotenv import load_dotenv
 import firebase_admin
 from firebase_admin import credentials, firestore
 from firebase_admin import auth
+from fastapi import FastAPI, Header, HTTPException
 
 class Task:
-    keyword_bank = ["test", "quiz", "homework", "project"]
+    keyword_bank = ["test", "quiz", "homework", "project", "reading"]
 
-    def __init__(self, task_id):
-        # Get information from backend:
-        # TODO: remove this once connected to the rest of the app
-        self.task_id = task_id
-        self.id_token, self.db = authenticate()
-        url = f"http://localhost:5050/api/viewTask/getTask/{self.task_id}"
-        headers = {
-            "Authorization": f"Bearer {self.id_token}"
-        }
-        response = requests.get(url, headers=headers)
-        task_data = response.json()["task"]
-        print(f"TASK RESPONSE: {task_data}")
+    def __init__(self, task_data, id_token, db):
 
         self.name = task_data["name"]
         self.description = task_data["notes"]
         self.time_estimate = task_data["total_time_estimate"]
         self.course = task_data["course_id"]
-        self.course_id = task_data["course_id"].split("/")[2]
+        self.course_id = task_data["course_id"].split("/")[1]
         self.keywords = []
+        self.id_token = id_token
+        self.db = db
+        self.task_id = task_data["id"]
 
-        # TODO: Replace with API once it's written
-        url = f"https://firestore.googleapis.com/v1/projects/tritoncal/databases/(default)/documents/course/{self.course_id}"
-        headers = {
-            "Authorization": f"Bearer {self.id_token}"
-        }
-        response = requests.get(url, headers=headers)
-        course_data = response.json()["fields"]
-        print(f"COURSE RESPONSE: {course_data}")
-
+    def add_course_info(self, course_data):
         self.course_time_estimates = {}
         for keyword in Task.keyword_bank:
             self.course_time_estimates[keyword] = course_data[f"avg_time_{keyword}"]
 
-# TODO: For testing -- remove once connected to frontend
-def authenticate():
-    # Load environment variables from the .env file
-    load_dotenv(dotenv_path="../../backend/.env")
-    # Get the API key
-    api_key = os.getenv("FIREBASE_API_KEY")
-    if not api_key:
-        raise ValueError("Firebase API key not found. Check your .env file.")
-    # Load service account key
-    cred = credentials.Certificate("../../backend/serviceAccountKey.json")
-    # Initialize app
-    firebase_admin.initialize_app(cred)
-    # Authentication
-    custom_token = "" # check slack for line to replace this with
-    url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key={api_key}"
-    data = {"token": custom_token, "returnSecureToken": True}
-    response = requests.post(url, json=data)
-    id_token = response.json().get("idToken")
-    # Get Firestore client
-    db = firestore.client()
-    return id_token, db
-
-def get_task_keywords(name, description):
+def get_task_keywords(name, description, task=None):
     if name is None:
         name = ""
     if description is None:
@@ -87,7 +50,7 @@ def get_task_keywords(name, description):
         elif keyword_count > max_count:
             top_keywords = [keyword]
             max_count = keyword_count  # Update max count
-
+    
     return top_keywords
 
 # TESTING:

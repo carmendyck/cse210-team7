@@ -11,7 +11,7 @@ class TestTaskHelpers(unittest.TestCase):
     # none
     @given(st.text())
     def test_no_text(self, test_str):
-        keyword_bank = ["test", "quiz", "homework", "project"]
+        keyword_bank = ["test", "quiz", "homework", "project", "reading"]
         if any(keyword in test_str for keyword in keyword_bank):
             return
         else:
@@ -28,10 +28,10 @@ class TestTaskHelpers(unittest.TestCase):
         assert top_keywords == [test_str]
 
     # single word, stay within length allowed
-    @given(st.lists(st.integers(min_value=1, max_value=800), min_size=4, max_size=4, unique=True))
+    @given(st.lists(st.integers(min_value=1, max_value=800), min_size=5, max_size=5, unique=True))
     def test_get_top_keywords(self, num_instances):
 
-        keyword_bank = ["test", "quiz", "homework", "project"]
+        keyword_bank = ["test", "quiz", "homework", "project", "reading"]
         max_value = max(num_instances)
         top_word = keyword_bank[num_instances.index(max_value)]
 
@@ -52,7 +52,7 @@ class TestTaskHelpers(unittest.TestCase):
     # multiple of the same word, stay within length allowed
     @given(st.lists(st.integers(min_value=1, max_value=800), min_size=4, max_size=4, unique=False))
     def test_get_multiple_top_keywords(self, num_instances):
-        keyword_bank = ["test", "quiz", "homework", "project"]
+        keyword_bank = ["test", "quiz", "homework", "project", "reading"]
         max_value = max(num_instances)
 
         def find_all_occurrences(list_data, element):

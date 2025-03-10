@@ -7,7 +7,7 @@
     "location": "",
     "due_datetime": "2025-02-21T07:59:00.000Z",
 
-    "course_id": null,
+    "course_id": "courses/abc",
     "tags": [],
 
     "time_spent": 0,
@@ -23,7 +23,7 @@
     "location": "",
     "due_datetime": "2025-02-21T07:59:00.000Z",
 
-    "course_id": null,
+    "course_id": "courses/abc",
     "tags": [],
 
     "time_spent": 0,
