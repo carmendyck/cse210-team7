@@ -75,8 +75,7 @@ export const CreateTask: React.FC = () => {
         priority: taskData.priority,
         course_id: taskData.course_id,
         tags: taskData.tags,
-        next_start_time: null,
-        next_end_time: null,
+
         time_spent: 0,
         total_time_estimate: taskData.total_time_estimate,
         completed: false,
