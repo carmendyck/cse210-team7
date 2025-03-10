@@ -1,6 +1,14 @@
 from task_helpers import get_task_keywords, Task
 from datetime import date, datetime
 
+# ---------- assumes these general importance levels for task types
+
+# CONSTANTS
+task_type_map = {"test": 15, "quiz": 20, "project": 25, "homework": 30}
+c = 0.6
+prio0_thresh = 15
+prio1_thresh = 30
+
 
 class TaskPrioritizer:
     def __init__(self, task):
@@ -46,14 +54,6 @@ class TaskPrioritizer:
         # ----------> so time_estimate - time_spent = time_left, and we use time_left?
         # days left = deadline - current day
 
-        # ---------- assumes these general importance levels for task types
-
-        # CONSTANTS
-        task_type_map = {"test": 15, "quiz": 20, "project": 25, "homework": 30}
-        c = 0.6
-        prio0_thresh = 15
-        prio1_thresh = 30
-
         print()
         print(f"constants:")
         print(f"task_type_map: {task_type_map}")
@@ -64,20 +64,18 @@ class TaskPrioritizer:
         # not sure if instead of the arbitrary type values, we should use
         # the avg time_estimate from courses; but then that and time_estimate
         # is basically the same, assuming TaskEstimator was already run
+        len_key = len(self.keywords)
+        if len_key == 0:
+            len_key = 1
+        task_type_avg = sum([task_type_map[k] for k in self.keywords]) / len_key
+        if task_type_avg == 0:
+            task_type_avg = 4  # in case there's nothing in keywords, just give it the same val as a hw
+        time_estimate = self.task.time_estimate
 
-        # task_type_avg = sum([task_type_map[k] for k in self.keywords]) / max(
-        #     len(self.keywords), 1
-        # )
-        task_type_avg = 1
-
-        # ✅ Improved Fix for `time_estimate` (ensures valid float > 0)
-        time_estimate = (
-            float(self.task.time_estimate)
-            if self.task.time_estimate and float(self.task.time_estimate) > 0
-            else 1
-        )
-        print(f"time_estimate value: {self.task.time_estimate}")
-        print(f"Converted time_estimate value for calculation: {time_estimate}")
+        print()
+        print(f"keywords: {self.keywords}")
+        print(f"task_type_avg: {task_type_avg}")
+        print(f"time_estimate: {time_estimate}")
 
         # reference string: "2025-03-15T07:59:00.000Z"
         due_datetime_string = self.task.due_datetime
@@ -87,7 +85,7 @@ class TaskPrioritizer:
         deadline = datetime.strptime(due_date_string, "%Y-%m-%d").date()
         current_day = date.today()
         delta = deadline - current_day
-        days_left = max(delta.days, 2)
+        days_left = delta.days
 
         print(f"current_day: {current_day}")
         print(f"deadline: {deadline}")
@@ -100,47 +98,61 @@ class TaskPrioritizer:
         # test with a high time estimate but is many days away will actually return a very
         # high priority when it should really be not that high
 
-        # LOWER RAW SCORE => HIGHER PRIORITY (0)
-        # HIGHER RAW SCORE => LOWER PRIORITY (1 or 2)
-        raw_score = (task_type_avg / time_estimate) * (days_left * c)
-        # ** days left will shrink over time, making the raw score smaller
-        # ** ** previously was exponent, but changed to just proportional multiplier (see note above)
-        # ** ** c = multiplier on days left for adjustments
-        # ** task type value directly proportional to raw score
-        # ** ** (exams => low value => lower raw score)
-        # ** time_estimate inversely proportional to raw score
-        # ** ** (more time needed for assignment -> lowers raw score)
-        # ** ** ENSURE THAT TIME_ESTIMATE IS NOT ZERO
+        # edit: now that the days left is multiplied, the raw_score can be negative; that's
+        # ok though because negative values will be priority 0
 
-        print()
-        print(f"raw_score: (task_type_avg / time_estimate) * (days_left * c)")
-        print(f"raw_score: ({task_type_avg} / {time_estimate}) * ({days_left} * {c})")
-        print(f"raw_score: {raw_score}")
+        self.priority = priority_formula(task_type_avg, time_estimate, days_left)
 
-        # update priority variable and return (should be 0-2)
-        prio = 2
-        if raw_score < prio0_thresh:
-            prio = 0
-        elif raw_score < prio1_thresh:
-            prio = 1
-        # else prio = 2 (default)
 
-        print(f"priority: {prio}")
+def priority_formula(task_type_avg, time_estimate, days_left):
+    # LOWER RAW SCORE => HIGHER PRIORITY (0)
+    # HIGHER RAW SCORE => LOWER PRIORITY (1 or 2)
 
-        self.priority = prio
+    # dirty fix lol
+    if task_type_avg <= 0:
+        task_type_avg = 1
+    if time_estimate <= 0:
+        time_estimate = 1
 
-    # maybe not necessary if assign_priority is just recalled - pretty much the
-    # same effect I guess since we're just using days til deadline and not priority history
-    def update_task_priority(self):
-        # dynamic - values needed: <-- maybe split into separate "update" function?
-        # - current date
-        # - task deadline
+    raw_score = (task_type_avg / time_estimate) * (days_left * c)
+    # ** days left will shrink over time, making the raw score smaller
+    # ** ** previously was exponent, but changed to just proportional multiplier (see note above)
+    # ** ** c = multiplier on days left for adjustments
+    # ** task type value directly proportional to raw score
+    # ** ** (exams => low value => lower raw score)
+    # ** time_estimate inversely proportional to raw score
+    # ** ** (more time needed for assignment -> lowers raw score)
+    # ** ** ENSURE THAT TIME_ESTIMATE IS NOT ZERO
 
-        # heuristics (weighted priority + greedy scheduling)
+    print()
+    print(f"raw_score: (task_type_avg / time_estimate) * (days_left * c)")
+    print(f"raw_score: ({task_type_avg} / {time_estimate}) * ({days_left} * {c})")
+    print(f"raw_score: {raw_score}")
 
-        # update priority variable and return
+    # update priority variable and return (should be 0-2)
+    prio = 2
+    if raw_score < prio0_thresh:
+        prio = 0
+    elif raw_score < prio1_thresh:
+        prio = 1
+    # else prio = 2 (default)
 
-        pass
+    print(f"priority: {prio}")
+
+    return prio
+
+    # # maybe not necessary if assign_priority is just recalled - pretty much the
+    # # same effect I guess since we're just using days til deadline and not priority history
+    # def update_task_priority(self):
+    #     # dynamic - values needed: <-- maybe split into separate "update" function?
+    #     # - current date
+    #     # - task deadline
+
+    #     # heuristics (weighted priority + greedy scheduling)
+
+    #     # update priority variable and return
+
+    #     pass
 
 
 # Testing:

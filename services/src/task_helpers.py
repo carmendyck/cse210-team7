@@ -14,6 +14,8 @@ if not firebase_admin._apps:
         "/Users/amitnamburi/Desktop/CSE 210/cse210-team7/backend/serviceAccountKey.json"
     )
     firebase_admin.initialize_app(cred)
+
+
 class Task:
     keyword_bank = ["test", "quiz", "homework", "project"]
 
@@ -47,7 +49,7 @@ class Task:
 
         # self.course_time_estimates = {}
         # for keyword in Task.keyword_bank:
-        #     self.course_time_estimates[keyword] = course_data[f"avg_time_{keyword}"]
+        # self.course_time_estimates[keyword] = course_data[f"avg_time_{keyword}"]
 
 
 # TODO: For testing -- remove once connected to frontend

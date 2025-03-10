@@ -244,7 +244,6 @@ const fetchTaskPriority = async (taskId: string): Promise<number | null> => {
       )}
 
 
-
           {/* Finished Tasks */}
           {finishedTasks.length > 0 && (
           <>
