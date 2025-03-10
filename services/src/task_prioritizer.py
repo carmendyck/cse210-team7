@@ -49,12 +49,12 @@ class TaskPrioritizer:
         
         # CONSTANTS
         task_type_map = {
-            "test": 1,
-            "quiz": 2,
-            "project": 3,
-            "homework": 4
+            "test": 15,
+            "quiz": 20,
+            "project": 25,
+            "homework": 30
         }
-        c = 0.4
+        c = 0.6
         prio0_thresh = 15
         prio1_thresh = 30
 
@@ -67,8 +67,8 @@ class TaskPrioritizer:
         
 
         # not sure if instead of the arbitrary type values, we should use
-        # the avg time_estimate; but then that and time_estimate is basically the same,
-        # assuming TaskEstimator was already run
+        # the avg time_estimate from courses; but then that and time_estimate 
+        # is basically the same, assuming TaskEstimator was already run
 
         task_type_avg = sum([task_type_map[k] for k in self.keywords]) / len(self.keywords)
         if task_type_avg == 0:
@@ -101,8 +101,9 @@ class TaskPrioritizer:
 
         # LOWER RAW SCORE => HIGHER PRIORITY (0)
         # HIGHER RAW SCORE => LOWER PRIORITY (1 or 2)
-        raw_score =  (task_type_avg / time_estimate) ** (days_left * c)
+        raw_score =  (task_type_avg / time_estimate) * (days_left * c)
         # ** days left will shrink over time, making the raw score smaller
+        # ** ** previously was exponent, but changed to just proportional multiplier (see note above)
         # ** ** c = multiplier on days left for adjustments
         # ** task type value directly proportional to raw score
         # ** ** (exams => low value => lower raw score)
@@ -111,8 +112,8 @@ class TaskPrioritizer:
         # ** ** ENSURE THAT TIME_ESTIMATE IS NOT ZERO
 
         print()
-        print(f"raw_score: (task_type_avg / time_estimate) ** (days_left * c)")
-        print(f"raw_score: ({task_type_avg} / {time_estimate}) ** ({days_left} * {c})")
+        print(f"raw_score: (task_type_avg / time_estimate) * (days_left * c)")
+        print(f"raw_score: ({task_type_avg} / {time_estimate}) * ({days_left} * {c})")
         print(f"raw_score: {raw_score}")
 
         # update priority variable and return (should be 0-2)
