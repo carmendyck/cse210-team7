@@ -400,7 +400,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
         </IonItem>
 
       <IonItem>
-      <IonSelect value={taskData.course_id} onIonChange={(e) => handleSelectionChange(e, 'course_id')} placeholder="Course">
+      <IonSelect label="Course" value={taskData.course_id} onIonChange={(e) => handleSelectionChange(e, 'course_id')} placeholder="Course">
         {courseOptions.map((course) => (
           <IonSelectOption key={course.id} value={`courses/${course.id}`}>
             {course.course_name}
