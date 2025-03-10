@@ -6,7 +6,6 @@ from task_helpers import Task
 app = Flask(__name__)
 CORS(app)
 
-
 @app.route("/api/task-priority/<task_id>", methods=["GET"])
 def get_task_priority(task_id):
     try:

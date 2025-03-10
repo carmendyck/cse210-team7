@@ -15,7 +15,7 @@ class TaskEstimator:
             'total_time_estimate': est
         })
         return est
-    
+
     def update_course_time_estimates(self):
         tasks_ref = self.task.db.collection('tasks').where('course_id', '==', self.task.course)
         course_ref = self.task.db.collection('course').document(self.task.course_id)

@@ -19,7 +19,6 @@ import { DatetimeChangeEventDetail, IonDatetimeCustomEvent } from "@ionic/core";
 import './TaskList.css';
 import { TaskListItem } from '../interfaces/TaskListItemInterface';
 
-
 function formatDueDate(dueDatetime: string): string {
   const date = new Date(dueDatetime); 
   const year = date.getFullYear(); 

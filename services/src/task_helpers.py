@@ -14,8 +14,6 @@ if not firebase_admin._apps:
         "/Users/amitnamburi/Desktop/CSE 210/cse210-team7/backend/serviceAccountKey.json"
     )
     firebase_admin.initialize_app(cred)
-
-
 class Task:
     keyword_bank = ["test", "quiz", "homework", "project"]
 
@@ -35,7 +33,7 @@ class Task:
         self.due_datetime = task_data["due_datetime"]
         self.time_estimate = task_data["total_time_estimate"]
         self.course = task_data["course_id"]
-        self.course_id = task_data["course_id"].split("/")[2]
+        # self.course_id = task_data["course_id"].split("/")[2]
         self.keywords = []
 
         # # TODO: Replace with API once it's written
