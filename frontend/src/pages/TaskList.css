@@ -12,6 +12,7 @@ ion-button[slot="end"] {
     padding: 10px;
 }
   
+
 .date-selector span {
     padding: 8px 12px;
     border-radius: 10px;
@@ -117,3 +118,33 @@ margin: 0 auto;
     color: #666; 
   }
 
+.task-details {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+.priority-box {
+    background-color: white;
+    border: 2px solid #4CAF50;
+    border-radius: 4px;
+    width: 5px;
+    height: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #3a7e3c;
+    margin-left: 4px;
+}
+.priority-0 {
+    background-color: red;
+}
+
+.priority-1 {
+    background-color: orange;
+}
+
+.priority-2 {
+    background-color: green;
+}

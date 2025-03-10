@@ -19,7 +19,6 @@ import { DatetimeChangeEventDetail, IonDatetimeCustomEvent } from "@ionic/core";
 import './TaskList.css';
 import { TaskListItem } from '../interfaces/TaskListItemInterface';
 
-
 function formatDueDate(dueDatetime: string): string {
   const date = new Date(dueDatetime); 
   const year = date.getFullYear(); 
@@ -62,31 +61,61 @@ const TaskList: React.FC = () => {
     history.push('/login');
   };
 
-  const getAllTasks = async () => {
-    try {
-      console.log("fetching tasks for uid ", uid);
-      const response = await fetch(`http://localhost:5050/api/tasklist/getAllTasks/${uid}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+  // const getAllTasks = async () => {
+  //   try {
+  //     console.log("fetching tasks for uid ", uid);
+  //     const response = await fetch(`http://localhost:5050/api/tasklist/getAllTasks/${uid}`, {
+  //       method: "GET",
+  //       headers: { "Content-Type": "application/json" },
+  //     });
 
-      const data = await response.json();
+  //     const data = await response.json();
       
-      if (!response.ok) {
-        console.log("Error fetching tasks: ", data.error || 'Unknown error');
-        throw new Error("Failed to fetch task");
-      }
+  //     if (!response.ok) {
+  //       console.log("Error fetching tasks: ", data.error || 'Unknown error');
+  //       throw new Error("Failed to fetch task");
+  //     }
 
-      console.log(data.message);
+  //     console.log(data.message);
 
-      const taskList : TaskListItem[] = data.tasks;
-      setTasks(taskList);
-      console.log("Task List:", taskList);
+  //     const taskList : TaskListItem[] = data.tasks;
+  //     setTasks(taskList);
+  //     console.log("Task List:", taskList);
 
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
+  //   } catch (error) {
+  //     console.error("Error fetching tasks:", error);
+  //   }
+  // }
+
+  const getAllTasks = async () => {
+  try {
+    console.log("Fetching tasks for uid:", uid);
+    const response = await fetch(`http://localhost:5050/api/tasklist/getAllTasks/${uid}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Error fetching tasks:", data.error || 'Unknown error');
+      throw new Error("Failed to fetch tasks");
     }
+
+    const taskList: TaskListItem[] = await Promise.all(
+      data.tasks.map(async (task: TaskListItem) => {
+        const priority = await fetchTaskPriority(task.id);
+        return { ...task, priority };
+      })
+    );
+
+
+    setTasks(taskList);
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
   }
+};
+
 
   const removeTask = async (taskId: string) => {
     try {
@@ -111,6 +140,33 @@ const TaskList: React.FC = () => {
     }
   };
 
+const API_BASE_URL = window.location.hostname === 'localhost'
+  ? 'http://127.0.0.1:5051'
+  : 'http://192.168.86.232:5051';
+
+const fetchTaskPriority = async (taskId: string): Promise<number | null> => {
+  try {
+    console.log(`Fetching priority for task ID: ${taskId}`);
+
+    const response = await fetch(`http://127.0.0.1:5051/api/task-priority/${taskId}`);
+    
+    console.log(`Response Status: ${response.status}`);
+    
+    const data = await response.json();
+    console.log(`Priority Data Received: `, data);
+
+    if (!response.ok) {
+      console.error(`Error: Received status ${response.status}`);
+      return null;
+    }
+
+    return data.priority;
+  } catch (error) {
+    console.error(`Error fetching priority for task ${taskId}:`, error);
+    return null;
+  }
+};
+
   // gets tasks once on page load
   // TODO: figure out why this is getting called 4 times
   useEffect(() => {
@@ -130,6 +186,7 @@ const TaskList: React.FC = () => {
   const finishedTasks = tasks.filter(task => task.completed && formatDueDate(task.due_datetime.toLocaleString()) === selectedDate);
 
   return (
+    
     <IonPage>
       <IonHeader>
         <IonToolbar>
@@ -155,33 +212,40 @@ const TaskList: React.FC = () => {
 
         {/* Unfinished Tasks */}
         {unfinishedTasks.length > 0 && (
-          <>
-            <h2 className="section-title">Unfinished</h2>
-            <IonList>
-              {unfinishedTasks.map((task) => (
-                <IonItem
-                  key={task.id}
-                  className={`task-item ${defaultColor}`}
-                  onClick={() => selectTask(task.id)}
-                >
-                  <IonCheckbox
-                    slot="start"
-                    onClick={(e) => e.stopPropagation()}
-                    onIonChange={() => removeTask(task.id)}
-                  />
-                  <IonLabel>
-                    <h2>{task.name}</h2>
-                    <p className="due-date">Due: {formatDueDate(task.due_datetime.toLocaleString())}</p>
-                  </IonLabel>
-                  <span className="duration">{task.total_time_estimate}</span>
-                </IonItem>
-              ))}
-            </IonList>
-          </>
-        )}
+        <>
+          <h2 className="section-title">Unfinished</h2>
+          <IonList>
+            {unfinishedTasks.map((task) => (
+              <IonItem
+                key={task.id}
+                className={`task-item ${defaultColor}`}
+                onClick={() => selectTask(task.id)}
+              >
+                <IonCheckbox
+                  slot="start"
+                  onClick={(e) => e.stopPropagation()}
+                  onIonChange={() => removeTask(task.id)}
+                />
+                <IonLabel>
+                  <h2>{task.name}</h2>
+                  <p className="due-date">Due: {formatDueDate(task.due_datetime.toLocaleString())}</p>
+                </IonLabel>
 
-        {/* Finished Tasks */}
-        {finishedTasks.length > 0 && (
+                <div className="task-details">
+                  <span className="duration">{task.total_time_estimate} hrs</span>
+                  {typeof task.priority === "number" && (
+                    <div className="priority-box">{task.priority}</div>
+                  )}
+                </div>
+              </IonItem>
+            ))}
+          </IonList>
+        </>
+      )}
+
+
+          {/* Finished Tasks */}
+          {finishedTasks.length > 0 && (
           <>
             <h2 className="section-title">Finished</h2>
             <IonList>
@@ -193,18 +257,26 @@ const TaskList: React.FC = () => {
                   <IonCheckbox
                     slot="start"
                     checked={true}
-                    disabled={true} // Prevent users from unchecking it
+                    disabled={true}
                   />
                   <IonLabel>
                     <h2>{task.name}</h2>
                     <p className="due-date">Due: {formatDueDate(task.due_datetime.toLocaleString())}</p>
                   </IonLabel>
-                  <span className="duration">{task.total_time_estimate}</span>
+
+                  <div className="task-details">
+                    <span className="duration">{task.total_time_estimate} hrs</span>
+                    {typeof task.priority === "number" && (
+                      <div className="priority-box">{task.priority}</div>
+                    )}
+                  </div>
                 </IonItem>
               ))}
             </IonList>
           </>
         )}
+
+
 
       </IonContent>
     </IonPage>
