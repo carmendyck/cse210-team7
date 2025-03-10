@@ -7,6 +7,7 @@ npm install @ionic/react-router
 npm install @fullcalendar/react @fullcalendar/timegrid
 npm install nodemon
 npm install ts-node
+npm install axios
 ```
 
 ## How to Run:
@@ -15,6 +16,12 @@ npm install ts-node
 ```
 cd backend
 npm run dev
+```
+
+### Navigate to service layer:
+```
+cd services
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### Navigate to frontend in a different terminal:
