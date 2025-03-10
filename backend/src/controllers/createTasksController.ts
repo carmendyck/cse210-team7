@@ -3,7 +3,7 @@ import { db } from "../config/firebase";
 
 export const addNewTask = async (req: Request, res: Response) => {
   const { user_id, name, notes, location, due_datetime, course_id, tags,
-    next_start_time, next_end_time, time_spent, total_time_estimate, completed,
+    time_spent, total_time_estimate, completed,
   } = req.body;
 
   if (!name || !due_datetime) {
@@ -27,37 +27,13 @@ export const addNewTask = async (req: Request, res: Response) => {
     completed: completed,
   };
 
-  const nextWorktime = {
-    start_time: next_start_time,
-    end_time: next_end_time,
-  }
-
-  const prevWorktime = {
-    start_time: null,
-    end_time: null
-  }
-
   try {
     const taskRef = await db.collection('tasks').add(newTask);
-
-    const nextWorktimesRef = taskRef.collection('next_worktimes');
-    const nextTimeRef = await nextWorktimesRef.add(nextWorktime);
-
-    const prevWorktimesRef = taskRef.collection('prev_worktimes');
-    const prevTimeRef = await prevWorktimesRef.add(prevWorktime);
 
     res.status(201).json({
       message: 'Task added successfully!',
       taskId: taskRef.id,
       task: newTask,
-      worktimeIds: {
-        next_worktime: nextTimeRef.id,
-        prev_worktime: prevTimeRef.id,
-      },
-      worktimes: {
-        next_worktime: nextWorktime,
-        prev_worktime: prevWorktime,
-      },
     });
   } catch (error) {
     console.log(error);

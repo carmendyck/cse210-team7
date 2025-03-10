@@ -12,9 +12,6 @@ export interface NewTask {
   course_id: String | null;
   tags: Array<Tag>;
 
-  next_start_time: Date | null;
-  next_end_time: Date | null;
-
   time_spent: number;
   total_time_estimate: number;
 
