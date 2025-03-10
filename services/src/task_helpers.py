@@ -25,6 +25,7 @@ class Task:
 
         self.name = task_data["name"]
         self.description = task_data["notes"]
+        self.due_datetime = task_data["due_datetime"]
         self.time_estimate = task_data["total_time_estimate"]
         self.course = task_data["course_id"]
         self.course_id = task_data["course_id"].split("/")[2]

@@ -1,4 +1,5 @@
 from task_helpers import get_task_keywords, Task
+from datetime import date, datetime
 
 class TaskPrioritizer:
     def __init__(self, task):
@@ -62,11 +63,20 @@ class TaskPrioritizer:
         # assuming TaskEstimator was already run
 
         task_type_avg = sum([task_type_map[k] for k in self.keywords]) / len(self.keywords)
+        if task_type_avg == 0:
+            task_type_avg = 4 # in case there's nothing in keywords, just give it the same val as a hw
         time_estimate = self.task.time_estimate
-        # *********[[[[TODO]]]]************
-        deadline = 5
-        current_day = 2
-        days_left = deadline - current_day
+
+        # reference string: "2025-03-15T07:59:00.000Z"
+        due_datetime_string = self.task.due_datetime
+        due_date_string = due_datetime_string.split('T')[0] #gets the date part of string
+        deadline = datetime.strptime(due_date_string, "%Y-%m-%d").date()
+        current_day = date.today()
+        delta = deadline - current_day
+        days_left = delta.days
+        # *should* be ok if it goes into negatives? i.e. if a thing is past due,
+        # the exponent will be negative, making the raw_score extremely small and make the priority
+        # high (0)
 
         # LOWER RAW SCORE => HIGHER PRIORITY (0)
         # HIGHER RAW SCORE => LOWER PRIORITY (1 or 2)
