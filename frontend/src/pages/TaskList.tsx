@@ -111,6 +111,43 @@ const TaskList: React.FC = () => {
     }
   };
 
+  const openTask = async (taskId: string) => {
+    try {
+      const response = await fetch(`http://localhost:5050/api/viewTask/openTask/${taskId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch task");
+      }
+
+      const data = await response.json();
+      console.log("Response Data:", data);
+    } catch (error) {
+      console.error("Error fetching task:", error);
+    }
+  };
+
+  const handleCheckboxChange = async (taskId: string, completed: boolean) => {
+    try {
+      if (completed) {
+        await openTask(taskId);
+      } else {
+        await removeTask(taskId);
+      }
+  
+      setTasks(prevTasks =>
+        prevTasks.map(task =>
+          task.id === taskId ? { ...task, completed: !completed } : task
+        )
+      );
+    } catch (error) {
+      console.error("Error toggling task completion:", error);
+    }
+  };
+  
+
   // gets tasks once on page load
   // TODO: figure out why this is getting called 4 times
   useEffect(() => {
@@ -167,7 +204,7 @@ const TaskList: React.FC = () => {
                   <IonCheckbox
                     slot="start"
                     onClick={(e) => e.stopPropagation()}
-                    onIonChange={() => removeTask(task.id)}
+                    onIonChange={() => handleCheckboxChange(task.id, task.completed)}
                   />
                   <IonLabel>
                     <h2>{task.name}</h2>
@@ -192,8 +229,9 @@ const TaskList: React.FC = () => {
                 >
                   <IonCheckbox
                     slot="start"
-                    checked={true}
-                    disabled={true} // Prevent users from unchecking it
+                    onClick={(e) => e.stopPropagation()}
+                    checked={task.completed}
+                    onIonChange={() => handleCheckboxChange(task.id, task.completed)}
                   />
                   <IonLabel>
                     <h2>{task.name}</h2>
