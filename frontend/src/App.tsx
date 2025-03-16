@@ -81,7 +81,7 @@ const RenderContent: React.FC = () => {
         <ProtectedRoute exact path="/notifications" component={Notifications} />
         <Redirect exact from="/" to="/login" />
       </IonRouterOutlet>
-      {location.pathname !== "/login" && location.pathname !== "/signup" && <CreateTaskButton />}
+      {location.pathname !== "/login" && location.pathname !== "/signup" && location.pathname !== "/preferences" && location.pathname !== "/calendar" && <CreateTaskButton />}
     </>
   );
 };
