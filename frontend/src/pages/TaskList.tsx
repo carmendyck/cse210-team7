@@ -10,7 +10,8 @@ import {
   IonItem,
   IonLabel,
   IonCheckbox,
-  IonDatetime
+  IonDatetime,
+  IonText
 } from '@ionic/react';
 import { useState, useEffect } from 'react';
 import { useHistory } from "react-router-dom";
@@ -18,6 +19,7 @@ import { useAuth } from "../context/AuthContext";
 import { DatetimeChangeEventDetail, IonDatetimeCustomEvent } from "@ionic/core";
 import './TaskList.css';
 import { TaskListItem } from '../interfaces/TaskListItemInterface';
+import CreateTaskButton from "../components/CreateTaskButton";
 
 
 function formatDueDate(dueDatetime: string): string {
@@ -129,6 +131,9 @@ const TaskList: React.FC = () => {
   const unfinishedTasks = tasks.filter(task => !task.completed && formatDueDate(task.due_datetime.toLocaleString()) === selectedDate);
   const finishedTasks = tasks.filter(task => task.completed && formatDueDate(task.due_datetime.toLocaleString()) === selectedDate);
 
+  // Check if there are any tasks for the selected date (for add button positioning)
+  const hasTasksForDate = unfinishedTasks.length > 0 || finishedTasks.length > 0;
+
   return (
     <IonPage>
       <IonHeader>
@@ -203,6 +208,24 @@ const TaskList: React.FC = () => {
                 </IonItem>
               ))}
             </IonList>
+          </>
+        )}
+
+        {/* Add Task Button */}
+
+        {/* CreateTaskButton with conditional positioning */}
+        {hasTasksForDate ? (
+          // Normal bottom-right position when tasks exist
+          <CreateTaskButton vertical="bottom" horizontal="end" />
+        ) : (
+          // Empty state with message above button
+          <>
+            <div className="no-tasks-container">
+              <IonText className="no-tasks-message">
+                No tasks yet for this date!
+              </IonText>
+            </div>
+            <CreateTaskButton vertical="center" horizontal="center" className="centered-fab" />
           </>
         )}
 
