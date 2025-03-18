@@ -9,4 +9,5 @@ export interface Course {
     avg_time_reading: string | null;
     avg_time_test: string | null;
     course_index: number | null;
+    id: number | null;
 }
