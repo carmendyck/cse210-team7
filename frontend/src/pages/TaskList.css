@@ -117,3 +117,29 @@ margin: 0 auto;
     color: #666; 
   }
 
+
+
+/* New styles for task button positioning */
+
+/* Empty state container for centered content */
+.no-tasks-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 65vh;
+    width: 100%;
+    text-align: center;
+}
+  
+/* Message styling */
+.no-tasks-message { 
+    font-size: 16px;
+    color: var(--ion-color-medium);
+}
+  
+/* For the centered FAB button */
+.centered-fab ion-fab-button {
+    --box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+  
