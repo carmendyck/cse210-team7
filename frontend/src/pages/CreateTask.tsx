@@ -9,7 +9,9 @@ import {
   IonSelectCustomEvent,
   SelectChangeEventDetail,
   IonToggleCustomEvent,
-  ToggleChangeEventDetail
+  ToggleChangeEventDetail,
+  IonRangeCustomEvent,
+  RangeChangeEventDetail
 } from '@ionic/core';
 
 import {
@@ -27,8 +29,9 @@ import {
   IonSelectOption,
   IonButtons,
   IonText,
-  IonBackButton,
   IonIcon,
+  IonRange,
+  IonLabel,
 } from "@ionic/react";
 import { closeOutline } from 'ionicons/icons';
 
@@ -55,6 +58,7 @@ export const CreateTask: React.FC = () => {
 
     due_datetime: getTomorrowBeforeMidnight(),
     total_time_estimate: 1,
+    priority: 0,
 
     course_id: "",
     tags: [],
@@ -68,6 +72,7 @@ export const CreateTask: React.FC = () => {
         notes: taskData.notes,
         location: taskData.location,
         due_datetime: taskData.due_datetime,
+        priority: taskData.priority,
         course_id: taskData.course_id,
         tags: taskData.tags,
         next_start_time: null,
@@ -76,15 +81,15 @@ export const CreateTask: React.FC = () => {
         total_time_estimate: taskData.total_time_estimate,
         completed: false,
       };
-  
+
       const response = await fetch("http://localhost:5050/api/createTasks/addnewtask", {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newTask),
       });
-  
+
       const data = await response.json();
-  
+
       if (!response.ok) {
         console.error("Error storing task, fetching from API:", data.error);
         return undefined;
@@ -97,7 +102,7 @@ export const CreateTask: React.FC = () => {
       return undefined;
     }
   };
-  
+
 
   return <TaskForm mode="create" prevTaskData={currentTask} onSubmit={handleCreate} />;
 };
@@ -129,6 +134,7 @@ export const EditTask: React.FC <EditTaskProps>= ({ params }) => {
         notes: task.notes,
         location: task.location,
         due_datetime: new Date(task.due_datetime),
+        priority: task.priority,
         course_id: task.course_id,
         tags: task.tags,
         total_time_estimate: task.total_time_estimate,
@@ -201,7 +207,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
       const response = await axios.get(`http://localhost:8000/init-task-estimate/${task_id}`, {
         headers: { "Authorization": `Bearer ${user}` },
       });
-  
+
       console.log("Fetched Task Estimate:", response.data);
       return response.data;
     } catch (error) {
@@ -272,6 +278,16 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
     }
   };
 
+  const handlePriorityChange = (e: IonRangeCustomEvent<RangeChangeEventDetail>) => {
+    let value = Number(e.detail.value);
+    if (value < 0 && value > 2) {
+      console.warn(`Priority value ${value} must be between [0, 2]!`);
+      value = 0;
+    }
+    setTaskData({ ...taskData, priority: value, });
+    console.log("Field [ priority ] set to [", value, "]");
+  };
+
   const handleAutoScheduleChange = (e: IonToggleCustomEvent<ToggleChangeEventDetail>) => {
     setAutoSchedule(e.detail.checked);
     console.log("Auto-schedule:", autoSchedule);
@@ -306,7 +322,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
       if (!autoSchedule) {
         history.push("/tasklist");
       } else {
-        if (task_id) { 
+        if (task_id) {
           setTaskId(task_id);
         }
         console.log(`our task id is: ${task_id}`)
@@ -319,8 +335,27 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
   const handleAcceptTimeEst = async () => {
     if (isTaskValid()) {
       console.log("Storing task: ", taskData);
-      const task_id = await onSubmit(taskData);
-      history.push("/tasklist");
+
+      try {
+        console.log("Sending updated task data:", taskData);
+        const response = await fetch(`http://localhost:5050/api/createTasks/updatetask/${taskId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify( taskData ),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          console.log("Error updating task: ", data.error);
+        } else {
+          console.log("Task successfully updated:", data);
+          history.push("/tasklist");
+          //history.push(`/viewtask/${params.id}`);
+        }
+      } catch (error) {
+        console.error("Error updating task:", error);
+      }
     }
   };
 
@@ -399,15 +434,25 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
           </IonSelect>
         </IonItem>
 
-      <IonItem>
-      <IonSelect label="Course" value={taskData.course_id} onIonChange={(e) => handleSelectionChange(e, 'course_id')} placeholder="Course">
-        {courseOptions.map((course) => (
-          <IonSelectOption key={course.id} value={`courses/${course.id}`}>
-            {course.course_name}
-          </IonSelectOption>
-        ))}
-      </IonSelect>
-    </IonItem>
+        <IonItem>
+          <IonSelect label="Course" value={taskData.course_id} onIonChange={(e) => handleSelectionChange(e, 'course_id')} placeholder="Course">
+            {courseOptions.map((course) => (
+              <IonSelectOption key={course.id} value={`courses/${course.id}`}>
+                {course.course_name}
+              </IonSelectOption>
+            ))}
+          </IonSelect>
+        </IonItem>
+
+        <IonItem>
+          <IonRange label="Priority"
+            ticks={true} snaps={true}
+            min={0} max={2}
+            onIonChange={(e) => handlePriorityChange(e)}>
+            <IonLabel slot="start">high</IonLabel>
+            <IonLabel slot="end">low</IonLabel>
+          </IonRange>
+        </IonItem>
 
         {/* Scheduling and time */}
         <IonItem>
@@ -442,7 +487,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
           </IonButtons>
         </IonToolbar>
       </IonContent>
-    ) : 
+    ) :
     <IonContent className="ion-flex ion-justify-content-center ion-align-items-center ion-padding">
       <IonItem>
         <p>

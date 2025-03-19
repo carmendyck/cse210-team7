@@ -9,6 +9,7 @@ export interface NewTask {
   location: string;
   due_datetime: Date;
 
+  priority: number;
   course_id: String | null;
   tags: Array<Tag>;
 
@@ -26,6 +27,7 @@ export interface CurrentTask {
   notes: string;
   location: string;
 
+  priority: number;
   due_datetime: Date;
   course_id: String | null;
 
@@ -42,6 +44,7 @@ export interface FullQueriedTask {
   location: string;
   name: string;
   notes: string;
+  priority: number;
   tags: Array<Tag>;
   time_spent: number;
   total_time_estimate: number;
