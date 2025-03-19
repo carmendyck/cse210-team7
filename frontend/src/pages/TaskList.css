@@ -127,16 +127,15 @@ margin: 0 auto;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 60vh;
+    height: 65vh;
     width: 100%;
     text-align: center;
 }
   
 /* Message styling */
-.no-tasks-message {
+.no-tasks-message { 
     font-size: 16px;
     color: var(--ion-color-medium);
-    margin-bottom: 20px; 
 }
   
 /* For the centered FAB button */

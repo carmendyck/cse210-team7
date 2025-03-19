@@ -252,18 +252,18 @@ const TaskList: React.FC = () => {
         {/* Add Task Button */}
 
         {/* CreateTaskButton with conditional positioning */}
-        {hasTasksForDate ? (
+        {hasTasksForDate ? ( 
           // Normal bottom-right position when tasks exist
           <CreateTaskButton vertical="bottom" horizontal="end" />
         ) : (
           // Empty state with message above button
           <>
+            <CreateTaskButton vertical="center" horizontal="center" className="centered-fab" />
             <div className="no-tasks-container">
               <IonText className="no-tasks-message">
                 No tasks yet for this date!
               </IonText>
             </div>
-            <CreateTaskButton vertical="center" horizontal="center" className="centered-fab" />
           </>
         )}
 
