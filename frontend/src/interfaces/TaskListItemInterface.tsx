@@ -11,6 +11,7 @@ export interface TaskListItem {
   location: string | null;
   due_datetime: Date;
 
+  priority: number;
   course_id: String | null;
   tags: Array<Tag>;
 

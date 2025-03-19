@@ -41,6 +41,7 @@ describe("CreateTask Page", () => {
     cy.get("ion-datetime").eq(0).should('exist');
     cy.get("ion-datetime").eq(0).find('span[slot="title"]').should('have.text', 'Due date/time');
 
+    cy.get("ion-range[label='Priority']").should('exist');
     // cy.get("ion-select[label='Course']").should('exist');  // uncommented until courses are fully connected
     cy.get("ion-select[label='Tags']").should('exist');
     // cy.get("ion-input[label='Time Estimate (hours)']").find('input').should('have.value', 3);

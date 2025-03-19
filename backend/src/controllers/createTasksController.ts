@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { db } from "../config/firebase";
 
 export const addNewTask = async (req: Request, res: Response) => {
-  const { user_id, name, notes, location, due_datetime, course_id, tags,
+  const { user_id, name, notes, location, due_datetime, priority, course_id, tags,
     next_start_time, next_end_time, time_spent, total_time_estimate, completed,
   } = req.body;
 
@@ -18,6 +18,7 @@ export const addNewTask = async (req: Request, res: Response) => {
     location: location,
     due_datetime: due_datetime,
 
+    priority: priority,
     course_id: course_id,
     tags: tags,
 
@@ -68,7 +69,7 @@ export const addNewTask = async (req: Request, res: Response) => {
 
 export const updateTask = async (req: Request, res: Response) => {
   const { taskid } = req.params;
-  const { name, notes, location, due_datetime, course_id, tags, total_time_estimate } = req.body;
+  const { name, notes, location, due_datetime, priority, course_id, tags, total_time_estimate } = req.body;
 
   try {
     const taskRef = await db.collection("tasks").doc(taskid).get();
@@ -83,6 +84,7 @@ export const updateTask = async (req: Request, res: Response) => {
       notes: notes,
       location: location,
       due_datetime: due_datetime,
+      priority: priority,
       course_id: course_id,
       tags: tags,
       total_time_estimate: total_time_estimate,

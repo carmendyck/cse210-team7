@@ -7,3 +7,4 @@ Thumbs.db
 backend/serviceAccountKey.json
 backend/serviceAccountKey.json
 frontend/node_modules/.vite/deps/
+__pycache__/

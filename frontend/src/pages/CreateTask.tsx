@@ -9,7 +9,9 @@ import {
   IonSelectCustomEvent,
   SelectChangeEventDetail,
   IonToggleCustomEvent,
-  ToggleChangeEventDetail
+  ToggleChangeEventDetail,
+  IonRangeCustomEvent,
+  RangeChangeEventDetail
 } from '@ionic/core';
 
 import {
@@ -27,8 +29,9 @@ import {
   IonSelectOption,
   IonButtons,
   IonText,
-  IonBackButton,
   IonIcon,
+  IonRange,
+  IonLabel,
 } from "@ionic/react";
 import { closeOutline } from 'ionicons/icons';
 
@@ -55,6 +58,7 @@ export const CreateTask: React.FC = () => {
 
     due_datetime: getTomorrowBeforeMidnight(),
     total_time_estimate: 1,
+    priority: 0,
 
     course_id: "",
     tags: [],
@@ -68,6 +72,7 @@ export const CreateTask: React.FC = () => {
         notes: taskData.notes,
         location: taskData.location,
         due_datetime: taskData.due_datetime,
+        priority: taskData.priority,
         course_id: taskData.course_id,
         tags: taskData.tags,
         next_start_time: null,
@@ -129,6 +134,7 @@ export const EditTask: React.FC <EditTaskProps>= ({ params }) => {
         notes: task.notes,
         location: task.location,
         due_datetime: new Date(task.due_datetime),
+        priority: task.priority,
         course_id: task.course_id,
         tags: task.tags,
         total_time_estimate: task.total_time_estimate,
@@ -270,6 +276,16 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
     } else {
       console.error("Only selections for courses or tags accepted.");
     }
+  };
+
+  const handlePriorityChange = (e: IonRangeCustomEvent<RangeChangeEventDetail>) => {
+    let value = Number(e.detail.value);
+    if (value < 0 && value > 2) {
+      console.warn(`Priority value ${value} must be between [0, 2]!`);
+      value = 0;
+    }
+    setTaskData({ ...taskData, priority: value, });
+    console.log("Field [ priority ] set to [", value, "]");
   };
 
   const handleAutoScheduleChange = (e: IonToggleCustomEvent<ToggleChangeEventDetail>) => {
@@ -418,15 +434,25 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
           </IonSelect>
         </IonItem>
 
-      <IonItem>
-      <IonSelect label="Course" value={taskData.course_id} onIonChange={(e) => handleSelectionChange(e, 'course_id')} placeholder="Course">
-        {courseOptions.map((course) => (
-          <IonSelectOption key={course.id} value={`courses/${course.id}`}>
-            {course.course_name}
-          </IonSelectOption>
-        ))}
-      </IonSelect>
-    </IonItem>
+        <IonItem>
+          <IonSelect label="Course" value={taskData.course_id} onIonChange={(e) => handleSelectionChange(e, 'course_id')} placeholder="Course">
+            {courseOptions.map((course) => (
+              <IonSelectOption key={course.id} value={`courses/${course.id}`}>
+                {course.course_name}
+              </IonSelectOption>
+            ))}
+          </IonSelect>
+        </IonItem>
+
+        <IonItem>
+          <IonRange label="Priority"
+            ticks={true} snaps={true}
+            min={0} max={2}
+            onIonChange={(e) => handlePriorityChange(e)}>
+            <IonLabel slot="start">high</IonLabel>
+            <IonLabel slot="end">low</IonLabel>
+          </IonRange>
+        </IonItem>
 
         {/* Scheduling and time */}
         <IonItem>
