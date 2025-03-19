@@ -390,7 +390,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
           aria-label="Location" labelPlacement="fixed" placeholder="Add location (optional)"
           counter={true} maxlength={50}>
         </IonInput>
-        {/* </IonItem> */}
 
         <IonItem>
           <IonDatetime
@@ -401,21 +400,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
             <span slot="title">Due date/time</span>
           </IonDatetime>
         </IonItem>
-
-        {/* Course/tags for task */}
-        {/* <IonItem> */}
-          {/* <IonSelect value={taskData.course_id} */}
-            {/* // label="Course" */}
-            {/* // placeholder="Course" */}
-            {/* // multiple={false} */}
-            {/* // onIonChange={(e) => handleSelectionChange(e, 'course_id')}> */}
-            {/* TODO: import categories from account preferences */}
-            {/* <IonSelectOption value="MATH 100">Abstract Alg.</IonSelectOption> */}
-            {/* <IonSelectOption value="CSE 210">SWE Principles</IonSelectOption> */}
-            {/* <IonSelectOption value="CSE 141">Comp. Arch.</IonSelectOption> */}
-            {/* TODO: add option to add new category? */}
-          {/* </IonSelect> */}
-        {/* </IonItem> */}
 
         <IonItem>
           <IonSelect value={taskData.tags}
@@ -435,7 +419,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
 
         <IonItem>
           <IonSelect label="Course" value={taskData.course_id} onIonChange={(e) => handleSelectionChange(e, 'course_id')} placeholder="Course">
-            {courseOptions.map((course) => (
+            {courseOptions.filter(course => course.course_name != "NULL").map((course) => (
               <IonSelectOption key={course.id} value={`courses/${course.id}`}>
                 {course.course_name}
               </IonSelectOption>
