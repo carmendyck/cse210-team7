@@ -335,8 +335,27 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
   const handleAcceptTimeEst = async () => {
     if (isTaskValid()) {
       console.log("Storing task: ", taskData);
-      const task_id = await onSubmit(taskData);
-      history.push("/tasklist");
+
+      try {
+        console.log("Sending updated task data:", taskData);
+        const response = await fetch(`http://localhost:5050/api/createTasks/updatetask/${taskId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify( taskData ),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          console.log("Error updating task: ", data.error);
+        } else {
+          console.log("Task successfully updated:", data);
+          history.push("/tasklist");
+          //history.push(`/viewtask/${params.id}`);
+        }
+      } catch (error) {
+        console.error("Error updating task:", error);
+      }
     }
   };
 
