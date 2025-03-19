@@ -3,14 +3,16 @@ import { db } from "../config/firebase";
 
 
 export const addNewSchedule = async (req: Request, res: Response) => {
-  const { user_id, schedule } = req.body;
+  const { uid } = req.params;
+  const { schedule } = req.body;
 
   if (!schedule) {
     return res.status(400).json({ error: "Schedule is required!" });
   }
-  if (!user_id) {
+  if (!uid) {
     return res.status(400).json({ error: "User ID is required!" });
   }
+  console.log("Received schedule", schedule, "for user", uid);
 
   const worktimesRef = db.collection('worktimes');
   const batchDelete = db.batch();
@@ -20,9 +22,10 @@ export const addNewSchedule = async (req: Request, res: Response) => {
     // Retrieve and delete previous (incomplete) worktimes from tasks
     for (const worktime of schedule) {
       const task_id = worktime.task_id
+      const taskRef = db.collection('tasks').doc(task_id);
       const worktimeSnapshot = await worktimesRef
-        .where('task_id', '==', task_id)
-        .where('user_id', '==', user_id)
+        .where('task_id', '==', taskRef)
+        .where('user_id', '==', uid)
         .where('completed', '==', false)
         .get();
 
@@ -43,10 +46,12 @@ export const addNewSchedule = async (req: Request, res: Response) => {
     let worktimeRefs: string[] = [];
     for (const worktime of schedule) {
       const worktimeRef = worktimesRef.doc();
+      const taskRef = db.collection('tasks').doc(worktime.task_id);
       batchAdd.set(worktimeRef, {
-        user_id: user_id,
-        task_id: "/tasks/" + worktime.task_id,
+        user_id: uid,
+        task_id: taskRef,
         task_name: worktime.task_name,
+        task_due_date: worktime.task_due_date,
         date: worktime.date,
         hours: worktime.hours,
         completed: false,
