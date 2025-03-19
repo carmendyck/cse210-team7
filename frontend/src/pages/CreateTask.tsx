@@ -212,7 +212,24 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
     } catch (error) {
       console.error("Error fetching task estimate:", error);
     }
-  }
+  };
+
+  const handleMakeSchedule = async () => {
+    if (!uid) {
+      console.error("User not logged in");
+      return;
+    }
+
+    console.log("Generating schedule...");
+    try {
+      const response = await axios.get(`http://localhost:8000/auto-schedule/${uid}`, {
+        headers: { "Authorization": `Bearer ${user}` },
+      });
+      console.log("Generated schedule successfully:", response.data);
+    } catch (error) {
+      console.error("Error generating scehdule:", error);
+    }
+  };
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -318,6 +335,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
     if (isTaskValid()) {
       console.log("Storing task: ", taskData);
       const task_id = await onSubmit(taskData);
+      await handleMakeSchedule();
+
       if (!autoSchedule) {
         history.push("/tasklist");
       } else {
@@ -349,6 +368,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
           console.log("Error updating task: ", data.error);
         } else {
           console.log("Task successfully updated:", data);
+          await handleMakeSchedule();
           history.push("/tasklist");
           //history.push(`/viewtask/${params.id}`);
         }
@@ -431,6 +451,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
           <IonRange label="Priority"
             ticks={true} snaps={true}
             min={0} max={2}
+            value={taskData.priority}
             onIonChange={(e) => handlePriorityChange(e)}>
             <IonLabel slot="start">high</IonLabel>
             <IonLabel slot="end">low</IonLabel>

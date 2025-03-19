@@ -7,7 +7,7 @@ MAX_HOURS_PER_DAY = 6
 MAX_PRIORITY = 2
 
 class Task:
-    def __init__(self, id: str, name: str, priority: int, time_left: int, due_date: datetime.date):
+    def __init__(self, id: str, name: str, time_left: int, due_date: datetime.date, priority: int=0):
         self.id: str = id                        # task ID from Firebase
         self.name: str = name                    # task name
         self.priority: int = priority            # priority level (0 = high, 2 = low)
@@ -43,22 +43,24 @@ class TaskScheduler:
         self.id_to_task: dict[str, Task] = {}
         print("in the schedule object")
 
+        # Process task data queried from database
         for task in task_data:
-            due_date = date.fromisoformat(task.due_date.split("T")[0])
-            if due_date > date.today() and not task.completed:
+            due_date = date.fromisoformat(task["due_datetime"].split("T")[0])
+            if due_date > date.today() and not task["completed"]:
                 new_task = Task(
-                    id=task.id, name=task.name, priority=task.priority,
-                    time_left=(task.total_time_estimate - task.time_spent),
+                    id=task["id"], name=task["name"], priority=task["priority"],
+                    time_left=(task["total_time_estimate"] - task["time_spent"]),
                     due_date=due_date
                 )
                 self.task_list.append(new_task)
-                self.id_to_task[task.id] = new_task
+                self.id_to_task[task["id"]] = new_task
 
         # To be constructed
         self.graph: nx.classes.digraph.DiGraph = None
         self.node_index_to_task: dict[int, Task] = {}
         self.nodes_dict: dict[str, Any] = None
-        self.schedule: dict[str, list[tuple[Task, int]]] = None
+        self.schedule: list[dict[str, Any]] = None
+        self.schedule_by_day: dict[str, list[tuple[Task, int]]] = None
 
 
     def schedule_tasks(self, debug=False):
@@ -71,14 +73,6 @@ class TaskScheduler:
         self._construct_task_schedule_graph(debug=debug)
         mincost_flow, flow_info = self._graph_to_mincost_flow(debug=debug)
         self._mincost_flow_to_schedule(mincost_flow, debug=debug)
-
-
-    def store_schedule(self):
-        """
-        Adds schedule to "next_worktimes" collection in Tasks database, clearing old worktimes.
-        """
-        # TODO: implement
-        pass
 
 
     def _construct_task_schedule_graph(self, debug: bool=False) -> None:
@@ -175,18 +169,27 @@ class TaskScheduler:
         task_nodes = self.nodes_dict['task_nodes']
         day_nodes = self.nodes_dict['day_nodes']
 
-        schedule_dict = {}
+        schedule_by_day_dict = {}
+        schedule_data = []
         for task_node in range(task_nodes[0], task_nodes[1] + 1):
             task_split = mincost_flow[task_node]
             for day_node, hours in task_split.items():
                 day = (date.today() + timedelta(days=(day_node - day_nodes[0] + 1))).isoformat()
                 if (hours > 0):
-                    if day not in schedule_dict:
-                        schedule_dict[day] = []
+                    if day not in schedule_by_day_dict:
+                        schedule_by_day_dict[day] = []
                     task = self.node_index_to_task[task_node]
-                    schedule_dict[day].append((task, hours))  # TODO: translate day into isoformat
+                    schedule_by_day_dict[day].append((task, hours))  # TODO: translate day into isoformat
+                    schedule_data.append({
+                        "task_id": task.id,
+                        "task_name": task.name,
+                        "task_due_date": task.due_date.isoformat(),
+                        "date": day,
+                        "hours": hours
+                    })
 
-        self.schedule = dict(sorted(schedule_dict.items()))
+        self.schedule_by_day = dict(sorted(schedule_by_day_dict.items()))
+        self.schedule = schedule_data
         if debug:
             self._print_schedule()
             self._schedule_evaluator()
@@ -194,9 +197,9 @@ class TaskScheduler:
 
     def _print_schedule(self):
         print("\n= SCHEDULE ================================")
-        for day in self.schedule:
+        for day in self.schedule_by_day:
             print(f'Day {day}:')
-            for item in self.schedule[day]:
+            for item in self.schedule_by_day[day]:
                 print(f' - {item[0].name} ({item[1]} hours)')
 
 
@@ -212,8 +215,8 @@ class TaskScheduler:
             }
             due_date[task.id] = task.due_date
 
-        for day in self.schedule:
-            for item in self.schedule[day]:
+        for day in self.schedule_by_day:
+            for item in self.schedule_by_day[day]:
                 task, worktime = item
                 task_status[task.id]['time_left'] -= worktime
                 if task_status[task.id]['time_left'] == 0:
@@ -231,10 +234,10 @@ class TaskScheduler:
 
 if __name__ == "__main__":
     task_list = [
-        TempDBTask(id='1', name='English paper',            priority=0, total_time_estimate=12, due_date=(date.today() + timedelta(days=5)).isoformat()),
-        TempDBTask(id='2', name='Study for math quiz',      priority=0, total_time_estimate=4,  due_date=(date.today() + timedelta(days=3)).isoformat()),
-        TempDBTask(id='3', name='ML clustering assignment', priority=1, total_time_estimate=5,  due_date=(date.today() + timedelta(days=2)).isoformat()),
-        TempDBTask(id='4', name='Read 5 chapters of TSONM', priority=2, total_time_estimate=7,  due_date=(date.today() + timedelta(days=3)).isoformat())
+        # TempDBTask(id='1', name='English paper',            priority=0, total_time_estimate=12, due_date=(date.today() + timedelta(days=5)).isoformat()),
+        # TempDBTask(id='2', name='Study for math quiz',      priority=0, total_time_estimate=4,  due_date=(date.today() + timedelta(days=3)).isoformat()),
+        # TempDBTask(id='3', name='ML clustering assignment', priority=1, total_time_estimate=5,  due_date=(date.today() + timedelta(days=2)).isoformat()),
+        {"id":'4', "name":'Read 5 chapters of TSONM', "priority":2, "total_time_estimate":7,  "due_datetime":'2025-03-20T06:59:59.999Z', "completed":False, "time_spent":0}
     ]
 
     scheduler = TaskScheduler(task_list)
