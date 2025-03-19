@@ -11,7 +11,8 @@ import {
   IonLabel,
   IonCheckbox,
   IonDatetime,
-  IonText
+  IonText,
+  IonIcon
 } from '@ionic/react';
 import { useState, useEffect } from 'react';
 import { useHistory } from "react-router-dom";
@@ -20,6 +21,7 @@ import { DatetimeChangeEventDetail, IonDatetimeCustomEvent } from "@ionic/core";
 import './TaskList.css';
 import { TaskListItem, WorktimeItem } from '../interfaces/TaskListItemInterface';
 import CreateTaskButton from "../components/CreateTaskButton";
+import { timeOutline } from 'ionicons/icons';
 
 
 function formatDueDate(dueDatetime: string): string {
@@ -229,6 +231,33 @@ const TaskList: React.FC = () => {
           />
         </IonItem>
 
+        {/* Worktimes */}
+        {worktimesOnDay.length > 0 && (
+          <>
+            <h2 className="section-title">Suggested Work Schedule</h2>
+            <IonList>
+              {worktimesOnDay.map((worktime) => (
+                <IonItem
+                  key={worktime.task_id}
+                  className={`task-item ${defaultColor}`}
+                  onClick={() => selectTask(worktime.task_id._path.segments[1])}
+                >
+                  <IonCheckbox
+                    slot="start"
+                    onClick={(e) => e.stopPropagation()}
+                    // onIonChange={() => handleCheckboxChange(task.id, task.completed)}
+                  />
+                  <IonLabel>
+                    <h2><IonIcon icon={timeOutline}></IonIcon> Work on {worktime.task_name}</h2>
+                    <p className="due-date">Due: {formatDueDate(worktime.task_due_date.toLocaleString())}</p>
+                  </IonLabel>
+                  <span className="duration">{worktime.hours}</span>
+                </IonItem>
+              ))}
+            </IonList>
+          </>
+        )}
+
         {/* Unfinished Tasks */}
         {unfinishedTasks.length > 0 && (
           <>
@@ -250,25 +279,6 @@ const TaskList: React.FC = () => {
                     <p className="due-date">Due: {formatDueDate(task.due_datetime.toLocaleString())}</p>
                   </IonLabel>
                   <span className="duration">{task.total_time_estimate}</span>
-                </IonItem>
-              ))}
-
-              {worktimesOnDay.map((worktime) => (
-                <IonItem
-                  key={worktime.task_id}
-                  className={`task-item ${defaultColor}`}
-                  onClick={() => selectTask(worktime.task_id._path.segments[1])}
-                >
-                  {/* <IonCheckbox
-                    slot="start"
-                    onClick={(e) => e.stopPropagation()}
-                    onIonChange={() => removeTask(task.id)}
-                  /> */}
-                  <IonLabel>
-                    <h2>Work on {worktime.task_name}</h2>
-                    <p className="due-date">Due: {worktime.task_due_date}</p>
-                  </IonLabel>
-                  <span className="duration">{worktime.hours}</span>
                 </IonItem>
               ))}
             </IonList>
