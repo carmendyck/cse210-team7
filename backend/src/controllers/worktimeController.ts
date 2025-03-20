@@ -82,7 +82,10 @@ export const getWorktimes = async (req: Request, res: Response) => {
 
   try {
     const worktimesRef = db.collection('worktimes');
-    const worktimeSnapshot = await worktimesRef.where('user_id', '==', uid).get();
+    const worktimeSnapshot = await worktimesRef
+    .where('user_id', '==', uid)
+    .where('completed', '==', false)
+    .get();
 
     if (worktimeSnapshot.empty) {
       return res.status(404).json({ error: "No worktimes found for this user" });
@@ -96,6 +99,53 @@ export const getWorktimes = async (req: Request, res: Response) => {
     res.status(200).json({
       message: "Worktimes retrieved successfully!",
       worktimes: worktimes
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+};
+
+export const markWorktimes = async (req: Request, res: Response) => {
+  const { task_id } = req.params;
+  console.log('Deleting future worktimes for task', task_id);
+
+  if (!task_id) {
+    return res.status(400).json({ error: "Task ID is required"});
+  }
+
+  try {
+    // Get all worktimes associated with current task
+    const worktimesRef = db.collection('worktimes');
+    const taskRef = db.collection('tasks').doc(task_id);
+    const worktimeSnapshot = await worktimesRef
+    .where('task_id', '==', taskRef)
+    .get();
+
+    if (worktimeSnapshot.empty) {
+      return res.status(404).json({ error: "No worktimes found associated with this task." });
+    }
+
+    // Mark future worktimes as complete (so user can see past recommended worktimes)
+    const batchDelete = db.batch();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    worktimeSnapshot.forEach((docSnapshot: any) => {
+      const worktime = docSnapshot.data();
+      const worktimeRef = worktimesRef.doc(docSnapshot.id);
+      const workDate = new Date(worktime.date);
+
+      if (workDate > today) {
+        batchDelete.delete(worktimeRef);
+      }
+    });
+
+    await batchDelete.commit();
+    console.log("Worktimes deleted successfully!");
+
+    res.status(201).json({
+      message: 'Worktimes updated successfully!',
     });
   } catch (error) {
     console.log(error);
