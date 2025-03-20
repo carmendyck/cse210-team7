@@ -32,6 +32,7 @@ import {
   IonIcon,
   IonRange,
   IonLabel,
+  IonLoading,
 } from "@ionic/react";
 import { closeOutline } from 'ionicons/icons';
 
@@ -47,8 +48,7 @@ import {
 } from '../utils/HandleDatetime';
 
 export const CreateTask: React.FC = () => {
-  const { uid } = useAuth();
-  const { user } = useAuth();
+  const { uid, user } = useAuth();
   const history = useHistory();
 
   const currentTask: CurrentTask = {
@@ -190,6 +190,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
   const [ taskId, setTaskId ] = useState<string>();
   const [ autoSchedule, setAutoSchedule ] = useState<boolean>(true);
   const [ givingAutoSchedule, setGivingAutoSchedule ] = useState<boolean>(false);
+  const [loadingSchedule, setLoadingSchedule] = useState(false);
 
   const { uid } = useAuth();
   const { user } = useAuth();
@@ -335,7 +336,10 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
     if (isTaskValid()) {
       console.log("Storing task: ", taskData);
       const task_id = await onSubmit(taskData);
+
+      setLoadingSchedule(true);
       await handleMakeSchedule();
+      setLoadingSchedule(false);
 
       if (!autoSchedule) {
         history.push("/tasklist");
@@ -368,7 +372,10 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
           console.log("Error updating task: ", data.error);
         } else {
           console.log("Task successfully updated:", data);
+          setLoadingSchedule(true);
           await handleMakeSchedule();
+          setLoadingSchedule(false);
+
           history.push("/tasklist");
           //history.push(`/viewtask/${params.id}`);
         }
@@ -392,6 +399,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
       </IonHeader>
       {!givingAutoSchedule ? (
       <IonContent className="ion-flex ion-justify-content-center ion-align-items-center ion-padding">
+        <IonLoading isOpen={loadingSchedule} message={"Updating tasks and schedule..."} />
         {/* Basic task information */}
         <IonInput
           value={taskData.name} onIonInput={(e) => handleInputChange(e, 'name', 50)}

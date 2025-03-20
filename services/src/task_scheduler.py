@@ -1,4 +1,6 @@
 from datetime import datetime, date, timedelta
+import pytz
+from tzlocal import get_localzone
 import networkx as nx
 from typing import Any
 
@@ -13,7 +15,7 @@ class Task:
         self.priority: int = priority            # priority level (0 = high, 2 = low)
         self.time_left: int = time_left          # estimated hours left to complete task
         self.due_date: datetime.date = due_date  # due datetime
-        self.due_in_days: int = (self.due_date - date.today()).days
+        self.due_in_days: int = (self.due_date - date.today()).days + 1
 
 
 class TempDBTask:
@@ -30,30 +32,47 @@ class TempDBTask:
         self.completed: bool = False
 
 
+def utc_to_local(utc_string: str) -> str:
+    utc_time = datetime.strptime(utc_string, "%Y-%m-%dT%H:%M:%S.%fZ")
+    utc_time = pytz.utc.localize(utc_time)
+
+    local_tz = get_localzone()
+    local_time = utc_time.astimezone(local_tz)
+    local_time = local_time.strftime('%Y-%m-%d')
+    return local_time
+
+
 class TaskScheduler:
     """
     Schedules tasks from app across based on priorities and deadlines.
 
-    NOTE: Algorithn currently...
+    NOTE: Algorithm currently...
           - does not consider due TIME, only the due date.
           - only schedules in 1-hour blocks. if estimate time is float, will be truncated to nearest whole-hour.
     """
     def __init__(self, task_data):
         self.task_list: list[Task] = []  # contains all incomplete tasks (with due dates in the future)
         self.id_to_task: dict[str, Task] = {}
-        print("in the schedule object")
 
         # Process task data queried from database
         for task in task_data:
-            due_date = date.fromisoformat(task["due_datetime"].split("T")[0])
-            if due_date > date.today() and not task["completed"]:
+            due_date = utc_to_local(task["due_datetime"])
+            due_date = date.fromisoformat(due_date)
+            if due_date >= date.today() and not task["completed"]:
+                # Handle default value for missing priorities
+                priority = 0
+                if "priority" in task.keys():
+                    priority = task["priority"]
+
                 new_task = Task(
-                    id=task["id"], name=task["name"], priority=task["priority"],
+                    id=task["id"], name=task["name"], priority=priority,
                     time_left=(task["total_time_estimate"] - task["time_spent"]),
                     due_date=due_date
                 )
                 self.task_list.append(new_task)
                 self.id_to_task[task["id"]] = new_task
+
+        self.has_tasks_to_schedule = len(self.task_list) > 0
 
         # To be constructed
         self.graph: nx.classes.digraph.DiGraph = None
@@ -70,9 +89,12 @@ class TaskScheduler:
 
         :param debug: If true, prints out aspects of scheduling process for debugging.
         """
-        self._construct_task_schedule_graph(debug=debug)
-        mincost_flow, flow_info = self._graph_to_mincost_flow(debug=debug)
-        self._mincost_flow_to_schedule(mincost_flow, debug=debug)
+        if self.has_tasks_to_schedule:
+            self._construct_task_schedule_graph(debug=debug)
+            mincost_flow, flow_info = self._graph_to_mincost_flow(debug=debug)
+            self._mincost_flow_to_schedule(mincost_flow, debug=debug)
+        else:
+            raise ValueError("No tasks to schedule!")
 
 
     def _construct_task_schedule_graph(self, debug: bool=False) -> None:
@@ -174,7 +196,7 @@ class TaskScheduler:
         for task_node in range(task_nodes[0], task_nodes[1] + 1):
             task_split = mincost_flow[task_node]
             for day_node, hours in task_split.items():
-                day = (date.today() + timedelta(days=(day_node - day_nodes[0] + 1))).isoformat()
+                day = (date.today() + timedelta(days=(day_node - day_nodes[0]))).isoformat()
                 if (hours > 0):
                     if day not in schedule_by_day_dict:
                         schedule_by_day_dict[day] = []
@@ -201,6 +223,7 @@ class TaskScheduler:
             print(f'Day {day}:')
             for item in self.schedule_by_day[day]:
                 print(f' - {item[0].name} ({item[1]} hours)')
+        print()
 
 
     def _schedule_evaluator(self) -> dict:
@@ -211,6 +234,7 @@ class TaskScheduler:
                 'name': task.name,
                 'time_left': task.time_left,
                 'days_early': 0,
+                'due_date': task.due_date,
                 'completed': False
             }
             due_date[task.id] = task.due_date
@@ -227,7 +251,9 @@ class TaskScheduler:
         for task_id in task_status:
             task = task_status[task_id]
             print(task['name'])
+            print(f" > Due: {task["due_date"]}")
             print(f" > Time left: {task['time_left']}, Days early: {task['days_early']}, Completed: {task['completed']}")
+        print()
 
         return task_status
 

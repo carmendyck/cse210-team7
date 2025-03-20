@@ -107,37 +107,45 @@ async def get_tasks_schedule(uid: str, authorization: str = Header(None)):
         return JSONResponse(status_code=500, content={"message": "An unexpected error occurred while fetching tasks"})
 
     scheduler = TaskScheduler(task_data)
-    scheduler.schedule_tasks(debug=False)
-    scheduler._print_schedule()
-    print(scheduler.schedule)
 
-    # TODO: save schedule in backend
-    try:
-        url = f"http://localhost:5050/api/worktimes/addnewschedule/{uid}"
-        headers = {
-            "Authorization": f"Bearer {id_token}",
-            "Content-Type": "application/json"
-        }
-        body = {
-            "schedule": scheduler.schedule
-        }
-        print(f"Sending data: {json.dumps(body)}")
-        response = requests.post(url, headers=headers, data=json.dumps(body))
+    if scheduler.has_tasks_to_schedule:
+        scheduler.schedule_tasks(debug=True)
+        print(f'SCHEDULE: {scheduler.schedule}\n')
 
-        if response.status_code == 201:
-            data = response.json()
-            print(f"Worktime to database response: {data}")
-        else:
-            print(f"Error: Received unexpected status code {response.status_code} while saving schedule: {response.text}")
-            return JSONResponse(status_code=response.status_code, content={"message": "Failed to store worktimes in database"})
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        return JSONResponse(status_code=500, content={"message": "An unexpected error occurred while saving schedule"})
+        # TODO: save schedule in backend
+        try:
+            url = f"http://localhost:5050/api/worktimes/addnewschedule/{uid}"
+            headers = {
+                "Authorization": f"Bearer {id_token}",
+                "Content-Type": "application/json"
+            }
+            body = {
+                "schedule": scheduler.schedule
+            }
+            print(f"Sending data: {json.dumps(body)}")
+            response = requests.post(url, headers=headers, data=json.dumps(body))
+
+            if response.status_code == 201:
+                data = response.json()
+                print(f"Worktime to database response: {data}")
+            else:
+                print(f"Error: Received unexpected status code {response.status_code} while saving schedule: {response.text}")
+                return JSONResponse(status_code=response.status_code, content={"message": "Failed to store worktimes in database"})
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return JSONResponse(status_code=500, content={"message": "An unexpected error occurred while saving schedule"})
 
 
-    return JSONResponse(
-        content={
-            "status": "success",
-            "message": "Schedule successfully generated and stored"
-        }
-    )
+        return JSONResponse(
+            content={
+                "status": "success",
+                "message": "Schedule successfully generated and stored"
+            }
+        )
+    else:
+        return JSONResponse(
+            content={
+                "status": "success",
+                "message": "No tasks to schedule!"
+            }
+        )
