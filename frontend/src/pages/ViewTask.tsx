@@ -316,7 +316,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
         <IonToolbar>
             {/* Back button always renders */}
             <IonButtons slot="start">
-              <IonBackButton defaultHref="/tasklist" />
+              <IonBackButton className="back-button" defaultHref="/tasklist" />
             </IonButtons>
             <IonTitle>View Task</IonTitle>
             <IonButtons slot="end">
