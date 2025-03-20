@@ -12,7 +12,8 @@ import {
   IonCheckbox,
   IonDatetime,
   IonText,
-  IonIcon
+  IonIcon,
+  IonLoading
 } from '@ionic/react';
 import { useState, useEffect } from 'react';
 import { useHistory } from "react-router-dom";
@@ -22,6 +23,7 @@ import './TaskList.css';
 import { TaskListItem, WorktimeItem } from '../interfaces/TaskListItemInterface';
 import CreateTaskButton from "../components/CreateTaskButton";
 import { timeOutline } from 'ionicons/icons';
+import axios from "axios";
 
 
 function formatDueDate(dueDatetime: string): string {
@@ -36,9 +38,10 @@ function formatDueDate(dueDatetime: string): string {
 const TaskList: React.FC = () => {
   const [tasks, setTasks] = useState<TaskListItem[]>([])
   const [worktimes, setWorktimes] = useState<WorktimeItem[]>([])
+  const [loadingSchedule, setLoadingSchedule] = useState(false);
   const history = useHistory();
   const { logout } = useAuth();
-  const { uid } = useAuth();
+  const { uid, user } = useAuth();
 
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     const now = new Date();
@@ -91,7 +94,44 @@ const TaskList: React.FC = () => {
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }
-  }
+  };
+
+  const handleMakeSchedule = async () => {
+    if (!uid) {
+      console.error("User not logged in");
+      return;
+    }
+
+    console.log("Generating schedule...");
+    try {
+      const response = await axios.get(`http://localhost:8000/auto-schedule/${uid}`, {
+        headers: { "Authorization": `Bearer ${user}` },
+      });
+      console.log("Generated schedule successfully:", response.data);
+    } catch (error) {
+      console.error("Error generating scehdule:", error);
+    }
+  };
+
+  const handleDeleteFutureWorktimes = async (taskId: String) => {
+    try {
+      const response = await fetch(`http://localhost:5050/api/worktimes/markworktimes/${taskId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Error updating worktimes:", data.error);
+        return
+      } else {
+        console.log("Response Data:", data);
+      }
+    } catch (error) {
+      console.error("Error updating worktimes for task:", error);
+    }
+  };
 
   const removeTask = async (taskId: string) => {
     try {
@@ -137,10 +177,20 @@ const TaskList: React.FC = () => {
   const handleCheckboxChange = async (taskId: string, completed: boolean) => {
     try {
       if (completed) {
+        // Uncheck-- mark complete = false
         await openTask(taskId);
       } else {
+        // Check-- mark complete = true
         await removeTask(taskId);
+        await handleDeleteFutureWorktimes(taskId);
       }
+
+      setLoadingSchedule(true);
+      await handleMakeSchedule();
+      setLoadingSchedule(false);
+
+      await getWorktimes();
+      console.log("Worktimes and schedule updated successfully!");
 
       setTasks(prevTasks =>
         prevTasks.map(task =>
@@ -183,7 +233,7 @@ const TaskList: React.FC = () => {
     } catch (error) {
       console.error("Error fetching worktimes:", error);
     }
-  }
+  };
 
   useEffect(() => {
     getWorktimes();
@@ -235,18 +285,14 @@ const TaskList: React.FC = () => {
         {worktimesOnDay.length > 0 && (
           <>
             <h2 className="section-title">Suggested Work Schedule</h2>
+            <IonLoading isOpen={loadingSchedule} message={"Updating schedule..."} />
             <IonList>
               {worktimesOnDay.map((worktime) => (
                 <IonItem
-                  key={worktime.task_id}
+                  key={worktime.task_id._path.segments[1]}
                   className={`task-item ${defaultColor}`}
                   onClick={() => selectTask(worktime.task_id._path.segments[1])}
                 >
-                  <IonCheckbox
-                    slot="start"
-                    onClick={(e) => e.stopPropagation()}
-                    // onIonChange={() => handleCheckboxChange(task.id, task.completed)}
-                  />
                   <IonLabel>
                     <h2><IonIcon icon={timeOutline}></IonIcon> Work on {worktime.task_name}</h2>
                     <p className="due-date">Due: {formatDueDate(worktime.task_due_date.toLocaleString())}</p>
