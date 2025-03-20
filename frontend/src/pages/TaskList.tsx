@@ -255,7 +255,7 @@ const TaskList: React.FC = () => {
   const finishedTasks = tasks.filter(task => task.completed && formatDueDate(task.due_datetime.toLocaleString()) === selectedDate);
 
   // Check if there are any tasks for the selected date (for add button positioning)
-  const hasTasksForDate = unfinishedTasks.length > 0 || finishedTasks.length > 0;
+  const hasTasksOrWorktimesForDate = unfinishedTasks.length > 0 || finishedTasks.length > 0 || worktimesOnDay.length > 0;
 
   return (
     <IonPage>
@@ -361,7 +361,7 @@ const TaskList: React.FC = () => {
         {/* Add Task Button */}
 
         {/* CreateTaskButton with conditional positioning */}
-        {hasTasksForDate ? (
+        {hasTasksOrWorktimesForDate ? (
           // Normal bottom-right position when tasks exist
           <CreateTaskButton vertical="bottom" horizontal="end" />
         ) : (
