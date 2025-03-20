@@ -32,6 +32,7 @@ import {
   IonIcon,
   IonRange,
   IonLabel,
+  IonLoading,
 } from "@ionic/react";
 import { closeOutline } from 'ionicons/icons';
 
@@ -47,8 +48,7 @@ import {
 } from '../utils/HandleDatetime';
 
 export const CreateTask: React.FC = () => {
-  const { uid } = useAuth();
-  const { user } = useAuth();
+  const { uid, user } = useAuth();
   const history = useHistory();
 
   const currentTask: CurrentTask = {
@@ -75,8 +75,7 @@ export const CreateTask: React.FC = () => {
         priority: taskData.priority,
         course_id: taskData.course_id,
         tags: taskData.tags,
-        next_start_time: null,
-        next_end_time: null,
+
         time_spent: 0,
         total_time_estimate: taskData.total_time_estimate,
         completed: false,
@@ -191,6 +190,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
   const [ taskId, setTaskId ] = useState<string>();
   const [ autoSchedule, setAutoSchedule ] = useState<boolean>(true);
   const [ givingAutoSchedule, setGivingAutoSchedule ] = useState<boolean>(false);
+  const [loadingSchedule, setLoadingSchedule] = useState(false);
 
   const { uid } = useAuth();
   const { user } = useAuth();
@@ -213,7 +213,24 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
     } catch (error) {
       console.error("Error fetching task estimate:", error);
     }
-  }
+  };
+
+  const handleMakeSchedule = async () => {
+    if (!uid) {
+      console.error("User not logged in");
+      return;
+    }
+
+    console.log("Generating schedule...");
+    try {
+      const response = await axios.get(`http://localhost:8000/auto-schedule/${uid}`, {
+        headers: { "Authorization": `Bearer ${user}` },
+      });
+      console.log("Generated schedule successfully:", response.data);
+    } catch (error) {
+      console.error("Error generating scehdule:", error);
+    }
+  };
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -319,6 +336,11 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
     if (isTaskValid()) {
       console.log("Storing task: ", taskData);
       const task_id = await onSubmit(taskData);
+
+      setLoadingSchedule(true);
+      await handleMakeSchedule();
+      setLoadingSchedule(false);
+
       if (!autoSchedule) {
         history.push("/tasklist");
       } else {
@@ -350,6 +372,10 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
           console.log("Error updating task: ", data.error);
         } else {
           console.log("Task successfully updated:", data);
+          setLoadingSchedule(true);
+          await handleMakeSchedule();
+          setLoadingSchedule(false);
+
           history.push("/tasklist");
           //history.push(`/viewtask/${params.id}`);
         }
@@ -373,6 +399,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
       </IonHeader>
       {!givingAutoSchedule ? (
       <IonContent className="ion-flex ion-justify-content-center ion-align-items-center ion-padding">
+        <IonLoading isOpen={loadingSchedule} message={"Updating tasks and schedule..."} />
         {/* Basic task information */}
         <IonInput
           value={taskData.name} onIonInput={(e) => handleInputChange(e, 'name', 50)}
@@ -391,7 +418,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
           aria-label="Location" labelPlacement="fixed" placeholder="Add location (optional)"
           counter={true} maxlength={50}>
         </IonInput>
-        {/* </IonItem> */}
 
         <IonItem>
           <IonDatetime
@@ -402,21 +428,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
             <span slot="title">Due date/time</span>
           </IonDatetime>
         </IonItem>
-
-        {/* Course/tags for task */}
-        {/* <IonItem> */}
-          {/* <IonSelect value={taskData.course_id} */}
-            {/* // label="Course" */}
-            {/* // placeholder="Course" */}
-            {/* // multiple={false} */}
-            {/* // onIonChange={(e) => handleSelectionChange(e, 'course_id')}> */}
-            {/* TODO: import categories from account preferences */}
-            {/* <IonSelectOption value="MATH 100">Abstract Alg.</IonSelectOption> */}
-            {/* <IonSelectOption value="CSE 210">SWE Principles</IonSelectOption> */}
-            {/* <IonSelectOption value="CSE 141">Comp. Arch.</IonSelectOption> */}
-            {/* TODO: add option to add new category? */}
-          {/* </IonSelect> */}
-        {/* </IonItem> */}
 
         <IonItem>
           <IonSelect value={taskData.tags}
@@ -436,7 +447,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
 
         <IonItem>
           <IonSelect label="Course" value={taskData.course_id} onIonChange={(e) => handleSelectionChange(e, 'course_id')} placeholder="Course">
-            {courseOptions.map((course) => (
+            {courseOptions.filter(course => course.course_name != "NULL").map((course) => (
               <IonSelectOption key={course.id} value={`courses/${course.id}`}>
                 {course.course_name}
               </IonSelectOption>
@@ -448,6 +459,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ mode, prevTaskData, onSubmit }) => 
           <IonRange label="Priority"
             ticks={true} snaps={true}
             min={0} max={2}
+            value={taskData.priority}
             onIonChange={(e) => handlePriorityChange(e)}>
             <IonLabel slot="start">high</IonLabel>
             <IonLabel slot="end">low</IonLabel>

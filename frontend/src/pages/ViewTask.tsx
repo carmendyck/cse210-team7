@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { IonButton, IonButtons, IonContent, IonPage, IonTitle, IonToolbar, IonText, IonItemDivider, IonSpinner, IonModal, IonItem, IonLabel, IonInput, IonHeader } from "@ionic/react";
+import { IonButton, IonButtons, IonContent, IonPage, IonTitle, IonToolbar, IonText, IonItemDivider, IonSpinner, IonModal, IonItem, IonLabel, IonInput, IonHeader, IonBackButton } from "@ionic/react";
+import { arrowBackOutline } from 'ionicons/icons';
 import { useHistory } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import './ViewTask.css'; // Import the CSS file
@@ -270,14 +271,37 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
     }
   };
 
+  const handleDeleteFutureWorktimes = async (taskId: String) => {
+    try {
+      const response = await fetch(`http://localhost:5050/api/worktimes/markworktimes/${taskId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Error updating worktimes:", data.error);
+        return
+      } else {
+        console.log("Response Data:", data);
+      }
+    } catch (error) {
+      console.error("Error updating worktimes for task:", error);
+    }
+  };
+
   // Task completed checked/unchecked
   const handleCheckboxChange = async () => {
     setCheckboxLoading(true)
     if (task?.completed) {
+      // Uncheck-- mark completed = false
       await openTask();
       setTask(prevTask => prevTask ? { ...prevTask, completed: false } : null);
     } else {
+      // Check--mark completed = true
       await closeTask();
+      await handleDeleteFutureWorktimes(params.id);
       setTask(prevTask => prevTask ? { ...prevTask, completed: true } : null);
     }
     setCheckboxLoading(false)
@@ -292,9 +316,7 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
         <IonToolbar>
             {/* Back button always renders */}
             <IonButtons slot="start">
-              <IonButton className="back-button" onClick={handleBack}>
-                  &#8592; {/* Unicode for left arrow */}
-              </IonButton>
+              <IonBackButton className="back-button" defaultHref="/tasklist" />
             </IonButtons>
             <IonTitle>View Task</IonTitle>
             <IonButtons slot="end">
@@ -376,8 +398,8 @@ const ViewTask: React.FC<ViewTaskProps> = ({params}) => {
             {/* Manual time entry */}
             <IonItemDivider className="ion-item-divider"/>
             <div title={anotherTaskRunning ? "Please stop the other task to enter time." : ""}>
-              <IonButton 
-                className="manual-time" 
+              <IonButton
+                className="manual-time"
                 onClick={() => setShowModal(true)}
                 disabled={anotherTaskRunning}
               >

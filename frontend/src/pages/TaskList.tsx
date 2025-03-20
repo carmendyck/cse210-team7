@@ -1,9 +1,9 @@
-import { 
-  IonButton, 
-  IonContent, 
-  IonHeader, 
-  IonPage, 
-  IonTitle, 
+import {
+  IonButton,
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
   IonToolbar,
   IonButtons,
   IonList,
@@ -11,31 +11,37 @@ import {
   IonLabel,
   IonCheckbox,
   IonDatetime,
-  IonText
+  IonText,
+  IonIcon,
+  IonLoading
 } from '@ionic/react';
 import { useState, useEffect } from 'react';
 import { useHistory } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { DatetimeChangeEventDetail, IonDatetimeCustomEvent } from "@ionic/core";
 import './TaskList.css';
-import { TaskListItem } from '../interfaces/TaskListItemInterface';
+import { TaskListItem, WorktimeItem } from '../interfaces/TaskListItemInterface';
 import CreateTaskButton from "../components/CreateTaskButton";
+import { timeOutline } from 'ionicons/icons';
+import axios from "axios";
 
 
 function formatDueDate(dueDatetime: string): string {
-  const date = new Date(dueDatetime); 
-  const year = date.getFullYear(); 
-  const month = String(date.getMonth() + 1).padStart(2, "0"); 
-  const day = String(date.getDate()).padStart(2, "0"); 
+  const date = new Date(dueDatetime);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
 }
 
 const TaskList: React.FC = () => {
   const [tasks, setTasks] = useState<TaskListItem[]>([])
+  const [worktimes, setWorktimes] = useState<WorktimeItem[]>([])
+  const [loadingSchedule, setLoadingSchedule] = useState(false);
   const history = useHistory();
   const { logout } = useAuth();
-  const { uid } = useAuth();
+  const { uid, user } = useAuth();
 
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     const now = new Date();
@@ -45,7 +51,7 @@ const TaskList: React.FC = () => {
   // TODO: associate priority with color.
   // this is here since priority hasn't been implemented yet,
   // and database has no color field
-  const defaultColor = "green"; 
+  const defaultColor = "green";
 
   const selectTask = (taskId: string) => {
     console.log("Moved to viewtask");
@@ -73,7 +79,7 @@ const TaskList: React.FC = () => {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         console.log("Error fetching tasks: ", data.error || 'Unknown error');
         throw new Error("Failed to fetch task");
@@ -88,7 +94,44 @@ const TaskList: React.FC = () => {
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }
-  }
+  };
+
+  const handleMakeSchedule = async () => {
+    if (!uid) {
+      console.error("User not logged in");
+      return;
+    }
+
+    console.log("Generating schedule...");
+    try {
+      const response = await axios.get(`http://localhost:8000/auto-schedule/${uid}`, {
+        headers: { "Authorization": `Bearer ${user}` },
+      });
+      console.log("Generated schedule successfully:", response.data);
+    } catch (error) {
+      console.error("Error generating scehdule:", error);
+    }
+  };
+
+  const handleDeleteFutureWorktimes = async (taskId: String) => {
+    try {
+      const response = await fetch(`http://localhost:5050/api/worktimes/markworktimes/${taskId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Error updating worktimes:", data.error);
+        return
+      } else {
+        console.log("Response Data:", data);
+      }
+    } catch (error) {
+      console.error("Error updating worktimes for task:", error);
+    }
+  };
 
   const removeTask = async (taskId: string) => {
     try {
@@ -96,15 +139,15 @@ const TaskList: React.FC = () => {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to fetch task");
       }
-  
+
       const data = await response.json();
       console.log("Response Data:", data);
-      setTasks(prevTasks => 
-        prevTasks.map(task => 
+      setTasks(prevTasks =>
+        prevTasks.map(task =>
           task.id === taskId ? { ...task, completed: true } : task
         )
       );
@@ -134,11 +177,21 @@ const TaskList: React.FC = () => {
   const handleCheckboxChange = async (taskId: string, completed: boolean) => {
     try {
       if (completed) {
+        // Uncheck-- mark complete = false
         await openTask(taskId);
       } else {
+        // Check-- mark complete = true
         await removeTask(taskId);
+        await handleDeleteFutureWorktimes(taskId);
       }
-  
+
+      setLoadingSchedule(true);
+      await handleMakeSchedule();
+      setLoadingSchedule(false);
+
+      await getWorktimes();
+      console.log("Worktimes and schedule updated successfully!");
+
       setTasks(prevTasks =>
         prevTasks.map(task =>
           task.id === taskId ? { ...task, completed: !completed } : task
@@ -148,12 +201,42 @@ const TaskList: React.FC = () => {
       console.error("Error toggling task completion:", error);
     }
   };
-  
+
 
   // gets tasks once on page load
   // TODO: figure out why this is getting called 4 times
   useEffect(() => {
     getAllTasks();
+  }, []);
+
+  const getWorktimes = async () => {
+    try {
+      console.log("fetching worktimes for uid ", uid);
+      const response = await fetch(`http://localhost:5050/api/worktimes/getworktimes/${uid}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.log("Error fetching worktimes: ", data.error || 'Unknown error');
+        throw new Error("Failed to fetch worktimes");
+      }
+
+      console.log(data.message);
+
+      const worktimeList : WorktimeItem[] = data.worktimes;
+      setWorktimes(worktimeList);
+      console.log("Worktimes List:", worktimeList);
+
+    } catch (error) {
+      console.error("Error fetching worktimes:", error);
+    }
+  };
+
+  useEffect(() => {
+    getWorktimes();
   }, []);
 
   const handleDateChange = (e: IonDatetimeCustomEvent<DatetimeChangeEventDetail>) => {
@@ -165,11 +248,14 @@ const TaskList: React.FC = () => {
     }
   };
 
+  const worktimesOnDay = worktimes.filter(worktime => worktime.date === selectedDate)
+  console.log("Worktimes on " + selectedDate + ": " + worktimesOnDay);
+
   const unfinishedTasks = tasks.filter(task => !task.completed && formatDueDate(task.due_datetime.toLocaleString()) === selectedDate);
   const finishedTasks = tasks.filter(task => task.completed && formatDueDate(task.due_datetime.toLocaleString()) === selectedDate);
 
   // Check if there are any tasks for the selected date (for add button positioning)
-  const hasTasksForDate = unfinishedTasks.length > 0 || finishedTasks.length > 0;
+  const hasTasksOrWorktimesForDate = unfinishedTasks.length > 0 || finishedTasks.length > 0 || worktimesOnDay.length > 0;
 
   return (
     <IonPage>
@@ -194,6 +280,29 @@ const TaskList: React.FC = () => {
             className="my-datetime"
           />
         </IonItem>
+
+        {/* Worktimes */}
+        {worktimesOnDay.length > 0 && (
+          <>
+            <h2 className="section-title">Suggested Work Schedule</h2>
+            <IonLoading isOpen={loadingSchedule} message={"Updating schedule..."} />
+            <IonList>
+              {worktimesOnDay.map((worktime) => (
+                <IonItem
+                  key={worktime.task_id._path.segments[1]}
+                  className={`task-item ${defaultColor}`}
+                  onClick={() => selectTask(worktime.task_id._path.segments[1])}
+                >
+                  <IonLabel>
+                    <h2><IonIcon icon={timeOutline}></IonIcon> Work on {worktime.task_name}</h2>
+                    <p className="due-date">Due: {formatDueDate(worktime.task_due_date.toLocaleString())}</p>
+                  </IonLabel>
+                  <span className="duration">{worktime.hours}</span>
+                </IonItem>
+              ))}
+            </IonList>
+          </>
+        )}
 
         {/* Unfinished Tasks */}
         {unfinishedTasks.length > 0 && (
@@ -252,7 +361,7 @@ const TaskList: React.FC = () => {
         {/* Add Task Button */}
 
         {/* CreateTaskButton with conditional positioning */}
-        {hasTasksForDate ? ( 
+        {hasTasksOrWorktimesForDate ? (
           // Normal bottom-right position when tasks exist
           <CreateTaskButton vertical="bottom" horizontal="end" />
         ) : (

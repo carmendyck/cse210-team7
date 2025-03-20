@@ -15,11 +15,19 @@ export interface TaskListItem {
   course_id: String | null;
   tags: Array<Tag>;
 
-  next_start_time: Date | null;
-  next_end_time: Date | null;
-
   time_spent: number;
   total_time_estimate: number;
 
+  completed: boolean;
+}
+
+export interface WorktimeItem {
+  user_id: string;
+  task_id: any;
+  task_name: string;
+  task_due_date: string;
+
+  date: string;
+  hours: number;
   completed: boolean;
 }
